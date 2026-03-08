@@ -1,0 +1,122 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/jpeg" href="images1.jfif">
+  <title>Cadastro de Processo | SIAC</title>
+  <meta name="description" content="Cadastro de processos e contratos administrativos no SIAC.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark">SI</span>
+        <div>
+          <strong>SIAC</strong>
+          <span>Painel institucional</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>Início</a>
+        <a data-nav="cadastro" href="cadastro-processo.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 11v6"></path><path d="M9 14h6"></path></svg></span>Cadastro de processo</a>
+        <a data-nav="processos" href="processos-cadastrados.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Processos cadastrados</a>
+        <a data-nav="almoxarifado" href="almoxarifado.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7.5 12 3l9 4.5-9 4.5z"></path><path d="M3 7.5V16.5L12 21l9-4.5V7.5"></path><path d="M12 12v9"></path></svg></span>Almoxarifado</a>
+        <a data-nav="perfil" href="perfil.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"></circle><path d="M4 20a8 8 0 0 1 16 0"></path></svg></span>Perfil</a>
+      </nav>
+
+      <div class="sidebar-note">Registro completo de contratos administrativos.</div>
+    </aside>
+
+    <main class="dashboard-main">
+      <header class="dashboard-topbar">
+        <div class="dashboard-topbar-left">
+          <img class="dashboard-topbar-logo" src="logoSispern.png" alt="Brasão institucional">
+          <div>
+            <strong>SIAC</strong>
+            <span>Cadastro de Processo</span>
+          </div>
+        </div>
+        <div class="dashboard-topbar-right">
+          <div class="user-chip-wrap">
+            <img id="top-user-avatar" class="top-user-avatar" alt="Foto do usuário" hidden>
+            <span id="top-user-fallback" class="top-user-fallback">U</span>
+            <span id="top-user-name" class="dashboard-user-chip">Usuário autenticado</span>
+          </div>
+          <button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button>
+        </div>
+      </header>
+
+      <section class="panel-block">
+        <h1>Cadastro de processo e contrato</h1>
+        <p class="section-helper">Preencha os campos obrigatórios. Os dados alimentam automaticamente os gráficos da página de início.</p>
+        <p id="form-feedback" class="form-feedback" hidden></p>
+
+        <form id="process-form" class="process-form">
+          <label>Número do processo
+            <input type="text" name="numeroProcesso" required>
+          </label>
+          <label>Número do contrato
+            <input type="text" name="numeroContrato" required>
+          </label>
+          <label>Data de início da vigência
+            <input type="date" name="inicioVigencia" required>
+          </label>
+          <label>Data de término da vigência
+            <input type="date" name="terminoVigencia" required>
+          </label>
+          <label>Gestor do contrato
+            <input type="text" name="gestorContrato" required>
+          </label>
+          <label>Fiscal do contrato
+            <input type="text" name="fiscalContrato" required>
+          </label>
+          <label>Fonte do recurso
+            <input type="text" name="fonteRecurso" required>
+          </label>
+          <label>Data da assinatura
+            <input type="date" name="dataAssinatura" required>
+          </label>
+          <label>Data da publicação no Diário Oficial
+            <input type="date" name="dataPublicacao" required>
+          </label>
+          <label>Valor do contrato
+            <input type="text" name="valorContrato" placeholder="R$ 0,00" required>
+          </label>
+          <label class="span-2">Objeto do contrato
+            <textarea name="objetoContrato" rows="3" required></textarea>
+          </label>
+          <label class="span-2">Fundamentação do contrato
+            <textarea name="fundamentacaoContrato" rows="3" required></textarea>
+          </label>
+
+          <div class="span-2 form-actions">
+            <button type="submit" class="btn btn-primary">Salvar processo</button>
+            <button type="button" id="seed-demo" class="btn btn-ghost">Inserir dados de exemplo</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="backend-config.js"></script>
+  <script src="backend-api.js"></script>
+  <script src="app-core.js"></script>
+  <script src="cadastro-processo.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
