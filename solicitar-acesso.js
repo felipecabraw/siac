@@ -1,4 +1,4 @@
-ï»¿(function () {
+(function () {
   const form = document.getElementById('request-access-form');
   const feedback = document.getElementById('request-feedback');
   const submitBtn = form.querySelector('button[type="submit"]');
@@ -28,21 +28,21 @@
     const confirmar = String(form.confirmarSenha.value || '');
 
     if (!AppCore.isValidCpf(cpfDigits)) {
-      setFeedback('CPF invÃ¡lido. Verifique o nÃºmero informado.', 'error');
+      setFeedback('CPF inválido. Verifique o número informado.', 'error');
       isSubmitting = false;
       setSubmittingState(false);
       return;
     }
 
     if (senha.length < 8) {
-      setFeedback('A senha deve possuir no mÃ­nimo 8 caracteres.', 'error');
+      setFeedback('A senha deve possuir no mínimo 8 caracteres.', 'error');
       isSubmitting = false;
       setSubmittingState(false);
       return;
     }
 
     if (senha !== confirmar) {
-      setFeedback('Senha e confirmaÃ§Ã£o nÃ£o conferem.', 'error');
+      setFeedback('Senha e confirmação não conferem.', 'error');
       isSubmitting = false;
       setSubmittingState(false);
       return;
@@ -57,13 +57,13 @@
         senha: senha
       });
 
-      setFeedback('SolicitaÃ§Ã£o enviada com sucesso. Aguarde aprovaÃ§Ã£o do Administrador SÃªnior.', 'ok');
+      setFeedback('Solicitação enviada com sucesso. Aguarde aprovação do Administrador Sênior.', 'ok');
       form.reset();
       setTimeout(function () {
         window.location.href = 'index.html';
       }, 1800);
     } catch (error) {
-      setFeedback((error && error.message) ? error.message : 'Falha ao enviar solicitaÃ§Ã£o de acesso.', 'error');
+      setFeedback((error && error.message) ? error.message : 'Falha ao enviar solicitação de acesso.', 'error');
     } finally {
       isSubmitting = false;
       setSubmittingState(false);
@@ -73,7 +73,7 @@
   function setSubmittingState(active) {
     if (!submitBtn) return;
     submitBtn.disabled = !!active;
-    submitBtn.textContent = active ? 'Enviando...' : 'Enviar solicitaÃ§Ã£o';
+    submitBtn.textContent = active ? 'Enviando...' : 'Enviar solicitação';
   }
 
   function setFeedback(message, type) {
@@ -88,3 +88,4 @@
     feedback.className = type === 'ok' ? 'form-feedback ok' : 'login-error';
   }
 })();
+

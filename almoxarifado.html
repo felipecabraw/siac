@@ -1,11 +1,11 @@
-Ôªø<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/jpeg" href="images1.jfif">
   <title>Almoxarifado | SIAC</title>
-  <meta name="description" content="Gest√£o de almoxarifado institucional da unidade SEAP/ALMOXARIFADO.">
+  <meta name="description" content="Gest„o de almoxarifado institucional da unidade SEAP/ALMOXARIFADO.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dashboard-body">
@@ -20,30 +20,30 @@
       </div>
 
       <nav class="sidebar-nav">
-        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>In√≠cio</a>
-        <a data-nav="cadastro" href="cadastro-processo.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 11v6"></path><path d="M9 14h6"></path></svg></span>Cadastro de processo</a>
-        <a data-nav="processos" href="processos-cadastrados.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Processos cadastrados</a>
+        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>InÌcio</a>
+        <a data-nav="cadastro" href="cadastro-processo.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 11v6"></path><path d="M9 14h6"></path></svg></span>Cadastro de contratos</a>
+        <a data-nav="processos" href="processos-cadastrados.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Contratos cadastrados</a>
         <a data-nav="almoxarifado" href="almoxarifado.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7.5 12 3l9 4.5-9 4.5z"></path><path d="M3 7.5V16.5L12 21l9-4.5V7.5"></path><path d="M12 12v9"></path></svg></span>Almoxarifado</a>
         <a data-nav="perfil" href="perfil.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"></circle><path d="M4 20a8 8 0 0 1 16 0"></path></svg></span>Perfil</a>
       </nav>
 
-      <div class="sidebar-note">Unidade padr√£o: SEAP/ALMOXARIFADO.</div>
+      <div class="sidebar-note">Unidade padr„o: SEAP/ALMOXARIFADO.</div>
     </aside>
 
     <main class="dashboard-main">
       <header class="dashboard-topbar">
         <div class="dashboard-topbar-left">
-          <img class="dashboard-topbar-logo" src="logoSispern.png" alt="Bras√£o institucional">
+          <img class="dashboard-topbar-logo" src="logoSispern.png" alt="Bras„o institucional">
           <div>
             <strong>SIAC</strong>
-            <span>Gest√£o de Almoxarifado</span>
+            <span>Gest„o de Almoxarifado</span>
           </div>
         </div>
         <div class="dashboard-topbar-right">
           <div class="user-chip-wrap">
-            <img id="top-user-avatar" class="top-user-avatar" alt="Foto do usu√°rio" hidden>
+            <img id="top-user-avatar" class="top-user-avatar" alt="Foto do usu·rio" hidden>
             <span id="top-user-fallback" class="top-user-fallback">U</span>
-            <span id="top-user-name" class="dashboard-user-chip">Usu√°rio autenticado</span>
+            <span id="top-user-name" class="dashboard-user-chip">Usu·rio autenticado</span>
           </div>
           <button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button>
         </div>
@@ -52,9 +52,9 @@
       <section class="panel-block">
         <div class="panel-title-row">
           <h1>Almoxarifado - SEAP/ALMOXARIFADO</h1>
-          <span id="almox-updated" class="tag">Atualiza√ß√£o em tempo real</span>
+          <span id="almox-updated" class="tag">AtualizaÁ„o em tempo real</span>
         </div>
-        <p class="section-helper">Controle completo de cadastro, entrada, sa√≠da e exclus√£o de itens com rastreabilidade por usu√°rio.</p>
+        <p class="section-helper">Controle completo de cadastro, entrada, saÌda e exclus„o de itens com rastreabilidade por usu·rio.</p>
 
         <div class="kpi-grid almox-kpi-grid">
           <article class="kpi-card">
@@ -66,7 +66,7 @@
             <p id="almox-kpi-estoque" class="kpi-value">0</p>
           </article>
           <article class="kpi-card warning">
-            <h2>Itens em n√≠vel cr√≠tico</h2>
+            <h2>Itens em nÌvel crÌtico</h2>
             <p id="almox-kpi-criticos" class="kpi-value">0</p>
           </article>
         </div>
@@ -85,7 +85,7 @@
           <label>Quantidade inicial
             <input type="number" name="estoqueAtual" min="0" step="1" required>
           </label>
-          <label>Estoque m√≠nimo
+          <label>Estoque mÌnimo
             <input type="number" name="estoqueMinimo" min="0" step="1" required>
           </label>
           <label>Unidade de medida
@@ -102,8 +102,8 @@
           <label>Local de estoque
             <input type="text" name="localEstoque" value="SEAP/ALMOXARIFADO" readonly>
           </label>
-          <label class="span-2">Observa√ß√£o
-            <textarea name="observacao" rows="2" placeholder="Informa√ß√µes complementares do item"></textarea>
+          <label class="span-2">ObservaÁ„o
+            <textarea name="observacao" rows="2" placeholder="InformaÁıes complementares do item"></textarea>
           </label>
           <div class="span-2 form-actions">
             <button type="submit" class="btn btn-primary">Cadastrar item</button>
@@ -117,20 +117,20 @@
           <label>Item
             <select id="mov-item-id" name="itemId" required></select>
           </label>
-          <label>Tipo de movimenta√ß√£o
+          <label>Tipo de movimentaÁ„o
             <select name="tipo" required>
               <option value="entrada">Entrada no estoque</option>
-              <option value="saida">Sa√≠da do estoque</option>
+              <option value="saida">SaÌda do estoque</option>
             </select>
           </label>
           <label>Quantidade
             <input type="number" name="quantidade" min="1" step="1" required>
           </label>
           <label>Motivo
-            <input type="text" name="motivo" placeholder="Ex.: Distribui√ß√£o para setor X" required>
+            <input type="text" name="motivo" placeholder="Ex.: DistribuiÁ„o para setor X" required>
           </label>
           <div class="span-2 form-actions">
-            <button type="submit" class="btn btn-primary">Registrar movimenta√ß√£o</button>
+            <button type="submit" class="btn btn-primary">Registrar movimentaÁ„o</button>
           </div>
         </form>
       </section>
@@ -146,11 +146,11 @@
                 <th>Item</th>
                 <th>Categoria</th>
                 <th>Estoque atual</th>
-                <th>N√≠vel m√≠nimo</th>
+                <th>NÌvel mÌnimo</th>
                 <th>Status</th>
                 <th>Cadastrado por</th>
-                <th>√öltima movimenta√ß√£o por</th>
-                <th>A√ß√µes</th>
+                <th>⁄ltima movimentaÁ„o por</th>
+                <th>AÁıes</th>
               </tr>
             </thead>
             <tbody id="almox-itens-body"></tbody>
@@ -159,7 +159,7 @@
       </section>
 
       <section class="panel-block">
-        <h2>Hist√≥rico de movimenta√ß√µes</h2>
+        <h2>HistÛrico de movimentaÁıes</h2>
         <div class="table-wrap">
           <table>
             <thead>
@@ -169,7 +169,7 @@
                 <th>Tipo</th>
                 <th>Quantidade</th>
                 <th>Motivo</th>
-                <th>Usu√°rio</th>
+                <th>Usu·rio</th>
               </tr>
             </thead>
             <tbody id="almox-mov-body"></tbody>
@@ -178,15 +178,15 @@
       </section>
 
       <section class="panel-block">
-        <h2>Hist√≥rico de exclus√µes</h2>
+        <h2>HistÛrico de exclusıes</h2>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Data/Hora</th>
-                <th>Item exclu√≠do</th>
-                <th>Quantidade na exclus√£o</th>
-                <th>Usu√°rio</th>
+                <th>Item excluÌdo</th>
+                <th>Quantidade na exclus„o</th>
+                <th>Usu·rio</th>
               </tr>
             </thead>
             <tbody id="almox-del-body"></tbody>
@@ -198,7 +198,7 @@
 
   <dialog id="delete-dialog" class="confirm-dialog">
     <form id="delete-form" method="dialog" class="confirm-dialog-form">
-      <h3>Confirmar exclus√£o de item</h3>
+      <h3>Confirmar exclus„o de item</h3>
       <p>Para excluir o item, informe sua senha de acesso.</p>
       <p class="confirm-item-name" id="confirm-item-name"></p>
       <label>Senha
@@ -207,7 +207,7 @@
       <p id="delete-feedback" class="form-feedback error" hidden></p>
       <div class="form-actions">
         <button type="button" id="cancel-delete" class="btn btn-ghost">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Confirmar exclus√£o</button>
+        <button type="submit" class="btn btn-primary">Confirmar exclus„o</button>
       </div>
     </form>
   </dialog>
@@ -220,6 +220,8 @@
   <script src="almoxarifado.js"></script>
 </body>
 </html>
+
+
 
 
 

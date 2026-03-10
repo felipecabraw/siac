@@ -1,4 +1,4 @@
-Ôªø:root {
+:root {
   --bg: #eef3f7;
   --ink: #132230;
   --muted: #445a6d;
@@ -1915,7 +1915,7 @@ td {
   display: none !important;
 }
 
-/* Corre√ß√£o de visibilidade da autentica√ß√£o */
+/* CorreÁ„o de visibilidade da autenticaÁ„o */
 .gov-login-page .login-html {
   position: relative;
 }
@@ -1945,6 +1945,9 @@ td {
 .gov-title,
 .sidebar-brand strong,
 .sidebar-nav a,
+.dashboard-user-chip,
+.top-user-fallback,
+th,
 .dashboard-topbar-left strong,
 .dashboard-topbar-left span,
 .dashboard-user-chip,
@@ -1970,7 +1973,7 @@ th,
 .process-form textarea,
 #search,
 .btn {
-  font-family: "JetBrains Mono", "Consolas", "Menlo", monospace;
+  font-family: var(--font-sans);
 }
 
 /* Combinacao tipografica: Inter + Space Grotesk + JetBrains Mono */
@@ -1989,7 +1992,7 @@ th,
 :root {
   --font-sans: "Inter", "Segoe UI", "Tahoma", sans-serif;
   --font-display: "Space Grotesk", "Inter", "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", "Consolas", "Menlo", monospace;
+  --font-mono: "Cascadia Mono", "Consolas", "Menlo", monospace;
 }
 
 body {
@@ -2008,11 +2011,17 @@ body {
   letter-spacing: 0.01em;
 }
 
-.sidebar-nav a,
-.tag,
 .kpi-value,
+.tag,
+.status-chip {
+  font-family: var(--font-mono);
+}
+
+.sidebar-nav a,
+.dashboard-user-chip,
+.top-user-fallback,
+th,
 .kpi-card h2,
-.status-chip,
 .alert-item b,
 .gov-login-page .login-form .group .label,
 .gov-login-page .login-form .group .input,
@@ -2025,7 +2034,7 @@ body {
 .process-form textarea,
 #search,
 .btn {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .alert-item span,
@@ -2319,7 +2328,7 @@ td {
   }
 }
 
-/* Responsividade final para navega√ß√£o e p√°ginas internas */
+/* Responsividade final para navegaÁ„o e p·ginas internas */
 @media (max-width: 1120px) {
   .dashboard-layout {
     grid-template-columns: 1fr;
@@ -2573,5 +2582,11 @@ td {
 .gov-login-page .login-links a:hover {
   border-bottom-color: rgba(216, 233, 247, 0.75);
 }
+
+
+
+
+
+
 
 

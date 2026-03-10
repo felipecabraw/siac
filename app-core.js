@@ -1,4 +1,4 @@
-Ôªø(function () {
+(function () {
   const AUTH_KEY = 'cc_auth';
   const AUTH_USER_KEY = 'cc_auth_user';
   const PROCESS_KEY = 'cc_processos';
@@ -84,7 +84,7 @@
 
     if (nameEl) {
       if (String(safeIdentity.nome || '').trim()) {
-        nameEl.textContent = 'Ol√°, ' + firstName(safeIdentity.nome) + '!';
+        nameEl.textContent = 'Ol·, ' + firstName(safeIdentity.nome) + '!';
       } else {
         nameEl.textContent = safeIdentity.username;
       }
@@ -203,7 +203,7 @@
     const nc = normalizeKey(numeroContrato);
 
     return loadProcessos().some(function (item) {
-      return normalizeKey(item.numeroProcesso) === np || normalizeKey(item.numeroContrato) === nc;
+      return normalizeKey(item.processoSei) === np || normalizeKey(item.numeroContrato) === nc;
     });
   }
 
@@ -226,8 +226,20 @@
   function getStatus(terminoVigencia) {
     const diff = daysBetween(startOfDay(new Date()), dateValue(terminoVigencia));
     if (diff < 0) return { type: 'danger', label: 'Vencido', dias: diff };
-    if (diff <= 30) return { type: 'warning', label: 'At√© 30 dias', dias: diff };
-    return { type: 'ok', label: 'Em dia', dias: diff };
+    if (diff <= 90) return { type: 'warning', label: 'A vencer', dias: diff };
+    return { type: 'ok', label: 'Vigente', dias: diff };
+  }
+
+  function getProcessStatus(item) {
+    const base = getStatus(item.fimVigencia || item.terminoVigencia);
+
+    if (base.type === 'danger') {
+      return { type: 'danger', label: 'Vencido', dias: base.dias };
+    }
+    if (base.type === 'warning') {
+      return { type: 'warning', label: 'A vencer', dias: base.dias };
+    }
+    return { type: 'ok', label: 'Vigente', dias: base.dias };
   }
 
   function formatDate(str) {
@@ -315,48 +327,48 @@
     return [
       {
         id: 'demo-1',
-        numeroProcesso: '2026-001',
+        processoSei: 'SEI-2026-001',
         numeroContrato: 'CT-001/2026',
-        inicioVigencia: '2026-01-10',
-        terminoVigencia: addDays(18),
+        objeto: 'Servico de manutencao predial das unidades administrativas.',
+        fundamentacaoLegal: 'Lei Federal n. 14.133/2021, art. 28, inciso I.',
+        empresaContratada: 'Construtora Potiguar Ltda.',
+        valorGlobal: 125000.5,
+        fonte: 'Tesouro estadual',
         gestorContrato: 'Ana Pereira',
-        fiscalContrato: 'Carlos Nunes',
-        fonteRecurso: 'Tesouro municipal',
-        dataAssinatura: '2026-01-08',
-        dataPublicacao: '2026-01-12',
-        valorContrato: 125000.5,
-        objetoContrato: 'Servi√ßo de manuten√ß√£o predial.',
-        fundamentacaoContrato: 'Lei 14.133/2021 e regulamento interno.'
+        fiscaisContrato: 'Carlos Nunes; Rita Melo',
+        inicioVigencia: '2026-01-10',
+        fimVigencia: addDays(18),
+        status: 'vigente'
       },
       {
         id: 'demo-2',
-        numeroProcesso: '2026-014',
+        processoSei: 'SEI-2026-014',
         numeroContrato: 'CT-014/2026',
+        objeto: 'Apoio tecnico para sistema de protocolo e atendimento institucional.',
+        fundamentacaoLegal: 'Lei Federal n. 14.133/2021, art. 6, inciso XL, e art. 75.',
+        empresaContratada: 'TechGov Solucoes Publicas',
+        valorGlobal: 342000,
+        fonte: 'Convenio federal',
+        gestorContrato: 'Lucia Prado',
+        fiscaisContrato: 'Bruno Moraes; Paula Costa',
         inicioVigencia: '2026-02-01',
-        terminoVigencia: addDays(95),
-        gestorContrato: 'L√∫cia Prado',
-        fiscalContrato: 'Bruno Moraes',
-        fonteRecurso: 'Conv√™nio federal',
-        dataAssinatura: '2026-01-27',
-        dataPublicacao: '2026-02-03',
-        valorContrato: 342000,
-        objetoContrato: 'Apoio t√©cnico para sistema de protocolo.',
-        fundamentacaoContrato: 'Lei 14.133/2021, art. 75.'
+        fimVigencia: addDays(95),
+        status: 'vigente'
       },
       {
         id: 'demo-3',
-        numeroProcesso: '2025-223',
+        processoSei: 'SEI-2025-223',
         numeroContrato: 'CT-223/2025',
-        inicioVigencia: '2025-03-04',
-        terminoVigencia: addDays(-5),
+        objeto: 'Locacao de equipamentos de TI para suporte operacional.',
+        fundamentacaoLegal: 'Lei Federal n. 14.133/2021, art. 72 e art. 106.',
+        empresaContratada: 'Inova Equipamentos e Servicos',
+        valorGlobal: 89000.99,
+        fonte: 'Recursos proprios',
         gestorContrato: 'Marcos Lima',
-        fiscalContrato: 'D√©bora Silva',
-        fonteRecurso: 'Recursos pr√≥prios',
-        dataAssinatura: '2025-03-01',
-        dataPublicacao: '2025-03-05',
-        valorContrato: 89000.99,
-        objetoContrato: 'Loca√ß√£o de equipamentos de TI.',
-        fundamentacaoContrato: 'Processo administrativo 2025-223.'
+        fiscaisContrato: 'Debora Silva',
+        inicioVigencia: '2025-03-04',
+        fimVigencia: addDays(-5),
+        status: 'vencido'
       }
     ];
   }
@@ -422,12 +434,12 @@
 
     if (!nome) throw new Error('Informe o nome do item.');
     if (!unidadeMedida) throw new Error('Informe a unidade de medida.');
-    if (!Number.isFinite(estoqueAtual) || estoqueAtual < 0) throw new Error('Quantidade inicial inv√°lida.');
-    if (!Number.isFinite(estoqueMinimo) || estoqueMinimo < 0) throw new Error('Estoque m√≠nimo inv√°lido.');
+    if (!Number.isFinite(estoqueAtual) || estoqueAtual < 0) throw new Error('Quantidade inicial inv·lida.');
+    if (!Number.isFinite(estoqueMinimo) || estoqueMinimo < 0) throw new Error('Estoque mÌnimo inv·lido.');
 
     const items = loadAlmoxItems();
     if (items.some(function (item) { return normalizeItemName(item.nome) === normalizeItemName(nome); })) {
-      throw new Error('J√° existe item cadastrado com este nome.');
+      throw new Error('J· existe item cadastrado com este nome.');
     }
 
     const now = new Date().toISOString();
@@ -475,17 +487,17 @@
     const quantidade = Number(payload.quantidade);
 
     if (!itemId) throw new Error('Selecione o item.');
-    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimenta√ß√£o inv√°lido.');
-    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade inv√°lida.');
-    if (!motivo) throw new Error('Informe o motivo da movimenta√ß√£o.');
+    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimentaÁ„o inv·lido.');
+    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade inv·lida.');
+    if (!motivo) throw new Error('Informe o motivo da movimentaÁ„o.');
 
     const items = loadAlmoxItems();
     const idx = items.findIndex(function (item) { return item.id === itemId; });
-    if (idx < 0) throw new Error('Item n√£o encontrado.');
+    if (idx < 0) throw new Error('Item n„o encontrado.');
 
     const selected = items[idx];
     if (tipo === 'saida' && quantidade > Number(selected.estoqueAtual)) {
-      throw new Error('Quantidade de sa√≠da maior que o estoque dispon√≠vel.');
+      throw new Error('Quantidade de saÌda maior que o estoque disponÌvel.');
     }
 
     const now = new Date().toISOString();
@@ -528,11 +540,11 @@
   function deleteAlmoxItem(itemId) {
     const currentUser = getCurrentUsername();
     const id = String(itemId || '').trim();
-    if (!id) throw new Error('Item inv√°lido para exclus√£o.');
+    if (!id) throw new Error('Item inv·lido para exclus„o.');
 
     const items = loadAlmoxItems();
     const selected = items.find(function (item) { return item.id === id; });
-    if (!selected) throw new Error('Item n√£o encontrado para exclus√£o.');
+    if (!selected) throw new Error('Item n„o encontrado para exclus„o.');
 
     const remaining = items.filter(function (item) { return item.id !== id; });
     saveAlmoxItems(remaining);
@@ -558,6 +570,7 @@
     getProfile: getProfile,
     saveProfile: saveProfile,
     getStatus: getStatus,
+    getProcessStatus: getProcessStatus,
     formatDate: formatDate,
     escapeHtml: escapeHtml,
     dateValue: dateValue,
@@ -590,6 +603,13 @@
     loadDeletes: loadAlmoxDeletes
   };
 })();
+
+
+
+
+
+
+
 
 
 

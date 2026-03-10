@@ -1,4 +1,4 @@
-Ôªø(function () {
+(function () {
   const AUTH_KEY = 'cc_auth';
   const AUTH_USER_KEY = 'cc_auth_user';
   const AUTH_ROLE_KEY = 'cc_auth_role';
@@ -41,29 +41,29 @@
   function translateAuthError(error, fallbackMessage) {
     const raw = String(error && (error.message || error.error_description || error.code) || '').trim();
     const msg = raw.toLowerCase();
-    if (!raw) return fallbackMessage || 'Falha na autenticacao.';
+    if (!raw) return fallbackMessage || 'Falha na autenticaÁ„o.';
     if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
-      return 'Senha ou usuario invalidos. Verifique suas credenciais.';
+      return 'Senha ou usu·rio inv·lidos. Verifique suas credenciais.';
     }
     if (msg.includes('email not confirmed')) {
-      return 'Seu e-mail ainda nao foi confirmado. Verifique sua caixa de entrada.';
+      return 'Seu e-mail ainda n„o foi confirmado. Verifique sua caixa de entrada.';
     }
     if (msg.includes('user already registered')) {
-      return 'Ja existe um usuario cadastrado com este e-mail.';
+      return 'J· existe um usu·rio cadastrado com este e-mail.';
     }
     if (msg.includes('weak password') || msg.includes('password should be at least')) {
-      return 'Senha fraca. Utilize uma senha mais forte com no minimo 8 caracteres.';
+      return 'Senha fraca. Utilize uma senha mais forte com no mÌnimo 8 caracteres.';
     }
     if (msg.includes('for security purposes') || msg.includes('rate limit')) {
-      return 'Nao foi possivel concluir o cadastro agora. Tente novamente.';
+      return 'N„o foi possÌvel concluir o cadastro agora. Tente novamente.';
     }
     if (msg.includes('unable to validate email address') || msg.includes('invalid email')) {
-      return 'E-mail invalido. Verifique o formato informado.';
+      return 'E-mail inv·lido. Verifique o formato informado.';
     }
     if (msg.includes('password')) {
-      return 'Senha invalida. Confira e tente novamente.';
+      return 'Senha inv·lida. Confira e tente novamente.';
     }
-    return fallbackMessage || 'Falha na autenticacao.';
+    return fallbackMessage || 'Falha na autenticaÁ„o.';
   }
   function isMissingApprovalColumnError(error) {
     const msg = String(error && error.message ? error.message : '').toLowerCase();
@@ -131,34 +131,43 @@
   function mapRowToProcesso(row) {
     return {
       id: row.id,
-      numeroProcesso: row.numero_processo,
+      processoSei: row.processo_sei || row.numero_processo,
       numeroContrato: row.numero_contrato,
-      inicioVigencia: row.inicio_vigencia,
-      terminoVigencia: row.termino_vigencia,
+      objeto: row.objeto || row.objeto_contrato,
+      fundamentacaoLegal: row.fundamentacao_legal || row.fundamentacao_contrato || '',
+      empresaContratada: row.empresa_contratada || '',
+      valorGlobal: Number(row.valor_global || row.valor_contrato),
+      fonte: row.fonte || row.fonte_recurso,
       gestorContrato: row.gestor_contrato,
-      fiscalContrato: row.fiscal_contrato,
-      fonteRecurso: row.fonte_recurso,
-      dataAssinatura: row.data_assinatura,
-      dataPublicacao: row.data_publicacao,
-      valorContrato: Number(row.valor_contrato),
-      objetoContrato: row.objeto_contrato,
-      fundamentacaoContrato: row.fundamentacao_contrato
+      fiscaisContrato: row.fiscais_contrato || row.fiscal_contrato,
+      inicioVigencia: row.inicio_vigencia,
+      fimVigencia: row.fim_vigencia || row.termino_vigencia,
+      status: row.status_contrato || 'vigente'
     };
   }
   function mapProcessoToRow(item) {
     return {
-      numero_processo: String(item.numeroProcesso || '').trim(),
+      numero_processo: String(item.processoSei || '').trim(),
+      processo_sei: String(item.processoSei || '').trim(),
       numero_contrato: String(item.numeroContrato || '').trim(),
       inicio_vigencia: String(item.inicioVigencia || '').trim(),
-      termino_vigencia: String(item.terminoVigencia || '').trim(),
+      fim_vigencia: String(item.fimVigencia || '').trim(),
+      termino_vigencia: String(item.fimVigencia || '').trim(),
       gestor_contrato: String(item.gestorContrato || '').trim(),
-      fiscal_contrato: String(item.fiscalContrato || '').trim(),
-      fonte_recurso: String(item.fonteRecurso || '').trim(),
-      data_assinatura: String(item.dataAssinatura || '').trim(),
-      data_publicacao: String(item.dataPublicacao || '').trim(),
-      valor_contrato: Number(item.valorContrato) || 0,
-      objeto_contrato: String(item.objetoContrato || '').trim(),
-      fundamentacao_contrato: String(item.fundamentacaoContrato || '').trim()
+      fiscais_contrato: String(item.fiscaisContrato || '').trim(),
+      fiscal_contrato: String(item.fiscaisContrato || '').trim(),
+      fonte: String(item.fonte || '').trim(),
+      fonte_recurso: String(item.fonte || '').trim(),
+      valor_global: Number(item.valorGlobal) || 0,
+      valor_contrato: Number(item.valorGlobal) || 0,
+      objeto: String(item.objeto || '').trim(),
+      objeto_contrato: String(item.objeto || '').trim(),
+      fundamentacao_legal: String(item.fundamentacaoLegal || '').trim(),
+      empresa_contratada: String(item.empresaContratada || '').trim(),
+      status_contrato: 'vigente',
+      data_assinatura: String(item.inicioVigencia || '').trim(),
+      data_publicacao: String(item.fimVigencia || '').trim(),
+      fundamentacao_contrato: String(item.fundamentacaoLegal || '').trim()
     };
   }
   function mapRowToAlmoxItem(row) {
@@ -193,7 +202,7 @@
       p_identificador: normalized
     });
     if (result.error) {
-      throw new Error(result.error.message || 'Falha ao localizar usuario para autenticacao.');
+      throw new Error(result.error.message || 'Falha ao localizar usu·rio para autenticaÁ„o.');
     }
     if (!Array.isArray(result.data) || !result.data.length) {
       return normalized;
@@ -210,7 +219,7 @@
       .eq('email', normalizedEmail)
       .maybeSingle();
     if (result.error) {
-      throw new Error(result.error.message || 'Falha ao consultar solicitacao de acesso.');
+      throw new Error(result.error.message || 'Falha ao consultar solicitaÁ„o de acesso.');
     }
     return result.data || null;
   }
@@ -260,7 +269,7 @@
     }
     const accessRequest = await getAccessRequestByEmail(userEmail);
     if (!accessRequest) {
-      throw new Error('Nenhuma solicitacao de acesso foi localizada para este usuario.');
+      throw new Error('Nenhuma solicitaÁ„o de acesso foi localizada para este usu·rio.');
     }
     const requestStatus = String(accessRequest.status || '').toLowerCase();
     if (requestStatus === 'aprovado') {
@@ -313,7 +322,7 @@
         .single();
     }
     if (updated.error) {
-      throw new Error(updated.error.message || 'Falha ao ativar administrador senior inicial.');
+      throw new Error(updated.error.message || 'Falha ao ativar administrador sÍnior inicial.');
     }
     return updated.data;
   }
@@ -355,7 +364,7 @@
       try {
         email = await resolveLoginEmail(loginValue);
       } catch (error) {
-        return { ok: false, message: (error && error.message) ? error.message : 'Falha ao localizar o usuario para autenticacao.' };
+        return { ok: false, message: (error && error.message) ? error.message : 'Falha ao localizar o usu·rio para autenticaÁ„o.' };
       }
 
       if (!email || !pass) {
@@ -365,7 +374,7 @@
       const result = await supabase.auth.signInWithPassword({ email: email, password: pass });
       if (result.error) return { ok: false, message: translateAuthError(result.error, 'Falha ao autenticar.') };
       const user = result.data && result.data.user ? result.data.user : null;
-      if (!user) return { ok: false, message: 'Usuario nao encontrado na sessao.' };
+      if (!user) return { ok: false, message: 'Usu·rio n„o encontrado na sess„o.' };
 
       let access;
       try {
@@ -376,7 +385,7 @@
 
       if (!access.ok) {
         await supabase.auth.signOut();
-        return { ok: false, message: 'Seu acesso ainda nao foi aprovado pelo Administrador Senior.' };
+        return { ok: false, message: 'Seu acesso ainda n„o foi aprovado pelo Administrador SÍnior.' };
       }
 
       persistAuth(user.email || email, access.role || 'usuario');
@@ -384,11 +393,11 @@
     }
     if (window.AuthDB && typeof window.AuthDB.validateLogin === 'function') {
       const fallback = await window.AuthDB.validateLogin(identifier, password);
-      if (!fallback.ok) return { ok: false, message: 'Credenciais invalidas. Verifique usuario e senha.' };
+      if (!fallback.ok) return { ok: false, message: 'Credenciais inv·lidas. Verifique usu·rio e senha.' };
       persistAuth(fallback.user.username, 'senior_admin');
       return { ok: true, userId: fallback.user.username };
     }
-    return { ok: false, message: 'Autenticacao indisponivel.' };
+    return { ok: false, message: 'AutenticaÁ„o indisponÌvel.' };
   }
   async function restoreSession() {
     if (!isSupabaseEnabled()) {
@@ -434,14 +443,14 @@
     if (!target) throw new Error('Informe um e-mail valido.');
 
     if (!isSupabaseEnabled()) {
-      throw new Error('Recuperacao de senha disponivel apenas no modo Supabase.');
+      throw new Error('RecuperaÁ„o de senha disponÌvel apenas no modo Supabase.');
     }
 
     const supabase = getClient();
     const redirect = window.location.origin.replace(/\/$/, '') + '/index.html';
     const result = await supabase.auth.resetPasswordForEmail(target, { redirectTo: redirect });
     if (result.error) {
-      throw new Error(translateAuthError(result.error, 'Falha ao enviar recuperacao de senha.'));
+      throw new Error(translateAuthError(result.error, 'Falha ao enviar recuperaÁ„o de senha.'));
     }
     return true;
   }
@@ -468,7 +477,7 @@
 
   async function requestAccess(payload) {
     if (!isSupabaseEnabled()) {
-      throw new Error('Solicitacao de acesso disponivel apenas no modo Supabase.');
+      throw new Error('SolicitaÁ„o de acesso disponivel apenas no modo Supabase.');
     }
 
     const nome = String(payload.nome || '').trim();
@@ -478,7 +487,7 @@
     const senha = String(payload.senha || '');
 
     if (!nome || !cpf || !matricula || !email || !senha) {
-      throw new Error('Preencha todos os campos obrigatorios para solicitar acesso.');
+      throw new Error('Preencha todos os campos obrigatÛrios para solicitar acesso.');
     }
 
     const supabase = getClient();
@@ -491,7 +500,7 @@
     });
 
     if (result.error) {
-      throw new Error(result.error.message || 'Falha ao registrar solicitacao de acesso.');
+      throw new Error(result.error.message || 'Falha ao registrar solicitaÁ„o de acesso.');
     }
 
     return true;
@@ -499,13 +508,13 @@
 
   async function listPendingAccessRequests() {
     if (!isSupabaseEnabled()) {
-      throw new Error('Consulta de solicitacoes disponivel apenas no modo Supabase.');
+      throw new Error('Consulta de solicitaÁıes disponÌvel apenas no modo Supabase.');
     }
 
     const currentProfile = await getCurrentAccessProfile();
     const role = String(currentProfile && currentProfile.role ? currentProfile.role : '').toLowerCase();
     if (!currentProfile || role !== 'senior_admin') {
-      throw new Error('Apenas o Administrador Senior pode consultar solicitacoes.');
+      throw new Error('Apenas o Administrador SÍnior pode consultar solicitaÁıes.');
     }
 
     const supabase = getClient();
@@ -516,7 +525,7 @@
       .order('criado_em', { ascending: true });
 
     if (result.error) {
-      throw new Error(result.error.message || 'Falha ao consultar solicitacoes pendentes.');
+      throw new Error(result.error.message || 'Falha ao consultar solicitaÁıes pendentes.');
     }
 
     return (result.data || []).map(function (item) {
@@ -534,17 +543,17 @@
 
   async function approveAccessRequest(requestId) {
     if (!isSupabaseEnabled()) {
-      throw new Error('Aprovacao disponivel apenas no modo Supabase.');
+      throw new Error('AprovaÁ„o disponÌvel apenas no modo Supabase.');
     }
 
     const id = String(requestId || '').trim();
-    if (!id) throw new Error('Solicitacao invalida para aprovacao.');
+    if (!id) throw new Error('SolicitaÁ„o inv·lida para aprovaÁ„o.');
 
     const currentUser = await getSessionUser();
     const currentProfile = await getCurrentAccessProfile();
     const role = String(currentProfile && currentProfile.role ? currentProfile.role : '').toLowerCase();
     if (!currentUser || !currentProfile || role !== 'senior_admin') {
-      throw new Error('Apenas o Administrador Senior pode aprovar solicitacoes.');
+      throw new Error('Apenas o Administrador SÍnior pode aprovar solicitaÁıes.');
     }
 
     const supabase = getClient();
@@ -554,7 +563,7 @@
     });
 
     if (result.error) {
-      throw new Error(result.error.message || 'Falha ao aprovar solicitacao.');
+      throw new Error(result.error.message || 'Falha ao aprovar solicitaÁ„o.');
     }
 
     return true;
@@ -564,7 +573,7 @@
 
     const supabase = getClient();
     const result = await supabase.from('processos_contratos').select('*').order('termino_vigencia', { ascending: true });
-    if (result.error) throw new Error(result.error.message || 'Falha ao consultar processos.');
+    if (result.error) throw new Error(result.error.message || 'Falha ao consultar contratos.');
 
     const list = (result.data || []).map(mapRowToProcesso);
     saveLocalList(PROCESS_KEY, list);
@@ -577,7 +586,7 @@
       const np = String(numeroProcesso || '').trim().toLowerCase();
       const nc = String(numeroContrato || '').trim().toLowerCase();
       return list.some(function (item) {
-        return String(item.numeroProcesso || '').trim().toLowerCase() === np || String(item.numeroContrato || '').trim().toLowerCase() === nc;
+        return String(item.processoSei || '').trim().toLowerCase() === np || String(item.numeroContrato || '').trim().toLowerCase() === nc;
       });
     }
 
@@ -586,11 +595,11 @@
     const nc = String(numeroContrato || '').trim();
 
     const byProcesso = await supabase.from('processos_contratos').select('id').eq('numero_processo', np).limit(1);
-    if (byProcesso.error) throw new Error(byProcesso.error.message || 'Falha ao validar n√∫mero do processo.');
+    if (byProcesso.error) throw new Error(byProcesso.error.message || 'Falha ao validar n˙mero do processo.');
     if ((byProcesso.data || []).length > 0) return true;
 
     const byContrato = await supabase.from('processos_contratos').select('id').eq('numero_contrato', nc).limit(1);
-    if (byContrato.error) throw new Error(byContrato.error.message || 'Falha ao validar n√∫mero do contrato.');
+    if (byContrato.error) throw new Error(byContrato.error.message || 'Falha ao validar n˙mero do contrato.');
     return (byContrato.data || []).length > 0;
   }
 
@@ -610,7 +619,7 @@
     payload.atualizado_por = user ? (user.email || user.id) : null;
 
     const result = await supabase.from('processos_contratos').insert(payload).select('*').single();
-    if (result.error) throw new Error(result.error.message || 'Falha ao salvar processo.');
+    if (result.error) throw new Error(result.error.message || 'Falha ao salvar contrato.');
 
     const mapped = mapRowToProcesso(result.data);
     const cached = loadLocalList(PROCESS_KEY);
@@ -621,7 +630,7 @@
 
   async function deleteProcesso(id) {
     const safeId = String(id || '').trim();
-    if (!safeId) throw new Error('Processo inv√°lido para exclus√£o.');
+    if (!safeId) throw new Error('Contrato inv·lido para exclus„o.');
 
     if (!isSupabaseEnabled()) {
       const list = loadLocalList(PROCESS_KEY).filter(function (item) { return String(item.id) !== safeId; });
@@ -631,7 +640,7 @@
 
     const supabase = getClient();
     const result = await supabase.from('processos_contratos').delete().eq('id', safeId);
-    if (result.error) throw new Error(result.error.message || 'Falha ao remover processo.');
+    if (result.error) throw new Error(result.error.message || 'Falha ao remover contrato.');
 
     const list = loadLocalList(PROCESS_KEY).filter(function (item) { return String(item.id) !== safeId; });
     saveLocalList(PROCESS_KEY, list);
@@ -645,7 +654,7 @@
 
     const supabase = getClient();
     const user = await getSessionUser();
-    if (!user) throw new Error('Sess√£o inv√°lida para carregar perfil.');
+    if (!user) throw new Error('Sess„o inv·lida para carregar perfil.');
 
     const meta = user && user.user_metadata ? user.user_metadata : {};
     let profile = await getOrCreateAccessProfile(user, {
@@ -684,7 +693,7 @@
 
     const supabase = getClient();
     const user = await getSessionUser();
-    if (!user) throw new Error('Sess√£o inv√°lida para salvar perfil.');
+    if (!user) throw new Error('Sess„o inv·lida para salvar perfil.');
 
     const currentProfile = await getOrCreateAccessProfile(user, { email: user.email || '' });
 
@@ -738,13 +747,13 @@
 
       if (!nome) throw new Error('Informe o nome do item.');
       if (!unidade) throw new Error('Informe a unidade de medida.');
-      if (!Number.isFinite(estoqueAtual) || estoqueAtual < 0) throw new Error('Quantidade inicial inv√°lida.');
-      if (!Number.isFinite(estoqueMinimo) || estoqueMinimo < 0) throw new Error('Estoque m√≠nimo inv√°lido.');
+      if (!Number.isFinite(estoqueAtual) || estoqueAtual < 0) throw new Error('Quantidade inicial inv·lida.');
+      if (!Number.isFinite(estoqueMinimo) || estoqueMinimo < 0) throw new Error('Estoque mÌnimo inv·lido.');
 
       const exists = list.some(function (item) {
         return String(item.nome || '').trim().toLowerCase() === nome.toLowerCase() && String(item.localEstoque || '').trim().toLowerCase() === local.toLowerCase();
       });
-      if (exists) throw new Error('J√° existe item cadastrado com este nome neste local.');
+      if (exists) throw new Error('J· existe item cadastrado com este nome neste local.');
 
       const now = new Date().toISOString();
       const item = {
@@ -784,7 +793,7 @@
 
     const supabase = getClient();
     const user = await getSessionUser();
-    if (!user) throw new Error('Sess√£o inv√°lida para cadastro no almoxarifado.');
+    if (!user) throw new Error('Sess„o inv·lida para cadastro no almoxarifado.');
 
     const payloadRow = {
       nome: String(payload.nome || '').trim(),
@@ -823,18 +832,18 @@
     const itemId = String(payload.itemId || '').trim();
 
     if (!itemId) throw new Error('Selecione o item.');
-    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimenta√ß√£o inv√°lido.');
-    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade inv√°lida.');
-    if (!motivo) throw new Error('Informe o motivo da movimenta√ß√£o.');
+    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimentaÁ„o inv·lido.');
+    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade inv·lida.');
+    if (!motivo) throw new Error('Informe o motivo da movimentaÁ„o.');
 
     if (!isSupabaseEnabled()) {
       const items = loadLocalList(ALMOX_ITEM_KEY);
       const idx = items.findIndex(function (item) { return item.id === itemId; });
-      if (idx < 0) throw new Error('Item n√£o encontrado.');
+      if (idx < 0) throw new Error('Item n„o encontrado.');
 
       const selected = items[idx];
       if (tipo === 'saida' && quantidade > Number(selected.estoqueAtual)) {
-        throw new Error('Quantidade de sa√≠da maior que o estoque dispon√≠vel.');
+        throw new Error('Quantidade de saÌda maior que o estoque disponÌvel.');
       }
 
       const now = new Date().toISOString();
@@ -863,13 +872,13 @@
 
     const supabase = getClient();
     const user = await getSessionUser();
-    if (!user) throw new Error('Sess√£o inv√°lida para movimenta√ß√£o.');
+    if (!user) throw new Error('Sess„o inv·lida para movimentaÁ„o.');
 
     const found = await supabase.from('almox_itens').select('*').eq('id', itemId).single();
-    if (found.error || !found.data) throw new Error('Item n√£o encontrado.');
+    if (found.error || !found.data) throw new Error('Item n„o encontrado.');
 
     const current = Number(found.data.estoque_atual) || 0;
-    if (tipo === 'saida' && quantidade > current) throw new Error('Quantidade de sa√≠da maior que o estoque dispon√≠vel.');
+    if (tipo === 'saida' && quantidade > current) throw new Error('Quantidade de saÌda maior que o estoque disponÌvel.');
 
     const newStock = tipo === 'entrada' ? current + quantidade : current - quantidade;
 
@@ -891,7 +900,7 @@
       criado_por: user.email || user.id
     });
 
-    if (moveResult.error) throw new Error(moveResult.error.message || 'Falha ao registrar movimenta√ß√£o.');
+    if (moveResult.error) throw new Error(moveResult.error.message || 'Falha ao registrar movimentaÁ„o.');
 
     await listAlmoxItems();
     return mapRowToAlmoxItem(updated.data);
@@ -899,12 +908,12 @@
 
   async function deleteAlmoxItem(itemId) {
     const id = String(itemId || '').trim();
-    if (!id) throw new Error('Item inv√°lido para exclus√£o.');
+    if (!id) throw new Error('Item inv·lido para exclus„o.');
 
     if (!isSupabaseEnabled()) {
       const items = loadLocalList(ALMOX_ITEM_KEY);
       const selected = items.find(function (item) { return item.id === id; });
-      if (!selected) throw new Error('Item n√£o encontrado para exclus√£o.');
+      if (!selected) throw new Error('Item n„o encontrado para exclus„o.');
 
       const remaining = items.filter(function (item) { return item.id !== id; });
       saveLocalList(ALMOX_ITEM_KEY, remaining);
@@ -925,10 +934,10 @@
 
     const supabase = getClient();
     const user = await getSessionUser();
-    if (!user) throw new Error('Sess√£o inv√°lida para exclus√£o.');
+    if (!user) throw new Error('Sess„o inv·lida para exclus„o.');
 
     const found = await supabase.from('almox_itens').select('*').eq('id', id).single();
-    if (found.error || !found.data) throw new Error('Item n√£o encontrado para exclus√£o.');
+    if (found.error || !found.data) throw new Error('Item n„o encontrado para exclus„o.');
 
     const delLog = await supabase.from('almox_exclusoes').insert({
       item_id: found.data.id,
@@ -938,10 +947,10 @@
       local_estoque: found.data.local_estoque,
       excluido_por: user.email || user.id
     });
-    if (delLog.error) throw new Error(delLog.error.message || 'Falha ao registrar exclus√£o.');
+    if (delLog.error) throw new Error(delLog.error.message || 'Falha ao registrar exclus„o.');
 
     const clearMoves = await supabase.from('almox_movimentacoes').delete().eq('item_id', id);
-    if (clearMoves.error) throw new Error(clearMoves.error.message || 'Falha ao limpar movimenta√ß√µes do item.');
+    if (clearMoves.error) throw new Error(clearMoves.error.message || 'Falha ao limpar movimentaÁıes do item.');
 
     const deleted = await supabase.from('almox_itens').delete().eq('id', id);
     if (deleted.error) throw new Error(deleted.error.message || 'Falha ao excluir item.');
@@ -960,7 +969,7 @@
       .order('criado_em', { ascending: false })
       .limit(200);
 
-    if (result.error) throw new Error(result.error.message || 'Falha ao consultar movimenta√ß√µes.');
+    if (result.error) throw new Error(result.error.message || 'Falha ao consultar movimentaÁıes.');
 
     const list = (result.data || []).map(function (row) {
       return {
@@ -984,7 +993,7 @@
 
     const supabase = getClient();
     const result = await supabase.from('almox_exclusoes').select('*').order('excluido_em', { ascending: false }).limit(200);
-    if (result.error) throw new Error(result.error.message || 'Falha ao consultar exclus√µes.');
+    if (result.error) throw new Error(result.error.message || 'Falha ao consultar exclusıes.');
 
     const list = (result.data || []).map(function (row) {
       return {
@@ -1028,6 +1037,15 @@
     listAlmoxDeletes: listAlmoxDeletes
   };
 })();
+
+
+
+
+
+
+
+
+
 
 
 

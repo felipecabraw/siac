@@ -1,11 +1,11 @@
-ï»¿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/jpeg" href="images1.jfif">
-  <title>Processos Cadastrados | SIAC</title>
-  <meta name="description" content="Consulta e gestÃ£o de processos cadastrados no SIAC.">
+  <title>Contratos Cadastrados | SIAC</title>
+  <meta name="description" content="Consulta e gestão de Contratos Cadastrados no SIAC.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dashboard-body">
@@ -20,30 +20,30 @@
       </div>
 
       <nav class="sidebar-nav">
-        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>InÃ­cio</a>
-        <a data-nav="cadastro" href="cadastro-processo.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 11v6"></path><path d="M9 14h6"></path></svg></span>Cadastro de processo</a>
-        <a data-nav="processos" href="processos-cadastrados.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Processos cadastrados</a>
+        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>Início</a>
+        <a data-nav="cadastro" href="cadastro-processo.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 11v6"></path><path d="M9 14h6"></path></svg></span>Cadastro de contratos</a>
+        <a data-nav="processos" href="processos-cadastrados.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Contratos Cadastrados</a>
         <a data-nav="almoxarifado" href="almoxarifado.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7.5 12 3l9 4.5-9 4.5z"></path><path d="M3 7.5V16.5L12 21l9-4.5V7.5"></path><path d="M12 12v9"></path></svg></span>Almoxarifado</a>
         <a data-nav="perfil" href="perfil.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"></circle><path d="M4 20a8 8 0 0 1 16 0"></path></svg></span>Perfil</a>
       </nav>
 
-      <div class="sidebar-note">Consulta completa dos processos vigentes e encerrados.</div>
+      <div class="sidebar-note">Consulta consolidada dos Contratos Cadastrados e respectivos prazos.</div>
     </aside>
 
     <main class="dashboard-main">
       <header class="dashboard-topbar">
         <div class="dashboard-topbar-left">
-          <img class="dashboard-topbar-logo" src="logoSispern.png" alt="BrasÃ£o institucional">
+          <img class="dashboard-topbar-logo" src="logoSispern.png" alt="Brasão institucional">
           <div>
             <strong>SIAC</strong>
-            <span>Processos Cadastrados</span>
+            <span>Contratos Cadastrados</span>
           </div>
         </div>
         <div class="dashboard-topbar-right">
           <div class="user-chip-wrap">
-            <img id="top-user-avatar" class="top-user-avatar" alt="Foto do usuÃ¡rio" hidden>
+            <img id="top-user-avatar" class="top-user-avatar" alt="Foto do usuário" hidden>
             <span id="top-user-fallback" class="top-user-fallback">U</span>
-            <span id="top-user-name" class="dashboard-user-chip">UsuÃ¡rio autenticado</span>
+            <span id="top-user-name" class="dashboard-user-chip">Usuário autenticado</span>
           </div>
           <button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button>
         </div>
@@ -51,22 +51,22 @@
 
       <section class="panel-block">
         <div class="panel-title-row">
-          <h1>Processos cadastrados</h1>
-          <input id="search" type="search" placeholder="Buscar por processo, contrato, gestor ou fiscal">
+          <h1>Contratos Cadastrados</h1>
+          <input id="search" type="search" placeholder="Buscar por Processo SEI, contrato, empresa, gestor, fiscais ou fundamentação legal">
         </div>
 
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Processo</th>
+                <th>Processo SEI</th>
                 <th>Contrato</th>
-                <th>Gestor</th>
-                <th>Fiscal</th>
-                <th>Valor do contrato</th>
-                <th>TÃ©rmino da vigÃªncia</th>
+                <th>Empresa Contratada</th>
+                <th>Gestor(a)</th>
+                <th>Valor Global</th>
+                <th>Fim da vigência</th>
                 <th>Status</th>
-                <th>AÃ§Ãµes</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody id="process-table-body"></tbody>
@@ -83,13 +83,6 @@
   <script src="processos-cadastrados.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 

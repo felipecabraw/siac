@@ -1,4 +1,4 @@
-ï»¿(function () {
+(function () {
   AppCore.initShell('processos');
 
   const searchInput = document.getElementById('search');
@@ -32,7 +32,7 @@
       cache = await BackendAPI.listProcessos();
       renderTable();
     } catch (_error) {
-      window.alert('NÃ£o foi possÃ­vel remover o processo no backend.');
+      window.alert('Não foi possível remover o contrato no backend.');
       deletingIds.delete(id);
       btn.disabled = false;
       btn.textContent = oldText;
@@ -53,37 +53,40 @@
   function renderTable() {
     const filtered = cache
       .slice()
-      .sort(function (a, b) { return AppCore.dateValue(a.terminoVigencia) - AppCore.dateValue(b.terminoVigencia); })
+      .sort(function (a, b) { return AppCore.dateValue(a.fimVigencia) - AppCore.dateValue(b.fimVigencia); })
       .filter(function (item) {
         if (!query) return true;
-        const text = [item.numeroProcesso, item.numeroContrato, item.gestorContrato, item.fiscalContrato]
+        const text = [item.processoSei, item.numeroContrato, item.empresaContratada, item.gestorContrato, item.fiscaisContrato, item.objeto, item.fundamentacaoLegal]
           .join(' ')
           .toLowerCase();
         return text.includes(query);
       });
 
     if (filtered.length === 0) {
-      tableBody.innerHTML = '<tr><td colspan="8">Nenhum processo encontrado.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="8">Nenhum contrato encontrado.</td></tr>';
       return;
     }
 
     tableBody.innerHTML = filtered.map(function (item) {
-      const status = AppCore.getStatus(item.terminoVigencia);
+      const status = AppCore.getProcessStatus(item);
       const badgeClass = status.type === 'danger' ? 'status-danger' : status.type === 'warning' ? 'status-warning' : 'status-ok';
-      const valor = Number(item.valorContrato);
+      const valor = Number(item.valorGlobal);
       const valorLabel = Number.isFinite(valor) && valor > 0 ? AppCore.formatCurrencyBrl(valor) : '-';
       const deleting = deletingIds.has(String(item.id));
 
       return '<tr>' +
-        '<td>' + AppCore.escapeHtml(item.numeroProcesso) + '</td>' +
+        '<td>' + AppCore.escapeHtml(item.processoSei) + '</td>' +
         '<td>' + AppCore.escapeHtml(item.numeroContrato) + '</td>' +
+        '<td>' + AppCore.escapeHtml(item.empresaContratada) + '</td>' +
         '<td>' + AppCore.escapeHtml(item.gestorContrato) + '</td>' +
-        '<td>' + AppCore.escapeHtml(item.fiscalContrato) + '</td>' +
         '<td>' + valorLabel + '</td>' +
-        '<td>' + AppCore.formatDate(item.terminoVigencia) + '</td>' +
+        '<td>' + AppCore.formatDate(item.fimVigencia) + '</td>' +
         '<td><span class="status-chip ' + badgeClass + '">' + status.label + '</span></td>' +
         '<td><button class="action-btn" data-delete-id="' + item.id + '" ' + (deleting ? 'disabled' : '') + '>' + (deleting ? 'Removendo...' : 'Remover') + '</button></td>' +
       '</tr>';
     }).join('');
   }
 })();
+
+
+

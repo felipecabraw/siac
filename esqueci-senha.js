@@ -1,4 +1,4 @@
-ï»¿(function () {
+(function () {
   const form = document.getElementById('forgot-form');
   const feedback = document.getElementById('forgot-feedback');
   const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
@@ -25,10 +25,10 @@
 
     try {
       await BackendAPI.sendPasswordReset(email);
-      showFeedback('SolicitaÃ§Ã£o enviada. Verifique seu e-mail para redefinir a senha.', 'ok');
+      showFeedback('Solicitação enviada. Verifique seu e-mail para redefinir a senha.', 'ok');
       form.reset();
     } catch (error) {
-      showFeedback((error && error.message) ? error.message : 'Falha ao solicitar recuperaÃ§Ã£o de senha.', 'error');
+      showFeedback((error && error.message) ? error.message : 'Falha ao solicitar recuperação de senha.', 'error');
     } finally {
       isSubmitting = false;
       setSubmittingState(false);
@@ -38,7 +38,7 @@
   function setSubmittingState(active) {
     if (!submitBtn) return;
     submitBtn.disabled = !!active;
-    submitBtn.textContent = active ? 'Enviando...' : 'Enviar recuperaÃ§Ã£o';
+    submitBtn.textContent = active ? 'Enviando...' : 'Enviar recuperação';
   }
 
   function showFeedback(message, type) {
@@ -47,3 +47,4 @@
     feedback.className = type === 'ok' ? 'form-feedback ok' : 'login-error';
   }
 })();
+

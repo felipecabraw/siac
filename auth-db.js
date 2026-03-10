@@ -1,4 +1,4 @@
-Ôªø(function () {
+(function () {
   const DB_NAME = 'controlecontratos_auth';
   const DB_VERSION = 1;
   const STORE_USERS = 'users';
@@ -13,7 +13,7 @@
   function openDb() {
     return new Promise(function (resolve, reject) {
       if (!window.indexedDB) {
-        reject(new Error('IndexedDB indispon√≠vel neste navegador.'));
+        reject(new Error('IndexedDB indisponÌvel neste navegador.'));
         return;
       }
 
@@ -37,7 +37,7 @@
       };
 
       request.onerror = function () {
-        reject(request.error || new Error('Falha ao abrir banco de autentica√ß√£o.'));
+        reject(request.error || new Error('Falha ao abrir banco de autenticaÁ„o.'));
       };
     });
   }
@@ -58,11 +58,11 @@
         const writeTx = db.transaction(STORE_USERS, 'readwrite');
         writeTx.objectStore(STORE_USERS).put(DEFAULT_USER);
         writeTx.oncomplete = function () { resolve(); };
-        writeTx.onerror = function () { reject(writeTx.error || new Error('Falha ao semear usu√°rio padr√£o.')); };
+        writeTx.onerror = function () { reject(writeTx.error || new Error('Falha ao semear usu·rio padr„o.')); };
       };
 
       countRequest.onerror = function () {
-        reject(countRequest.error || new Error('Falha ao validar usu√°rios existentes.'));
+        reject(countRequest.error || new Error('Falha ao validar usu·rios existentes.'));
       };
     });
   }
@@ -74,7 +74,7 @@
       const req = store.get(username);
 
       req.onsuccess = function () { resolve(req.result || null); };
-      req.onerror = function () { reject(req.error || new Error('Falha ao consultar usu√°rio.')); };
+      req.onerror = function () { reject(req.error || new Error('Falha ao consultar usu·rio.')); };
     });
   }
 
@@ -112,3 +112,4 @@
     }
   };
 })();
+

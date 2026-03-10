@@ -1,4 +1,4 @@
-Ôªø(function () {
+(function () {
   AppCore.initShell('almoxarifado');
 
   const itemForm = document.getElementById('almox-item-form');
@@ -60,7 +60,7 @@
       setFeedback('Item cadastrado com sucesso.', 'ok');
       await renderAll();
     } catch (error) {
-      setFeedback(error.message || 'N√£o foi poss√≠vel cadastrar o item.', 'error');
+      setFeedback(error.message || 'N„o foi possÌvel cadastrar o item.', 'error');
     } finally {
       isItemSubmitting = false;
       setItemSubmittingState(false);
@@ -85,10 +85,10 @@
       });
 
       movForm.reset();
-      setFeedback('Movimenta√ß√£o registrada com sucesso.', 'ok');
+      setFeedback('MovimentaÁ„o registrada com sucesso.', 'ok');
       await renderAll();
     } catch (error) {
-      setFeedback(error.message || 'N√£o foi poss√≠vel movimentar o estoque.', 'error');
+      setFeedback(error.message || 'N„o foi possÌvel movimentar o estoque.', 'error');
     } finally {
       isMovementSubmitting = false;
       setMovementSubmittingState(false);
@@ -103,7 +103,7 @@
     if (!candidateId || deletingIds.has(candidateId)) return;
 
     deletingItemId = candidateId;
-    const itemNome = button.getAttribute('data-item-nome') || 'Item n√£o identificado';
+    const itemNome = button.getAttribute('data-item-nome') || 'Item n„o identificado';
     confirmItemName.textContent = 'Item selecionado: ' + itemNome;
     deletePassword.value = '';
     deleteFeedback.hidden = true;
@@ -134,7 +134,7 @@
   async function confirmDeleteWithPassword(password) {
     const pass = String(password || '').trim();
     if (!pass) {
-      showDeleteError('Informe a senha para confirmar a exclus√£o.');
+      showDeleteError('Informe a senha para confirmar a exclus„o.');
       return;
     }
     if (!deletingItemId || deletingIds.has(deletingItemId)) return;
@@ -146,7 +146,7 @@
     try {
       const ok = await BackendAPI.verifyCurrentPassword(pass);
       if (!ok) {
-        showDeleteError('Senha inv√°lida. Exclus√£o n√£o autorizada.');
+        showDeleteError('Senha inv·lida. Exclus„o n„o autorizada.');
         deletingIds.delete(deletingItemId);
         return;
       }
@@ -154,7 +154,7 @@
       await BackendAPI.deleteAlmoxItem(deletingItemId);
       deletingItemId = '';
       if (typeof deleteDialog.close === 'function' && deleteDialog.open) deleteDialog.close();
-      setFeedback('Item exclu√≠do com sucesso.', 'warn');
+      setFeedback('Item excluÌdo com sucesso.', 'warn');
       await renderAll();
     } catch (error) {
       showDeleteError((error && error.message) ? error.message : 'Falha ao excluir item.');
@@ -174,13 +174,13 @@
   function setMovementSubmittingState(active) {
     if (!movSubmitBtn) return;
     movSubmitBtn.disabled = !!active;
-    movSubmitBtn.textContent = active ? 'Registrando...' : 'Registrar movimenta√ß√£o';
+    movSubmitBtn.textContent = active ? 'Registrando...' : 'Registrar movimentaÁ„o';
   }
 
   function setDeleteSubmittingState(active) {
     if (!deleteSubmitBtn) return;
     deleteSubmitBtn.disabled = !!active;
-    deleteSubmitBtn.textContent = active ? 'Excluindo...' : 'Confirmar exclus√£o';
+    deleteSubmitBtn.textContent = active ? 'Excluindo...' : 'Confirmar exclus„o';
     deletePassword.disabled = !!active;
   }
 
@@ -265,7 +265,7 @@
       const estoque = Number(item.estoqueAtual) || 0;
       const minimo = Number(item.estoqueMinimo) || 0;
       const statusClass = estoque <= minimo ? 'status-danger' : estoque <= (minimo + 3) ? 'status-warning' : 'status-ok';
-      const statusLabel = estoque <= minimo ? 'Cr√≠tico' : estoque <= (minimo + 3) ? 'Aten√ß√£o' : 'Regular';
+      const statusLabel = estoque <= minimo ? 'CrÌtico' : estoque <= (minimo + 3) ? 'AtenÁ„o' : 'Regular';
       const isDeleting = deletingIds.has(String(item.id));
 
       return '<tr>' +
@@ -285,13 +285,13 @@
     const rows = (movements || []).slice(0, 50);
 
     if (rows.length === 0) {
-      movBody.innerHTML = '<tr><td colspan="6">Nenhuma movimenta√ß√£o registrada.</td></tr>';
+      movBody.innerHTML = '<tr><td colspan="6">Nenhuma movimentaÁ„o registrada.</td></tr>';
       return;
     }
 
     movBody.innerHTML = rows.map(function (mov) {
       const typeClass = mov.tipo === 'saida' ? 'status-danger' : 'status-ok';
-      const typeLabel = mov.tipo === 'saida' ? 'Sa√≠da' : 'Entrada';
+      const typeLabel = mov.tipo === 'saida' ? 'SaÌda' : 'Entrada';
       return '<tr>' +
         '<td>' + formatDateTime(mov.dataHora) + '</td>' +
         '<td>' + AppCore.escapeHtml(mov.itemNome) + '</td>' +
@@ -307,7 +307,7 @@
     const rows = (deletes || []).slice(0, 30);
 
     if (rows.length === 0) {
-      delBody.innerHTML = '<tr><td colspan="4">Nenhuma exclus√£o registrada.</td></tr>';
+      delBody.innerHTML = '<tr><td colspan="4">Nenhuma exclus„o registrada.</td></tr>';
       return;
     }
 
@@ -330,3 +330,4 @@
 
   renderAll();
 })();
+
