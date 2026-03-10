@@ -41,7 +41,7 @@
           <label>Gestor(a) do Contrato<input type="text" name="gestorContrato" required></label>
           <label>Fiscais do Contrato<input type="text" name="fiscaisContrato" required></label>
           <label>In&iacute;cio da vig&ecirc;ncia<input type="date" name="inicioVigencia" required></label>
-          <label>Fim da vig&ecirc;ncia<input type="date" name="fimVigencia" required></label>
+          <div class="contract-date-field"><label>Fim da vig&ecirc;ncia<input type="date" name="fimVigencia" required></label><label>Contrato continuado<select name="contratoContinuado" required><option value="nao" selected>N&atilde;o</option><option value="sim">Sim</option></select></label></div>
           <div class="span-2 form-actions"><button type="submit" class="btn btn-primary">Salvar contrato</button><button type="button" id="seed-demo" class="btn btn-ghost">Inserir dados de exemplo</button></div>
         </form>
       </section>
@@ -54,3 +54,5 @@
   <script src="cadastro-processo.js"></script>
 </body>
 </html>
+
+

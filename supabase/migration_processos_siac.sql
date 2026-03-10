@@ -1,4 +1,4 @@
-alter table if exists public.processos_contratos
+﻿alter table if exists public.processos_contratos
   add column if not exists processo_sei text;
 
 alter table if exists public.processos_contratos
@@ -94,3 +94,4 @@ alter table if exists public.processos_contratos
   alter column fundamentacao_contrato drop not null;
 
 notify pgrst, 'reload schema';
+

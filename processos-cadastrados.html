@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/jpeg" href="images1.jfif">
   <title>Contratos Cadastrados | SIAC</title>
-  <meta name="description" content="Consulta e gest&atilde;o de contratos cadastrados no SIAC.">
+  <meta name="description" content="Consulta e gestão de contratos cadastrados no SIAC.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dashboard-body">
@@ -23,16 +23,25 @@
     </aside>
     <main class="dashboard-main">
       <header class="dashboard-topbar">
-        <div class="dashboard-topbar-left"><img class="dashboard-topbar-logo" src="logoSispern.png" alt="Bras&atilde;o institucional"><div><strong>SIAC</strong><span>Contratos Cadastrados</span></div></div>
-        <div class="dashboard-topbar-right"><div class="user-chip-wrap"><img id="top-user-avatar" class="top-user-avatar" alt="Foto do usu&aacute;rio" hidden><span id="top-user-fallback" class="top-user-fallback">U</span><span id="top-user-name" class="dashboard-user-chip">Usu&aacute;rio autenticado</span></div><button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button></div>
+        <div class="dashboard-topbar-left"><img class="dashboard-topbar-logo" src="logoSispern.png" alt="Brasão institucional"><div><strong>SIAC</strong><span>Contratos Cadastrados</span></div></div>
+        <div class="dashboard-topbar-right"><div class="user-chip-wrap"><img id="top-user-avatar" class="top-user-avatar" alt="Foto do usuário" hidden><span id="top-user-fallback" class="top-user-fallback">U</span><span id="top-user-name" class="dashboard-user-chip">Usuário autenticado</span></div><button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button></div>
       </header>
       <section class="panel-block">
-        <div class="panel-title-row"><h1>Contratos Cadastrados</h1><input id="search" type="search" placeholder="Buscar por Processo SEI n&ordm;, contrato, empresa, gestor, fiscais ou fundamenta&ccedil;&atilde;o legal"></div>
+        <div class="panel-title-row"><h1>Contratos Cadastrados</h1><input id="search" type="search" placeholder="Buscar por Processo SEI nº, contrato, empresa, gestor, fiscais ou fundamentação legal"></div>
+        <div class="contract-filters">
+          <label class="filter-field"><span>Ano</span><select id="filter-year"><option value="">Todos</option></select></label>
+          <div id="status-filters" class="status-filters">
+            <button type="button" class="status-filter active" data-status="">Todos</button>
+            <button type="button" class="status-filter" data-status="ok">Vigente</button>
+            <button type="button" class="status-filter" data-status="warning">A vencer</button>
+            <button type="button" class="status-filter" data-status="danger">Vencido</button>
+          </div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Processo SEI n&ordm;</th><th>Contrato</th><th>Empresa Contratada</th><th>Gestor(a)</th><th>Valor Global</th><th>Fim da vig&ecirc;ncia</th><th>Status</th><th>A&ccedil;&otilde;es</th>
+                <th>Processo SEI nº</th><th>Contrato</th><th>Empresa Contratada</th><th>Gestor(a)</th><th>Valor Global</th><th>Fim da vigência</th><th>Status</th><th>Ações</th>
               </tr>
             </thead>
             <tbody id="process-table-body"></tbody>
@@ -41,6 +50,44 @@
       </section>
     </main>
   </div>
+
+  <dialog id="edit-contract-dialog" class="confirm-dialog contract-edit-dialog">
+    <form id="edit-contract-form" method="dialog" class="confirm-dialog-form contract-edit-form">
+      <h3>Editar contrato</h3>
+      <p>Atualize os campos desejados e confirme com sua senha para salvar.</p>
+      <input type="hidden" name="id">
+      <div class="contract-edit-grid">
+        <label>Processo SEI nº<input type="text" name="processoSei" required></label>
+        <label>Nº do Contrato<input type="text" name="numeroContrato" required></label>
+        <label class="span-2">Objeto<textarea name="objeto" rows="3" required></textarea></label>
+        <label class="span-2">Fundamentação Legal<textarea name="fundamentacaoLegal" rows="3" required></textarea></label>
+        <label>Empresa Contratada<input type="text" name="empresaContratada" required></label>
+        <label>Valor Global<input type="text" name="valorGlobal" placeholder="R$ 0,00" required></label>
+        <label>Fonte<input type="text" name="fonte" required></label>
+        <label>Gestor(a) do Contrato<input type="text" name="gestorContrato" required></label>
+        <label>Fiscais do Contrato<input type="text" name="fiscaisContrato" required></label>
+        <label>Início da vigência<input type="date" name="inicioVigencia" required></label>
+        <div class="contract-date-field">
+          <label>Fim da vigência<input type="date" name="fimVigencia" required></label>
+          <label>Contrato continuado<select name="contratoContinuado" required><option value="nao">Não</option><option value="sim">Sim</option></select></label>
+        </div>
+      </div>
+      <label>Senha para confirmar<input id="edit-contract-password" name="password" type="password" required placeholder="Digite sua senha"></label>
+      <p id="edit-contract-feedback" class="form-feedback error" hidden></p>
+      <div class="form-actions"><button type="button" id="cancel-edit-contract" class="btn btn-ghost">Cancelar</button><button type="submit" id="confirm-edit-contract-btn" class="btn btn-primary">Salvar alterações</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="delete-contract-dialog" class="confirm-dialog">
+    <form id="delete-contract-form" method="dialog" class="confirm-dialog-form">
+      <h3>Confirmar remoção de contrato</h3>
+      <p>Para remover o contrato, informe sua senha de acesso.</p>
+      <p class="confirm-item-name" id="confirm-contract-name"></p>
+      <label>Senha<input id="delete-contract-password" name="password" type="password" required placeholder="Digite sua senha"></label>
+      <p id="delete-contract-feedback" class="form-feedback error" hidden></p>
+      <div class="form-actions"><button type="button" id="cancel-contract-delete" class="btn btn-ghost">Cancelar</button><button type="submit" id="confirm-contract-delete-btn" class="btn btn-primary">Confirmar remoção</button></div>
+    </form>
+  </dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="backend-config.js"></script>
   <script src="backend-api.js"></script>
@@ -48,3 +95,8 @@
   <script src="processos-cadastrados.js"></script>
 </body>
 </html>
+
+
+
+
+

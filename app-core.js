@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const AUTH_KEY = 'cc_auth';
   const AUTH_USER_KEY = 'cc_auth_user';
   const PROCESS_KEY = 'cc_processos';
@@ -84,7 +84,7 @@
 
     if (nameEl) {
       if (String(safeIdentity.nome || '').trim()) {
-        nameEl.textContent = 'Olá, ' + firstName(safeIdentity.nome) + '!';
+        nameEl.textContent = 'Ol\u00e1, ' + firstName(safeIdentity.nome) + '!';
       } else {
         nameEl.textContent = safeIdentity.username;
       }
@@ -434,12 +434,12 @@
 
     if (!nome) throw new Error('Informe o nome do item.');
     if (!unidadeMedida) throw new Error('Informe a unidade de medida.');
-    if (!Number.isFinite(estoqueAtual) || estoqueAtual < 0) throw new Error('Quantidade inicial inválida.');
-    if (!Number.isFinite(estoqueMinimo) || estoqueMinimo < 0) throw new Error('Estoque mínimo inválido.');
+    if (!Number.isFinite(estoqueAtual) || estoqueAtual < 0) throw new Error('Quantidade inicial inv\u00e1lida.');
+    if (!Number.isFinite(estoqueMinimo) || estoqueMinimo < 0) throw new Error('Estoque m\u00ednimo inv\u00e1lido.');
 
     const items = loadAlmoxItems();
     if (items.some(function (item) { return normalizeItemName(item.nome) === normalizeItemName(nome); })) {
-      throw new Error('Já existe item cadastrado com este nome.');
+      throw new Error('J\u00e1 existe item cadastrado com este nome.');
     }
 
     const now = new Date().toISOString();
@@ -487,17 +487,17 @@
     const quantidade = Number(payload.quantidade);
 
     if (!itemId) throw new Error('Selecione o item.');
-    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimentação inválido.');
-    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade inválida.');
-    if (!motivo) throw new Error('Informe o motivo da movimentação.');
+    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimenta\u00e7\u00e3o inv\u00e1lido.');
+    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade inv\u00e1lida.');
+    if (!motivo) throw new Error('Informe o motivo da movimenta\u00e7\u00e3o.');
 
     const items = loadAlmoxItems();
     const idx = items.findIndex(function (item) { return item.id === itemId; });
-    if (idx < 0) throw new Error('Item não encontrado.');
+    if (idx < 0) throw new Error('Item n\u00e3o encontrado.');
 
     const selected = items[idx];
     if (tipo === 'saida' && quantidade > Number(selected.estoqueAtual)) {
-      throw new Error('Quantidade de saída maior que o estoque disponível.');
+      throw new Error('Quantidade de sa\u00edda maior que o estoque dispon\u00edvel.');
     }
 
     const now = new Date().toISOString();
@@ -540,11 +540,11 @@
   function deleteAlmoxItem(itemId) {
     const currentUser = getCurrentUsername();
     const id = String(itemId || '').trim();
-    if (!id) throw new Error('Item inválido para exclusão.');
+    if (!id) throw new Error('Item inv\u00e1lido para exclus\u00e3o.');
 
     const items = loadAlmoxItems();
     const selected = items.find(function (item) { return item.id === id; });
-    if (!selected) throw new Error('Item não encontrado para exclusão.');
+    if (!selected) throw new Error('Item n\u00e3o encontrado para exclus\u00e3o.');
 
     const remaining = items.filter(function (item) { return item.id !== id; });
     saveAlmoxItems(remaining);
@@ -603,6 +603,8 @@
     loadDeletes: loadAlmoxDeletes
   };
 })();
+
+
 
 
 

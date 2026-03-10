@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #eef3f7;
   --ink: #132230;
   --muted: #445a6d;
@@ -624,10 +624,14 @@ th {
 }
 
 .status-chip {
-  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .status-ok {
@@ -706,6 +710,10 @@ th {
 /* Login institucional inspirado no layout de referencia */
 .gov-login-page {
   background: linear-gradient(180deg, #c2c9d0 0%, #aeb8c2 100%);
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
 }
 
 .gov-topbar {
@@ -1676,14 +1684,16 @@ td {
 
 /* Adaptacao do formulario de login conforme modelo enviado */
 .gov-main-login-modern {
-  padding: 30px 12px 40px;
+  min-height: 0;
+  padding: 16px 12px 10px;
   display: grid;
   place-items: center;
 }
 
 .gov-login-page .login-wrap {
   width: min(520px, 96vw);
-  min-height: 620px;
+  min-height: 0;
+  height: min(590px, 100%);
   position: relative;
   border-radius: 14px;
   overflow: hidden;
@@ -1696,7 +1706,7 @@ td {
   height: 100%;
   position: absolute;
   inset: 0;
-  padding: 42px 42px 32px;
+  padding: 34px 36px 24px;
   background: rgba(22, 37, 61, 0.9);
 }
 
@@ -1734,7 +1744,7 @@ td {
 }
 
 .gov-login-page .login-form {
-  min-height: 460px;
+  min-height: 0;
   position: relative;
   perspective: 1000px;
   transform-style: preserve-3d;
@@ -1915,7 +1925,7 @@ td {
   display: none !important;
 }
 
-/* Corre��o de visibilidade da autentica��o */
+/* Correï¿½ï¿½o de visibilidade da autenticaï¿½ï¿½o */
 .gov-login-page .login-html {
   position: relative;
 }
@@ -2328,7 +2338,7 @@ td {
   }
 }
 
-/* Responsividade final para navega��o e p�ginas internas */
+/* Responsividade final para navegaï¿½ï¿½o e pï¿½ginas internas */
 @media (max-width: 1120px) {
   .dashboard-layout {
     grid-template-columns: 1fr;
@@ -2589,4 +2599,202 @@ td {
 
 
 
+
+
+.inline-check { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; color: #2b4258; }
+.inline-check input { width: auto; margin: 0; }
+.contract-date-field { display: grid; gap: 10px; }
+.contract-date-field label { display: grid; gap: 5px; }
+.contract-date-field select {
+  width: 100%;
+  margin-top: 0;
+  border: 1px solid #aebac7;
+  border-radius: 8px;
+  background: #c8d1dc;
+  color: #172534;
+  padding: 9px 10px;
+  font: inherit;
+}
+.contract-date-field select:focus {
+  outline: 2px solid #3f6d95;
+  outline-offset: 1px;
+}
+.contract-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; margin-top: 18px; }
+.filter-field { display: grid; gap: 6px; min-width: 180px; color: #2b4258; font-weight: 700; }
+.status-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.status-filter { border: 1px solid #8ba3bc; border-radius: 999px; background: #d9e1ea; color: #1f3346; padding: 8px 14px; cursor: pointer; font: inherit; transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+.status-filter.active { background: #24496a; border-color: #24496a; color: #f6f8fb; }
+
+.action-icon-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-icon-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #96a9bb;
+  border-radius: 10px;
+  background: #e2e8ef;
+  color: #22374a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.action-icon-btn:hover {
+  background: #d4dde7;
+  border-color: #6a88a3;
+  transform: translateY(-1px);
+}
+
+.action-icon-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-icon-btn.danger {
+  color: #8d2f2f;
+}
+
+.action-icon-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.contract-edit-dialog {
+  width: min(860px, 94vw);
+}
+
+.contract-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.contract-edit-grid .span-2 {
+  grid-column: span 2;
+}
+
+.contract-edit-form textarea,
+.contract-edit-form input,
+.contract-edit-form select {
+  border: 1px solid #aebac7;
+  border-radius: 8px;
+  background: #c8d1dc;
+  padding: 10px;
+  font: inherit;
+  width: 100%;
+}
+
+.contract-edit-form textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+@media (max-width: 760px) {
+  .contract-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contract-edit-grid .span-2 {
+    grid-column: span 1;
+  }
+}
+
+
+.login-footer {
+  width: min(1120px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 8px 18px 12px;
+  text-align: center;
+  color: #d7e3ee;
+}
+
+.login-footer p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.login-footer p + p {
+  margin-top: 4px;
+  color: #c1d0de;
+}
+
+@media (max-width: 760px) {
+  .login-footer {
+    width: min(100vw - 20px, 680px);
+    padding: 6px 10px 12px;
+    font-size: 0.84rem;
+  }
+}
+
+
+.gov-login-page {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+}
+
+.gov-login-page .gov-main-login-modern {
+  min-height: 0;
+  padding: 16px 12px 10px;
+  display: grid;
+  place-items: center;
+}
+
+.gov-login-page .login-wrap {
+  min-height: 0;
+  height: min(590px, 100%);
+}
+
+.gov-login-page .login-html {
+  padding: 34px 36px 24px;
+}
+
+.gov-login-page .login-form {
+  min-height: 0;
+}
+
+.gov-login-page .login-slogan-image {
+  width: 82px;
+  height: 82px;
+  margin: 0 auto 18px;
+}
+
+.gov-login-page .login-card-title {
+  margin: 0 0 16px;
+}
+
+.gov-login-page .login-form .group {
+  margin-bottom: 13px;
+}
+
+.gov-login-page .hr {
+  margin: 14px 0 12px;
+}
+
+@media (max-width: 760px) {
+  .gov-login-page .gov-main-login-modern {
+    padding: 10px 10px 8px;
+  }
+
+  .gov-login-page .login-wrap {
+    height: min(540px, 100%);
+  }
+
+  .gov-login-page .login-html {
+    padding: 18px 16px 16px;
+  }
+}
 

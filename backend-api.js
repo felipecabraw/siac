@@ -142,6 +142,7 @@
       fiscaisContrato: row.fiscais_contrato || row.fiscal_contrato,
       inicioVigencia: row.inicio_vigencia,
       fimVigencia: row.fim_vigencia || row.termino_vigencia,
+      contratoContinuado: !!row.contrato_continuado,
       status: row.status_contrato || 'vigente'
     };
   }
@@ -164,6 +165,7 @@
       objeto_contrato: String(item.objeto || '').trim(),
       fundamentacao_legal: String(item.fundamentacaoLegal || '').trim(),
       empresa_contratada: String(item.empresaContratada || '').trim(),
+      contrato_continuado: !!item.contratoContinuado,
       status_contrato: 'vigente',
       data_assinatura: String(item.inicioVigencia || '').trim(),
       data_publicacao: String(item.fimVigencia || '').trim(),
@@ -603,6 +605,34 @@
     return (byContrato.data || []).length > 0;
   }
 
+  async function hasDuplicateProcessoForUpdate(id, numeroProcesso, numeroContrato) {
+    const safeId = String(id || '').trim();
+    if (!safeId) return hasDuplicateProcesso(numeroProcesso, numeroContrato);
+
+    if (!isSupabaseEnabled()) {
+      const list = loadLocalList(PROCESS_KEY);
+      const np = String(numeroProcesso || '').trim().toLowerCase();
+      const nc = String(numeroContrato || '').trim().toLowerCase();
+      return list.some(function (item) {
+        if (String(item.id) === safeId) return false;
+        return String(item.processoSei || '').trim().toLowerCase() === np ||
+          String(item.numeroContrato || '').trim().toLowerCase() === nc;
+      });
+    }
+
+    const supabase = getClient();
+    const np = String(numeroProcesso || '').trim();
+    const nc = String(numeroContrato || '').trim();
+
+    const byProcesso = await supabase.from('processos_contratos').select('id').eq('numero_processo', np).neq('id', safeId).limit(1);
+    if (byProcesso.error) throw new Error(byProcesso.error.message || 'Falha ao validar n\u00famero do processo.');
+    if ((byProcesso.data || []).length > 0) return true;
+
+    const byContrato = await supabase.from('processos_contratos').select('id').eq('numero_contrato', nc).neq('id', safeId).limit(1);
+    if (byContrato.error) throw new Error(byContrato.error.message || 'Falha ao validar n\u00famero do contrato.');
+    return (byContrato.data || []).length > 0;
+  }
+
   async function createProcesso(item) {
     if (!isSupabaseEnabled()) {
       const list = loadLocalList(PROCESS_KEY);
@@ -624,6 +654,41 @@
     const mapped = mapRowToProcesso(result.data);
     const cached = loadLocalList(PROCESS_KEY);
     cached.push(mapped);
+    saveLocalList(PROCESS_KEY, cached);
+    return mapped;
+  }
+
+  async function updateProcesso(id, item) {
+    const safeId = String(id || '').trim();
+    if (!safeId) throw new Error('Contrato inv\u00e1lido para atualiza\u00e7\u00e3o.');
+
+    if (!isSupabaseEnabled()) {
+      const list = loadLocalList(PROCESS_KEY);
+      const index = list.findIndex(function (entry) { return String(entry.id) === safeId; });
+      if (index < 0) throw new Error('Contrato n\u00e3o encontrado para atualiza\u00e7\u00e3o.');
+
+      const entity = Object.assign({}, list[index], item, { id: safeId });
+      list[index] = entity;
+      saveLocalList(PROCESS_KEY, list);
+      return entity;
+    }
+
+    const supabase = getClient();
+    const user = await getSessionUser();
+    const payload = mapProcessoToRow(item);
+    payload.atualizado_por = user ? (user.email || user.id) : null;
+
+    const result = await supabase.from('processos_contratos').update(payload).eq('id', safeId).select('*').single();
+    if (result.error) throw new Error(result.error.message || 'Falha ao atualizar contrato.');
+
+    const mapped = mapRowToProcesso(result.data);
+    const cached = loadLocalList(PROCESS_KEY);
+    const index = cached.findIndex(function (entry) { return String(entry.id) === safeId; });
+    if (index >= 0) {
+      cached[index] = mapped;
+    } else {
+      cached.push(mapped);
+    }
     saveLocalList(PROCESS_KEY, cached);
     return mapped;
   }
@@ -1025,7 +1090,9 @@
     getCurrentAuthUser: getCurrentAuthUser,
     listProcessos: listProcessos,
     hasDuplicateProcesso: hasDuplicateProcesso,
+    hasDuplicateProcessoForUpdate: hasDuplicateProcessoForUpdate,
     createProcesso: createProcesso,
+    updateProcesso: updateProcesso,
     deleteProcesso: deleteProcesso,
     getProfile: getProfile,
     saveProfile: saveProfile,
@@ -1037,6 +1104,10 @@
     listAlmoxDeletes: listAlmoxDeletes
   };
 })();
+
+
+
+
 
 
 

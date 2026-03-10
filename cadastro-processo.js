@@ -77,7 +77,8 @@
       gestorContrato: String(data.get('gestorContrato') || '').trim(),
       fiscaisContrato: String(data.get('fiscaisContrato') || '').trim(),
       inicioVigencia: inicio,
-      fimVigencia: fim
+      fimVigencia: fim,
+      contratoContinuado: String(data.get('contratoContinuado') || 'nao').trim().toLowerCase() === 'sim'
     };
 
     try {
@@ -142,3 +143,6 @@
     feedback.textContent = '';
   }
 })();
+
+
+
