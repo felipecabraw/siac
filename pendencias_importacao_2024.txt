@@ -1,0 +1,4 @@
+﻿Linha 26: gestor_contrato preenchido com valor padrao.
+Linha 26: contrato ignorado por ausência de datas válidas.
+Linha 28: fundamentacao_legal preenchida com valor padrao.
+Linha 28: numero_contrato invalido ou ausente; gerado identificador provisório 'A-PREENCHER-06010046-000839-2022-10'.

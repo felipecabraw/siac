@@ -1,0 +1,8 @@
+﻿numero_processo duplicado '06010046.000028/2022-19' ajustado para '06010046.000028/2022-19-CT-005/2024'.
+numero_processo duplicado '06010046.000028/2022-19' ajustado para '06010046.000028/2022-19-CT-006/2024'.
+numero_processo duplicado '06010008.002469/2023-84' ajustado para '06010008.002469/2023-84-CT-008/2024'.
+numero_processo duplicado '06010008.002469/2023-84' ajustado para '06010008.002469/2023-84-CT-009/2024'.
+numero_processo duplicado '06010008.002469/2023-84' ajustado para '06010008.002469/2023-84-CT-010/2024'.
+numero_processo duplicado '06010008.002469/2023-84' ajustado para '06010008.002469/2023-84-CT-011/2024'.
+numero_processo duplicado '06010008.002469/2023-84' ajustado para '06010008.002469/2023-84-CT-012/2024'.
+numero_processo duplicado '06010097.000747/2023-15' ajustado para '06010097.000747/2023-15-CT-018/2024'.
