@@ -1,4 +1,4 @@
-﻿-- Bootstrap controlado do Administrador Sênior inicial
+-- Bootstrap controlado do Administrador Sênior inicial
 -- Aplica promoção do admin principal e mantém proteção para os demais usuários.
 
 update public.usuarios_perfil

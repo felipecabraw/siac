@@ -1,112 +1,54 @@
-<!doctype html>
+ï»¿<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/jpeg" href="images1.jfif">
-  <title>Dados do Usuário | SIAC</title>
-  <meta name="description" content="Dados do usuário autenticado no SIAC.">
+  <title>Dados do Usu&aacute;rio | SIAC</title>
+  <meta name="description" content="Dados do usu&aacute;rio autenticado no SIAC.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dashboard-body">
   <div class="dashboard-layout">
     <aside class="sidebar">
-      <div class="sidebar-brand">
-        <span class="brand-mark">SI</span>
-        <div>
-          <strong>SIAC</strong>
-          <span>Painel institucional</span>
-        </div>
-      </div>
-
+      <div class="sidebar-brand"><span class="brand-mark">SI</span><div><strong>SIAC</strong><span>Painel institucional</span></div></div>
       <nav class="sidebar-nav">
-        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>Início</a>
+        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>In&iacute;cio</a>
         <a data-nav="cadastro" href="cadastro-processo.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 11v6"></path><path d="M9 14h6"></path></svg></span>Cadastro de contratos</a>
         <a data-nav="processos" href="processos-cadastrados.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Contratos cadastrados</a>
         <a data-nav="almoxarifado" href="almoxarifado.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7.5 12 3l9 4.5-9 4.5z"></path><path d="M3 7.5V16.5L12 21l9-4.5V7.5"></path><path d="M12 12v9"></path></svg></span>Almoxarifado</a>
         <a data-nav="perfil" href="perfil.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"></circle><path d="M4 20a8 8 0 0 1 16 0"></path></svg></span>Perfil</a>
       </nav>
-
-      <div class="sidebar-note">Atualize seus dados para identificação no sistema.</div>
+      <div class="sidebar-note">Atualize seus dados para identifica&ccedil;&atilde;o no sistema.</div>
     </aside>
-
     <main class="dashboard-main">
       <header class="dashboard-topbar">
-        <div class="dashboard-topbar-left">
-          <img class="dashboard-topbar-logo" src="logoSispern.png" alt="Brasão institucional">
-          <div>
-            <strong>SIAC</strong>
-            <span>Dados do Usuário</span>
-          </div>
-        </div>
-        <div class="dashboard-topbar-right">
-          <div class="user-chip-wrap">
-            <img id="top-user-avatar" class="top-user-avatar" alt="Foto do usuário" hidden>
-            <span id="top-user-fallback" class="top-user-fallback">U</span>
-            <span id="top-user-name" class="dashboard-user-chip">Usuário autenticado</span>
-          </div>
-          <button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button>
-        </div>
+        <div class="dashboard-topbar-left"><img class="dashboard-topbar-logo" src="logoSispern.png" alt="Bras&atilde;o institucional"><div><strong>SIAC</strong><span>Dados do Usu&aacute;rio</span></div></div>
+        <div class="dashboard-topbar-right"><div class="user-chip-wrap"><img id="top-user-avatar" class="top-user-avatar" alt="Foto do usu&aacute;rio" hidden><span id="top-user-fallback" class="top-user-fallback">U</span><span id="top-user-name" class="dashboard-user-chip">Usu&aacute;rio autenticado</span></div><button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button></div>
       </header>
-
       <section class="panel-block">
-        <h1>Dados do Usuário</h1>
-        <p class="section-helper">As informações abaixo personalizam a identificação visual do usuário no sistema.</p>
+        <h1>Dados do Usu&aacute;rio</h1>
+        <p class="section-helper">As informa&ccedil;&otilde;es abaixo personalizam a identifica&ccedil;&atilde;o visual do usu&aacute;rio no sistema.</p>
         <p id="profile-feedback" class="form-feedback" hidden></p>
-
         <form id="profile-form" class="profile-form">
-          <div class="profile-photo-column">
-            <img id="profile-preview" class="profile-preview" alt="Foto de perfil">
-            <label class="btn btn-ghost profile-upload-btn" for="fotoPerfil">Selecionar foto</label>
-            <input id="fotoPerfil" name="fotoPerfil" type="file" accept="image/*">
-            <button type="button" id="clear-photo" class="btn btn-ghost">Remover foto</button>
-          </div>
-
+          <div class="profile-photo-column"><img id="profile-preview" class="profile-preview" alt="Foto de perfil"><label class="btn btn-ghost profile-upload-btn" for="fotoPerfil">Selecionar foto</label><input id="fotoPerfil" name="fotoPerfil" type="file" accept="image/*"><button type="button" id="clear-photo" class="btn btn-ghost">Remover foto</button></div>
           <div class="profile-fields-column">
-            <label>Nome completo
-              <input type="text" name="nome" required>
-            </label>
-            <label>CPF
-              <input type="text" name="cpf" required>
-            </label>
-            <label>Matrícula
-              <input type="text" name="matricula" required>
-            </label>
-            <label>Função
-              <input type="text" name="funcao" required>
-            </label>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary">Salvar perfil</button>
-            </div>
+            <label>Nome completo<input type="text" name="nome" required></label>
+            <label>CPF<input type="text" name="cpf" required></label>
+            <label>Matr&iacute;cula<input type="text" name="matricula" required></label>
+            <label>Fun&ccedil;&atilde;o<input type="text" name="funcao" required></label>
+            <div class="form-actions"><button type="submit" class="btn btn-primary">Salvar perfil</button></div>
           </div>
         </form>
       </section>
       <section id="admin-approval-panel" class="panel-block" hidden>
-        <div class="panel-title-row">
-          <h2>Aprovação de novos usuários</h2>
-          <span class="tag">Administrador Sênior</span>
-        </div>
-        <p class="section-helper">Somente o perfil Administrador Sênior pode liberar acessos pendentes.</p>
+        <div class="panel-title-row"><h2>Aprova&ccedil;&atilde;o de novos usu&aacute;rios</h2><span class="tag">Administrador S&ecirc;nior</span></div>
+        <p class="section-helper">Somente o perfil Administrador S&ecirc;nior pode liberar acessos pendentes.</p>
         <p id="approval-feedback" class="form-feedback" hidden></p>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>CPF</th>
-                <th>Matrícula</th>
-                <th>E-mail</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="approval-table-body"></tbody>
-          </table>
-        </div>
+        <div class="table-wrap"><table><thead><tr><th>Nome</th><th>CPF</th><th>Matr&iacute;cula</th><th>E-mail</th><th>Status</th><th>A&ccedil;&otilde;es</th></tr></thead><tbody id="approval-table-body"></tbody></table></div>
       </section>
     </main>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="backend-config.js"></script>
   <script src="backend-api.js"></script>
@@ -114,18 +56,3 @@
   <script src="perfil.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

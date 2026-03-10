@@ -1,4 +1,4 @@
-(function () {
+ï»¿(function () {
   AppCore.initShell('inicio');
 
   const todayLabel = document.getElementById('today-label');
@@ -73,7 +73,7 @@
 
     legend.innerHTML = [
       legendItem('#2f9d62', 'Vigente', totals.ok),
-      legendItem('#eab54f', 'A vencer em até 90 dias', totals.warning),
+      legendItem('#eab54f', 'A vencer em at\u00e9 90 dias', totals.warning),
       legendItem('#d74f4f', 'Vencido', totals.danger)
     ].join('');
   }
@@ -155,12 +155,12 @@
     alertsList.innerHTML = hot.map(function (row) {
       const typeClass = row.status.type === 'danger' ? 'danger' : 'warning';
       const label = row.status.type === 'danger'
-        ? 'Vencido há ' + Math.abs(row.status.dias) + ' dias'
+        ? 'Vencido h\u00e1 ' + Math.abs(row.status.dias) + ' dias'
         : 'Vence em ' + row.status.dias + ' dias';
 
       return '<li class="alert-item ' + typeClass + '">' +
         '<div><strong>Contrato ' + AppCore.escapeHtml(row.contrato) + '</strong><span>Processo ' + AppCore.escapeHtml(row.processo) + ' | ' + AppCore.escapeHtml(row.empresa) + '</span></div>' +
-        '<div><b>' + label + '</b><small>Término: ' + AppCore.formatDate(row.termino) + '</small></div>' +
+        '<div><b>' + label + '</b><small>T\u00e9rmino: ' + AppCore.formatDate(row.termino) + '</small></div>' +
       '</li>';
     }).join('');
   }
@@ -175,6 +175,8 @@
     return 'Atualizado em ' + day + '/' + month + '/' + date.getFullYear();
   }
 })();
+
+
 
 
 

@@ -1,13 +1,13 @@
-# Migração para Supabase (Status Atual)
+# Migraï¿½ï¿½o para Supabase (Status Atual)
 
-## O que já está pronto
+## O que jï¿½ estï¿½ pronto
 - Login com suporte ao Supabase Auth.
-- Sessão e logout integrados ao backend.
-- Processos/contratos integrados ao Supabase (cadastro, listagem, exclusão, duplicidade).
-- Perfil do usuário integrado ao Supabase.
-- Almoxarifado integrado ao Supabase (itens, movimentações, exclusões).
-- Validação de senha para exclusão de item no almoxarifado.
-- Fallback local automático quando `provider: 'local'`.
+- Sessï¿½o e logout integrados ao backend.
+- Processos/contratos integrados ao Supabase (cadastro, listagem, exclusï¿½o, duplicidade).
+- Perfil do usuï¿½rio integrado ao Supabase.
+- Almoxarifado integrado ao Supabase (itens, movimentaï¿½ï¿½es, exclusï¿½es).
+- Validaï¿½ï¿½o de senha para exclusï¿½o de item no almoxarifado.
+- Fallback local automï¿½tico quando `provider: 'local'`.
 
 ## 1) Criar projeto no Supabase
 - Acesse https://supabase.com
@@ -15,11 +15,11 @@
 
 ## 2) Executar schema SQL
 - Abra o SQL Editor.
-- Execute o conteúdo de `supabase/schema.sql`.
+- Execute o conteï¿½do de `supabase/schema.sql`.
 
-## 3) Habilitar usuários
+## 3) Habilitar usuï¿½rios
 - Em Authentication > Providers, mantenha Email habilitado.
-- Crie os usuários em Authentication > Users.
+- Crie os usuï¿½rios em Authentication > Users.
 
 ## 4) Configurar frontend
 Edite `backend-config.js`:
@@ -33,22 +33,22 @@ window.SIGA_BACKEND_CONFIG = {
 ```
 
 ## 5) Login
-- No modo Supabase, o campo `Usuário/E-mail` deve receber o e-mail do usuário cadastrado no Supabase Auth.
+- No modo Supabase, o campo `Usuï¿½rio/E-mail` deve receber o e-mail do usuï¿½rio cadastrado no Supabase Auth.
 
 ## 6) Deploy para teste
-- Publique o frontend (Netlify/Vercel) após configurar `backend-config.js`.
+- Publique o frontend (Netlify/Vercel) apï¿½s configurar `backend-config.js`.
 
-## Controle de acesso (Administrador Sênior)
-- Execute também: `supabase/migration_acesso_admin_senior.sql`.
-- A aprovação de novos usuários é feita por perfil (`role = senior_admin`).
+## Controle de acesso (Administrador Sï¿½nior)
+- Execute tambï¿½m: `supabase/migration_acesso_admin_senior.sql`.
+- A aprovaï¿½ï¿½o de novos usuï¿½rios ï¿½ feita por perfil (`role = senior_admin`).
 - No bootstrap inicial, promova o administrador principal para `senior_admin` na tabela `usuarios_perfil`.
 
-## Hardening de segurança (obrigatório)
+## Hardening de seguranï¿½a (obrigatï¿½rio)
 - Execute: `supabase/migration_rls_usuarios_perfil.sql`.
-- Essa migração impede que usuários comuns promovam o próprio perfil para `senior_admin` ou alterem `status_acesso`.
+- Essa migraï¿½ï¿½o impede que usuï¿½rios comuns promovam o prï¿½prio perfil para `senior_admin` ou alterem `status_acesso`.
 
-## Próxima fase sugerida
-- Auditoria institucional automática (triggers com payload detalhado).
-- Relatórios consolidados (contratos e almoxarifado).
-- RLS por unidade/setor quando houver expansão além de SEAP/ALMOXARIFADO.
+## Prï¿½xima fase sugerida
+- Auditoria institucional automï¿½tica (triggers com payload detalhado).
+- Relatï¿½rios consolidados (contratos e almoxarifado).
+- RLS por unidade/setor quando houver expansï¿½o alï¿½m de SEAP/ALMOXARIFADO.
 

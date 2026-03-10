@@ -1,4 +1,4 @@
-(function () {
+ï»¿(function () {
   AppCore.initShell('processos');
 
   const searchInput = document.getElementById('search');
@@ -32,7 +32,7 @@
       cache = await BackendAPI.listProcessos();
       renderTable();
     } catch (_error) {
-      window.alert('Não foi possível remover o contrato no backend.');
+      window.alert('N\u00e3o foi poss\u00edvel remover o contrato no backend.');
       deletingIds.delete(id);
       btn.disabled = false;
       btn.textContent = oldText;
@@ -87,6 +87,8 @@
     }).join('');
   }
 })();
+
+
 
 
 

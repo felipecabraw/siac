@@ -1,4 +1,4 @@
-﻿-- Migracao: controle de acesso por aprovacao do Administrador Senior
+-- Migracao: controle de acesso por aprovacao do Administrador Senior
 -- Bootstrap inicial do perfil senior_admin (ajuste conforme o administrador atual)
 
 alter table if exists public.usuarios_perfil

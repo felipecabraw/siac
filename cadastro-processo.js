@@ -1,4 +1,4 @@
-(function () {
+ï»¿(function () {
   AppCore.initShell('cadastro');
 
   const form = document.getElementById('process-form');
@@ -42,14 +42,14 @@
     const valorGlobal = AppCore.parseCurrencyBrl(data.get('valorGlobal'));
 
     if (new Date(fim) < new Date(inicio)) {
-      setFeedback('A data de fim da vigência deve ser igual ou posterior ao início.', 'error');
+      setFeedback('A data de fim da vig\u00eancia deve ser igual ou posterior ao in\u00edcio.', 'error');
       isSubmitting = false;
       setBusyState(false, false);
       return;
     }
 
     if (!Number.isFinite(valorGlobal) || valorGlobal <= 0) {
-      setFeedback('Informe um valor global válido e maior que zero.', 'error');
+      setFeedback('Informe um valor global v\u00e1lido e maior que zero.', 'error');
       isSubmitting = false;
       setBusyState(false, false);
       return;
@@ -58,11 +58,11 @@
     try {
       const hasDuplicate = await BackendAPI.hasDuplicateProcesso(processoSei, numeroContrato);
       if (hasDuplicate) {
-        setFeedback('Já existe contrato cadastrado com esse Processo SEI ou número de contrato.', 'error');
+        setFeedback('J\u00e1 existe contrato cadastrado com esse Processo SEI n\u00ba ou n\u00famero de contrato.', 'error');
         return;
       }
     } catch (_error) {
-      setFeedback('Não foi possível validar duplicidade no backend.', 'error');
+      setFeedback('N\u00e3o foi poss\u00edvel validar duplicidade no backend.', 'error');
       return;
     }
 
@@ -70,6 +70,7 @@
       processoSei: processoSei,
       numeroContrato: numeroContrato,
       objeto: String(data.get('objeto') || '').trim(),
+      fundamentacaoLegal: String(data.get('fundamentacaoLegal') || '').trim(),
       empresaContratada: String(data.get('empresaContratada') || '').trim(),
       valorGlobal: valorGlobal,
       fonte: String(data.get('fonte') || '').trim(),
@@ -100,7 +101,7 @@
     try {
       const current = await BackendAPI.listProcessos();
       if (current.length > 0) {
-        setFeedback('Já existem Contratos cadastrados. A carga de exemplo não foi aplicada.', 'warn');
+        setFeedback('J\u00e1 existem contratos cadastrados. A carga de exemplo n\u00e3o foi aplicada.', 'warn');
         return;
       }
 
@@ -141,8 +142,3 @@
     feedback.textContent = '';
   }
 })();
-
-
-
-
-

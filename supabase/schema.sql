@@ -1,4 +1,4 @@
-﻿-- SIGA - Schema inicial para ambiente institucional (Supabase/PostgreSQL)
+-- SIGA - Schema inicial para ambiente institucional (Supabase/PostgreSQL)
 -- Executar no SQL Editor do Supabase.
 
 create extension if not exists pgcrypto;

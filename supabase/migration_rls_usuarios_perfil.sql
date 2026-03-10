@@ -1,4 +1,4 @@
-﻿-- Hardening de seguranca para usuarios_perfil
+-- Hardening de seguranca para usuarios_perfil
 -- Objetivo: impedir elevacao de privilegio (role/status) por usuarios comuns
 
 create or replace function public.is_current_user_senior_admin()

@@ -1,4 +1,4 @@
-(function () {
+ï»¿(function () {
   AppCore.initShell('perfil');
 
   const form = document.getElementById('profile-form');
@@ -30,7 +30,7 @@
       form.funcao.value = profile.funcao || '';
       updatePreview();
     } catch (_error) {
-      showFeedback('Não foi possível carregar os dados do usuário.', 'error');
+      showFeedback('N\u00e3o foi poss\u00edvel carregar os dados do usu\u00e1rio.', 'error');
     }
 
     if (approvalPanel && BackendAPI.isCurrentUserSeniorAdmin()) {
@@ -72,7 +72,7 @@
 
     const cpfDigits = AppCore.onlyDigits(form.cpf.value);
     if (!AppCore.isValidCpf(cpfDigits)) {
-      showFeedback('CPF inválido. Verifique o número informado.', 'error');
+      showFeedback('CPF inv\u00e1lido. Verifique o n\u00famero informado.', 'error');
       return;
     }
 
@@ -90,12 +90,12 @@
     try {
       await BackendAPI.saveProfile(payload);
       AppCore.saveProfile(BackendAPI.getCurrentAuthUser(), payload);
-      showFeedback('Dados do usuário atualizados com sucesso.', 'ok');
+      showFeedback('Dados do usu\u00e1rio atualizados com sucesso.', 'ok');
       setTimeout(function () {
         window.location.reload();
       }, 300);
     } catch (_error) {
-      showFeedback('Não foi possível salvar os dados do usuário no backend.', 'error');
+      showFeedback('N\u00e3o foi poss\u00edvel salvar os dados do usu\u00e1rio no backend.', 'error');
     } finally {
       isSaving = false;
       setSavingState(false);
@@ -119,10 +119,10 @@
 
       try {
         await BackendAPI.approveAccessRequest(id);
-        setApprovalFeedback('Usuário aprovado com sucesso.', 'ok');
+        setApprovalFeedback('Usu\u00e1rio aprovado com sucesso.', 'ok');
         await loadPendingApprovals();
       } catch (error) {
-        setApprovalFeedback((error && error.message) ? error.message : 'Falha ao aprovar usuário.', 'error');
+        setApprovalFeedback((error && error.message) ? error.message : 'Falha ao aprovar usu\u00e1rio.', 'error');
         approvingIds.delete(id);
         btn.disabled = false;
         btn.textContent = oldText;
@@ -136,7 +136,7 @@
     try {
       const pending = await BackendAPI.listPendingAccessRequests();
       if (!pending || pending.length === 0) {
-        approvalTableBody.innerHTML = '<tr><td colspan="6">Nenhuma solicitação pendente.</td></tr>';
+        approvalTableBody.innerHTML = '<tr><td colspan="6">Nenhuma solicita\u00e7\u00e3o pendente.</td></tr>';
         return;
       }
 
@@ -153,8 +153,8 @@
         '</tr>';
       }).join('');
     } catch (error) {
-      approvalTableBody.innerHTML = '<tr><td colspan="6">Falha ao carregar solicitações pendentes.</td></tr>';
-      setApprovalFeedback((error && error.message) ? error.message : 'Falha ao consultar aprovações.', 'error');
+      approvalTableBody.innerHTML = '<tr><td colspan="6">Falha ao carregar solicita\u00e7\u00f5es pendentes.</td></tr>';
+      setApprovalFeedback((error && error.message) ? error.message : 'Falha ao consultar aprova\u00e7\u00f5es.', 'error');
     }
   }
 
@@ -188,4 +188,6 @@
     feedback.hidden = false;
   }
 })();
+
+
 

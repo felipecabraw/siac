@@ -1,61 +1,40 @@
-<!doctype html>
+ï»¿<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/jpeg" href="images1.jfif">
   <title>Esqueci minha senha | SIAC</title>
-  <meta name="description" content="Recuperação de senha do SIAC.">
+  <meta name="description" content="Recupera&ccedil;&atilde;o de senha do SIAC.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="login-body gov-login-page">
   <header class="gov-topbar">
     <div class="gov-topbar-inner">
-      <img class="gov-mini-logo" src="logoSispern.png" alt="Brasão institucional">
-      <p class="gov-title">Sistema Instrumental de Administração e Contratos - SIAC</p>
+      <img class="gov-mini-logo" src="logoSispern.png" alt="Bras&atilde;o institucional">
+      <p class="gov-title">Sistema Instrumental de Administra&ccedil;&atilde;o e Contratos - SIAC</p>
     </div>
   </header>
-
   <main class="gov-main gov-main-login-modern">
     <div class="login-wrap">
       <div class="login-html">
         <div class="login-form">
-          <form id="forgot-form" class="auth-form" novalidate>
-            <img class="login-slogan-image" src="logoSispern.png" alt="Símbolo institucional">
-            <p class="login-card-title">Esqueci minha senha</p>
+          <form id="forgot-password-form" class="auth-form" novalidate>
+            <img class="login-slogan-image" src="logoSispern.png" alt="S&iacute;mbolo institucional">
+            <p class="login-card-title">Recuperar acesso</p>
             <p id="forgot-feedback" class="login-error" hidden></p>
-
-            <div class="group">
-              <label for="email" class="label">E-mail cadastrado</label>
-              <input id="email" name="email" type="email" class="input" required placeholder="usuario@dominio.gov.br">
-            </div>
-
-            <div class="group">
-              <button type="submit" class="button">Enviar recuperação</button>
-            </div>
-
+            <div class="group"><label for="email" class="label">E-mail</label><input id="email" name="email" type="email" class="input" required placeholder="E-mail cadastrado"></div>
+            <div class="group"><button type="submit" class="button">Enviar recupera&ccedil;&atilde;o</button></div>
             <div class="hr"></div>
-            <div class="foot-lnk login-credit">
-              O sistema enviará instruções de redefinição para o e-mail informado.
-            </div>
-            <div class="foot-lnk">
-              <a href="index.html">Voltar ao login</a>
-            </div>
+            <div class="foot-lnk">O sistema enviar&aacute; instru&ccedil;&otilde;es de redefini&ccedil;&atilde;o para o e-mail informado.</div>
           </form>
         </div>
       </div>
     </div>
   </main>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="backend-config.js"></script>
   <script src="backend-api.js"></script>
   <script src="esqueci-senha.js"></script>
 </body>
 </html>
-
-
-
-
-
-

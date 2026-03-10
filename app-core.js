@@ -84,7 +84,7 @@
 
     if (nameEl) {
       if (String(safeIdentity.nome || '').trim()) {
-        nameEl.textContent = 'Ol·, ' + firstName(safeIdentity.nome) + '!';
+        nameEl.textContent = 'Ol√°, ' + firstName(safeIdentity.nome) + '!';
       } else {
         nameEl.textContent = safeIdentity.username;
       }
@@ -434,12 +434,12 @@
 
     if (!nome) throw new Error('Informe o nome do item.');
     if (!unidadeMedida) throw new Error('Informe a unidade de medida.');
-    if (!Number.isFinite(estoqueAtual) || estoqueAtual < 0) throw new Error('Quantidade inicial inv·lida.');
-    if (!Number.isFinite(estoqueMinimo) || estoqueMinimo < 0) throw new Error('Estoque mÌnimo inv·lido.');
+    if (!Number.isFinite(estoqueAtual) || estoqueAtual < 0) throw new Error('Quantidade inicial inv√°lida.');
+    if (!Number.isFinite(estoqueMinimo) || estoqueMinimo < 0) throw new Error('Estoque m√≠nimo inv√°lido.');
 
     const items = loadAlmoxItems();
     if (items.some(function (item) { return normalizeItemName(item.nome) === normalizeItemName(nome); })) {
-      throw new Error('J· existe item cadastrado com este nome.');
+      throw new Error('J√° existe item cadastrado com este nome.');
     }
 
     const now = new Date().toISOString();
@@ -487,17 +487,17 @@
     const quantidade = Number(payload.quantidade);
 
     if (!itemId) throw new Error('Selecione o item.');
-    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimentaÁ„o inv·lido.');
-    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade inv·lida.');
-    if (!motivo) throw new Error('Informe o motivo da movimentaÁ„o.');
+    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimenta√ß√£o inv√°lido.');
+    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade inv√°lida.');
+    if (!motivo) throw new Error('Informe o motivo da movimenta√ß√£o.');
 
     const items = loadAlmoxItems();
     const idx = items.findIndex(function (item) { return item.id === itemId; });
-    if (idx < 0) throw new Error('Item n„o encontrado.');
+    if (idx < 0) throw new Error('Item n√£o encontrado.');
 
     const selected = items[idx];
     if (tipo === 'saida' && quantidade > Number(selected.estoqueAtual)) {
-      throw new Error('Quantidade de saÌda maior que o estoque disponÌvel.');
+      throw new Error('Quantidade de sa√≠da maior que o estoque dispon√≠vel.');
     }
 
     const now = new Date().toISOString();
@@ -540,11 +540,11 @@
   function deleteAlmoxItem(itemId) {
     const currentUser = getCurrentUsername();
     const id = String(itemId || '').trim();
-    if (!id) throw new Error('Item inv·lido para exclus„o.');
+    if (!id) throw new Error('Item inv√°lido para exclus√£o.');
 
     const items = loadAlmoxItems();
     const selected = items.find(function (item) { return item.id === id; });
-    if (!selected) throw new Error('Item n„o encontrado para exclus„o.');
+    if (!selected) throw new Error('Item n√£o encontrado para exclus√£o.');
 
     const remaining = items.filter(function (item) { return item.id !== id; });
     saveAlmoxItems(remaining);

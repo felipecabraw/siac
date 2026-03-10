@@ -1,87 +1,45 @@
-<!doctype html>
+ï»¿<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/jpeg" href="images1.jfif">
   <title>Solicitar Acesso | SIAC</title>
-  <meta name="description" content="Solicitação de acesso ao SIAC.">
+  <meta name="description" content="Solicita&ccedil;&atilde;o de acesso ao SIAC.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="login-body gov-login-page">
   <header class="gov-topbar">
     <div class="gov-topbar-inner">
-      <img class="gov-mini-logo" src="logoSispern.png" alt="Brasão institucional">
-      <p class="gov-title">Sistema Instrumental de Administração e Contratos - SIAC</p>
+      <img class="gov-mini-logo" src="logoSispern.png" alt="Bras&atilde;o institucional">
+      <p class="gov-title">Sistema Instrumental de Administra&ccedil;&atilde;o e Contratos - SIAC</p>
     </div>
   </header>
-
   <main class="gov-main gov-main-login-modern">
     <div class="login-wrap">
       <div class="login-html">
         <div class="login-form">
           <form id="request-access-form" class="auth-form" novalidate>
-            <img class="login-slogan-image" src="logoSispern.png" alt="Símbolo institucional">
-            <p class="login-card-title">Solicitar Acesso ao Sistema</p>
+            <img class="login-slogan-image" src="logoSispern.png" alt="S&iacute;mbolo institucional">
+            <p class="login-card-title">Solicitar acesso ao sistema</p>
             <p id="request-feedback" class="login-error" hidden></p>
-
-            <div class="group">
-              <label for="nome" class="label">Nome completo</label>
-              <input id="nome" name="nome" type="text" class="input" required placeholder="Nome completo">
-            </div>
-
-            <div class="group">
-              <label for="cpf" class="label">CPF</label>
-              <input id="cpf" name="cpf" type="text" class="input" required placeholder="000.000.000-00">
-            </div>
-
-            <div class="group">
-              <label for="matricula" class="label">Matrícula</label>
-              <input id="matricula" name="matricula" type="text" class="input" required placeholder="Matrícula funcional">
-            </div>
-
-            <div class="group">
-              <label for="email" class="label">E-mail</label>
-              <input id="email" name="email" type="email" class="input" required placeholder="usuario@dominio.gov.br">
-            </div>
-
-            <div class="group">
-              <label for="senha" class="label">Senha</label>
-              <input id="senha" name="senha" type="password" class="input" required placeholder="Senha de acesso">
-            </div>
-
-            <div class="group">
-              <label for="confirmarSenha" class="label">Confirmar senha</label>
-              <input id="confirmarSenha" name="confirmarSenha" type="password" class="input" required placeholder="Repita a senha">
-            </div>
-
-            <div class="group">
-              <button type="submit" class="button">Enviar solicitação</button>
-            </div>
-
+            <div class="group"><label for="nome" class="label">Nome completo</label><input id="nome" name="nome" type="text" class="input" required placeholder="Nome completo"></div>
+            <div class="group"><label for="cpf" class="label">CPF</label><input id="cpf" name="cpf" type="text" class="input" required placeholder="CPF"></div>
+            <div class="group"><label for="matricula" class="label">Matr&iacute;cula</label><input id="matricula" name="matricula" type="text" class="input" required placeholder="Matr&iacute;cula funcional"></div>
+            <div class="group"><label for="email" class="label">E-mail</label><input id="email" name="email" type="email" class="input" required placeholder="E-mail institucional"></div>
+            <div class="group"><label for="senha" class="label">Senha</label><input id="senha" name="senha" type="password" class="input" required placeholder="Senha"></div>
+            <div class="group"><label for="confirmarSenha" class="label">Confirmar senha</label><input id="confirmarSenha" name="confirmarSenha" type="password" class="input" required placeholder="Confirmar senha"></div>
+            <div class="group"><button type="submit" class="button">Enviar solicita&ccedil;&atilde;o</button></div>
             <div class="hr"></div>
-            <div class="foot-lnk login-credit">
-              Após o envio, o acesso ficará pendente até aprovação do Administrador Sênior.
-            </div>
-            <div class="foot-lnk">
-              <a href="index.html">Voltar ao login</a>
-            </div>
+            <div class="foot-lnk">Ap&oacute;s o envio, o acesso ficar&aacute; pendente at&eacute; aprova&ccedil;&atilde;o do Administrador S&ecirc;nior.</div>
           </form>
         </div>
       </div>
     </div>
   </main>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="backend-config.js"></script>
   <script src="backend-api.js"></script>
-  <script src="app-core.js"></script>
   <script src="solicitar-acesso.js"></script>
 </body>
 </html>
-
-
-
-
-
-

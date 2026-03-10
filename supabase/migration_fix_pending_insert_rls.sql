@@ -1,4 +1,4 @@
-﻿-- Permitir registro de solicitacao pendente em usuarios_perfil apos signUp
+-- Permitir registro de solicitacao pendente em usuarios_perfil apos signUp
 -- Mantem bloqueio de elevacao de privilegio.
 
 drop policy if exists p_usuarios_perfil_insert on public.usuarios_perfil;

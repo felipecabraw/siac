@@ -1,4 +1,4 @@
-(function () {
+ï»¿(function () {
   const form = document.getElementById('login-form');
   const errorBox = document.getElementById('login-error');
   const userInput = document.getElementById('usuario');
@@ -20,7 +20,7 @@
         return;
       }
     } catch (_error) {
-      setError('Não foi possível validar a sessão atual.');
+      setError('N\u00e3o foi poss\u00edvel validar a sess\u00e3o atual.');
     }
 
     form.addEventListener('submit', handleSubmit);
@@ -51,13 +51,13 @@
     try {
       const result = await BackendAPI.signIn(loginValue, password);
       if (!result.ok) {
-        setError(result.message || 'Credenciais inválidas.');
+        setError(result.message || 'Credenciais inv\u00e1lidas.');
         return;
       }
 
       window.location.href = 'dashboard.html';
     } catch (_error) {
-      setError(((_error && _error.message) ? _error.message : 'Falha ao autenticar. Verifique a conexão com o backend.'));
+      setError(((_error && _error.message) ? _error.message : 'Falha ao autenticar. Verifique a conex\u00e3o com o backend.'));
     } finally {
       isSubmitting = false;
       setSubmittingState(false);
@@ -88,4 +88,5 @@
     errorBox.hidden = true;
   }
 })();
+
 

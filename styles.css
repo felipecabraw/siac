@@ -1915,7 +1915,7 @@ td {
   display: none !important;
 }
 
-/* Correção de visibilidade da autenticação */
+/* Correï¿½ï¿½o de visibilidade da autenticaï¿½ï¿½o */
 .gov-login-page .login-html {
   position: relative;
 }
@@ -2328,7 +2328,7 @@ td {
   }
 }
 
-/* Responsividade final para navegação e páginas internas */
+/* Responsividade final para navegaï¿½ï¿½o e pï¿½ginas internas */
 @media (max-width: 1120px) {
   .dashboard-layout {
     grid-template-columns: 1fr;

@@ -13,7 +13,7 @@
   function openDb() {
     return new Promise(function (resolve, reject) {
       if (!window.indexedDB) {
-        reject(new Error('IndexedDB indisponível neste navegador.'));
+        reject(new Error('IndexedDB indisponÃ­vel neste navegador.'));
         return;
       }
 
@@ -37,7 +37,7 @@
       };
 
       request.onerror = function () {
-        reject(request.error || new Error('Falha ao abrir banco de autenticação.'));
+        reject(request.error || new Error('Falha ao abrir banco de autenticaÃ¯Â¿Â½Ã¯Â¿Â½o.'));
       };
     });
   }
@@ -58,11 +58,11 @@
         const writeTx = db.transaction(STORE_USERS, 'readwrite');
         writeTx.objectStore(STORE_USERS).put(DEFAULT_USER);
         writeTx.oncomplete = function () { resolve(); };
-        writeTx.onerror = function () { reject(writeTx.error || new Error('Falha ao semear usuário padrão.')); };
+        writeTx.onerror = function () { reject(writeTx.error || new Error('Falha ao semear usuÃ¡rio padrÃ¯Â¿Â½o.')); };
       };
 
       countRequest.onerror = function () {
-        reject(countRequest.error || new Error('Falha ao validar usuários existentes.'));
+        reject(countRequest.error || new Error('Falha ao validar usuÃ¡rios existentes.'));
       };
     });
   }
@@ -74,7 +74,7 @@
       const req = store.get(username);
 
       req.onsuccess = function () { resolve(req.result || null); };
-      req.onerror = function () { reject(req.error || new Error('Falha ao consultar usuário.')); };
+      req.onerror = function () { reject(req.error || new Error('Falha ao consultar usuÃ¡rio.')); };
     });
   }
 
