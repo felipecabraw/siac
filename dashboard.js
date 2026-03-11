@@ -27,14 +27,15 @@
   }
 
   function renderAll(processos) {
-    renderKPIs(processos);
-    renderDonut(processos);
-    renderChart(processos);
-    renderAlerts(processos);
+    const ativos = processos.filter(function (item) { return AppCore.getProcessStatus(item).type !== 'closed'; });
+    renderKPIs(ativos);
+    renderDonut(ativos);
+    renderChart(ativos);
+    renderAlerts(ativos);
   }
 
   function renderChartCurrent() {
-    renderChart(cache);
+    renderChart(cache.filter(function (item) { return AppCore.getProcessStatus(item).type !== 'closed'; }));
   }
 
   function renderKPIs(processos) {
@@ -175,6 +176,9 @@
     return 'Atualizado em ' + day + '/' + month + '/' + date.getFullYear();
   }
 })();
+
+
+
 
 
 

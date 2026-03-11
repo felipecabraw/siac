@@ -166,7 +166,7 @@
       fundamentacao_legal: String(item.fundamentacaoLegal || '').trim(),
       empresa_contratada: String(item.empresaContratada || '').trim(),
       contrato_continuado: !!item.contratoContinuado,
-      status_contrato: 'vigente',
+      status_contrato: String(item.status || 'vigente').trim().toLowerCase(),
       data_assinatura: String(item.inicioVigencia || '').trim(),
       data_publicacao: String(item.fimVigencia || '').trim(),
       fundamentacao_contrato: String(item.fundamentacaoLegal || '').trim()
@@ -1104,6 +1104,7 @@
     listAlmoxDeletes: listAlmoxDeletes
   };
 })();
+
 
 
 

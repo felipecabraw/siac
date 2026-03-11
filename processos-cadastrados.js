@@ -13,6 +13,14 @@
   const cancelEdit = document.getElementById('cancel-edit-contract');
   const confirmEditBtn = document.getElementById('confirm-edit-contract-btn');
 
+  const closeDialog = document.getElementById('close-contract-dialog');
+  const closeForm = document.getElementById('close-contract-form');
+  const closePassword = document.getElementById('close-contract-password');
+  const closeFeedback = document.getElementById('close-contract-feedback');
+  const cancelClose = document.getElementById('cancel-contract-close');
+  const confirmCloseBtn = document.getElementById('confirm-contract-close-btn');
+  const closeContractName = document.getElementById('close-contract-name');
+
   const deleteDialog = document.getElementById('delete-contract-dialog');
   const deleteForm = document.getElementById('delete-contract-form');
   const deletePassword = document.getElementById('delete-contract-password');
@@ -21,14 +29,16 @@
   const confirmContractName = document.getElementById('confirm-contract-name');
   const confirmDeleteBtn = document.getElementById('confirm-contract-delete-btn');
 
-  if (!searchInput || !filterYear || !statusFilters || !tableBody || !editForm || !editPassword || !editFeedback || !cancelEdit || !confirmEditBtn || !deleteForm || !deletePassword || !deleteFeedback || !cancelDelete || !confirmContractName || !confirmDeleteBtn) return;
+  if (!searchInput || !filterYear || !statusFilters || !tableBody || !editForm || !editPassword || !editFeedback || !cancelEdit || !confirmEditBtn || !closeForm || !closePassword || !closeFeedback || !cancelClose || !confirmCloseBtn || !closeContractName || !deleteForm || !deletePassword || !deleteFeedback || !cancelDelete || !confirmContractName || !confirmDeleteBtn) return;
 
   let query = '';
   let selectedYear = '';
   let selectedStatus = '';
   let cache = [];
   let pendingDeleteId = '';
+  let pendingCloseId = '';
   const deletingIds = new Set();
+  const closingIds = new Set();
   const editingIds = new Set();
 
   searchInput.addEventListener('input', function () {
@@ -61,6 +71,30 @@
       return;
     }
 
+    const closeBtn = event.target.closest('button[data-close-id]');
+    if (closeBtn) {
+      const id = String(closeBtn.getAttribute('data-close-id') || '').trim();
+      if (!id || closingIds.has(id) || closeBtn.hasAttribute('data-closed')) return;
+
+      pendingCloseId = id;
+      closePassword.value = '';
+      closePassword.disabled = false;
+      closeFeedback.hidden = true;
+      closeFeedback.textContent = '';
+      confirmCloseBtn.disabled = false;
+      confirmCloseBtn.textContent = 'Encerrar contrato';
+      closeContractName.textContent = closeBtn.getAttribute('data-contract-name') || 'Contrato selecionado';
+
+      if (typeof closeDialog.showModal === 'function') {
+        closeDialog.showModal();
+      } else {
+        const password = window.prompt('Informe sua senha para encerrar o contrato:');
+        if (!password) return;
+        await confirmClose(password);
+      }
+      return;
+    }
+
     const deleteBtn = event.target.closest('button[data-delete-id]');
     if (!deleteBtn) return;
 
@@ -83,6 +117,16 @@
       if (!password) return;
       await confirmDelete(password);
     }
+  });
+
+  cancelClose.addEventListener('click', function () {
+    if (confirmCloseBtn.disabled) return;
+    if (typeof closeDialog.close === 'function') closeDialog.close();
+  });
+
+  closeForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    await confirmClose(closePassword.value);
   });
 
   cancelDelete.addEventListener('click', function () {
@@ -163,7 +207,8 @@
           item.fiscaisContrato,
           item.objeto,
           item.fundamentacaoLegal,
-          item.contratoContinuado ? 'continuado' : 'nao continuado'
+          item.contratoContinuado ? 'continuado' : 'nao continuado',
+          status.label
         ].join(' ').toLowerCase();
         return text.includes(query);
       });
@@ -175,11 +220,13 @@
 
     tableBody.innerHTML = filtered.map(function (item) {
       const status = AppCore.getProcessStatus(item);
-      const badgeClass = status.type === 'danger' ? 'status-danger' : status.type === 'warning' ? 'status-warning' : 'status-ok';
+      const badgeClass = status.type === 'danger' ? 'status-danger' : status.type === 'warning' ? 'status-warning' : status.type === 'closed' ? 'status-closed' : 'status-ok';
       const valor = Number(item.valorGlobal);
       const valorLabel = Number.isFinite(valor) && valor > 0 ? AppCore.formatCurrencyBrl(valor) : '-';
       const deleting = deletingIds.has(String(item.id));
+      const closing = closingIds.has(String(item.id));
       const editing = editingIds.has(String(item.id));
+      const isClosed = status.type === 'closed';
 
       return '<tr>' +
         '<td>' + AppCore.escapeHtml(item.processoSei) + '</td>' +
@@ -191,6 +238,7 @@
         '<td><span class="status-chip ' + badgeClass + '">' + status.label + '</span></td>' +
         '<td><div class="action-icon-group">' +
           '<button class="action-icon-btn" type="button" data-edit-id="' + item.id + '" aria-label="Editar contrato" title="Editar contrato" ' + (editing ? 'disabled' : '') + '>' + editIcon() + '</button>' +
+          '<button class="action-icon-btn neutral" type="button" data-close-id="' + item.id + '" data-contract-name="Contrato ' + AppCore.escapeHtml(item.numeroContrato) + ' | Processo ' + AppCore.escapeHtml(item.processoSei) + '" aria-label="Encerrar contrato" title="' + (isClosed ? 'Contrato já encerrado' : 'Encerrar contrato') + '" ' + (closing || isClosed ? 'disabled' : '') + (isClosed ? ' data-closed="true"' : '') + '>' + closeIcon() + '</button>' +
           '<button class="action-icon-btn danger" type="button" data-delete-id="' + item.id + '" data-contract-name="Contrato ' + AppCore.escapeHtml(item.numeroContrato) + ' | Processo ' + AppCore.escapeHtml(item.processoSei) + '" aria-label="Remover contrato" title="Remover contrato" ' + (deleting ? 'disabled' : '') + '>' + trashIcon() + '</button>' +
         '</div></td>' +
       '</tr>';
@@ -276,6 +324,8 @@
         return;
       }
 
+      const currentItem = cache.find(function (entry) { return String(entry.id) === id; });
+
       await BackendAPI.updateProcesso(id, {
         processoSei: processoSei,
         numeroContrato: numeroContrato,
@@ -288,7 +338,8 @@
         fiscaisContrato: String(editForm.fiscaisContrato.value || '').trim(),
         inicioVigencia: inicio,
         fimVigencia: fim,
-        contratoContinuado: String(editForm.contratoContinuado.value || 'nao').trim().toLowerCase() === 'sim'
+        contratoContinuado: String(editForm.contratoContinuado.value || 'nao').trim().toLowerCase() === 'sim',
+        status: currentItem && currentItem.status ? currentItem.status : 'vigente'
       });
 
       cache = await BackendAPI.listProcessos();
@@ -303,6 +354,50 @@
       confirmEditBtn.disabled = false;
       confirmEditBtn.textContent = 'Salvar alterações';
       editPassword.disabled = false;
+    }
+  }
+
+  async function confirmClose(password) {
+    const pass = String(password || '').trim();
+    if (!pass) {
+      showCloseError('Informe a senha para confirmar o encerramento.');
+      return;
+    }
+    if (!pendingCloseId || closingIds.has(pendingCloseId)) return;
+
+    confirmCloseBtn.disabled = true;
+    confirmCloseBtn.textContent = 'Encerrando...';
+    closePassword.disabled = true;
+    closingIds.add(pendingCloseId);
+
+    try {
+      const ok = await BackendAPI.verifyCurrentPassword(pass);
+      if (!ok) {
+        showCloseError('Senha inválida. Encerramento não autorizado.');
+        closingIds.delete(pendingCloseId);
+        return;
+      }
+
+      const targetId = pendingCloseId;
+      const currentItem = cache.find(function (entry) { return String(entry.id) === targetId; });
+      if (!currentItem) {
+        throw new Error('Contrato não encontrado para encerramento.');
+      }
+
+      await BackendAPI.updateProcesso(targetId, Object.assign({}, currentItem, { status: 'encerrado' }));
+      if (typeof closeDialog.close === 'function' && closeDialog.open) closeDialog.close();
+      pendingCloseId = '';
+      cache = await BackendAPI.listProcessos();
+      populateYearFilter();
+      renderTable();
+      closingIds.delete(targetId);
+    } catch (_error) {
+      showCloseError((_error && _error.message) ? _error.message : 'Não foi possível encerrar o contrato.');
+      closingIds.delete(pendingCloseId);
+    } finally {
+      confirmCloseBtn.disabled = false;
+      confirmCloseBtn.textContent = 'Encerrar contrato';
+      closePassword.disabled = false;
     }
   }
 
@@ -350,6 +445,11 @@
     editFeedback.hidden = false;
   }
 
+  function showCloseError(message) {
+    closeFeedback.textContent = message;
+    closeFeedback.hidden = false;
+  }
+
   function showDeleteError(message) {
     deleteFeedback.textContent = message;
     deleteFeedback.hidden = false;
@@ -359,10 +459,11 @@
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5-10.5-4-4L4 16v4z"></path><path d="M14.5 5.5l4 4"></path></svg>';
   }
 
+  function closeIcon() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10"></path><path d="M9 7V5h6v2"></path><path d="M8 7l1 12h6l1-12"></path><path d="M10 12l2 2 4-4"></path></svg>';
+  }
+
   function trashIcon() {
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4h6v3"></path><path d="M8 7l1 13h6l1-13"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>';
   }
 })();
-
-
-

@@ -2798,3 +2798,13 @@ td {
   }
 }
 
+
+
+.status-closed {
+  background: #e7eaef;
+  color: #4c5b6a;
+}
+
+.action-icon-btn.neutral {
+  color: #4f5f70;
+}

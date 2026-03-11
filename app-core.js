@@ -231,6 +231,11 @@
   }
 
   function getProcessStatus(item) {
+    const currentStatus = String(item && item.status ? item.status : '').trim().toLowerCase();
+    if (currentStatus === 'encerrado') {
+      return { type: 'closed', label: 'Encerrado', dias: null };
+    }
+
     const base = getStatus(item.fimVigencia || item.terminoVigencia);
 
     if (base.type === 'danger') {
@@ -603,6 +608,8 @@
     loadDeletes: loadAlmoxDeletes
   };
 })();
+
+
 
 
 

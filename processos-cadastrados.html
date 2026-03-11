@@ -35,6 +35,7 @@
             <button type="button" class="status-filter" data-status="ok">Vigente</button>
             <button type="button" class="status-filter" data-status="warning">A vencer</button>
             <button type="button" class="status-filter" data-status="danger">Vencido</button>
+            <button type="button" class="status-filter" data-status="closed">Encerrado</button>
           </div>
         </div>
         <div class="table-wrap">
@@ -78,6 +79,17 @@
     </form>
   </dialog>
 
+  <dialog id="close-contract-dialog" class="confirm-dialog">
+    <form id="close-contract-form" method="dialog" class="confirm-dialog-form">
+      <h3>Confirmar encerramento de contrato</h3>
+      <p>Para encerrar o contrato e retirá-lo dos alertas do dashboard, informe sua senha.</p>
+      <p class="confirm-item-name" id="close-contract-name"></p>
+      <label>Senha<input id="close-contract-password" name="password" type="password" required placeholder="Digite sua senha"></label>
+      <p id="close-contract-feedback" class="form-feedback error" hidden></p>
+      <div class="form-actions"><button type="button" id="cancel-contract-close" class="btn btn-ghost">Cancelar</button><button type="submit" id="confirm-contract-close-btn" class="btn btn-primary">Encerrar contrato</button></div>
+    </form>
+  </dialog>
+
   <dialog id="delete-contract-dialog" class="confirm-dialog">
     <form id="delete-contract-form" method="dialog" class="confirm-dialog-form">
       <h3>Confirmar remoção de contrato</h3>
@@ -95,8 +107,3 @@
   <script src="processos-cadastrados.js"></script>
 </body>
 </html>
-
-
-
-
-
