@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   AppCore.initShell('cadastro');
 
   const form = document.getElementById('process-form');
@@ -59,10 +59,14 @@
       const hasDuplicate = await BackendAPI.hasDuplicateProcesso(processoSei, numeroContrato);
       if (hasDuplicate) {
         setFeedback('J\u00e1 existe contrato cadastrado com esse Processo SEI n\u00ba ou n\u00famero de contrato.', 'error');
+        isSubmitting = false;
+        setBusyState(false, false);
         return;
       }
     } catch (_error) {
       setFeedback('N\u00e3o foi poss\u00edvel validar duplicidade no backend.', 'error');
+      isSubmitting = false;
+      setBusyState(false, false);
       return;
     }
 

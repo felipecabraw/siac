@@ -26,6 +26,9 @@ alter table if exists public.processos_contratos
   add column if not exists status_contrato text default 'vigente';
 
 alter table if exists public.processos_contratos
+  add column if not exists observacoes text;
+
+alter table if exists public.processos_contratos
   drop column if exists alerta_prazo;
 
 update public.processos_contratos
@@ -37,6 +40,7 @@ set processo_sei = coalesce(processo_sei, numero_processo),
     fonte = coalesce(fonte, fonte_recurso),
     fiscais_contrato = coalesce(fiscais_contrato, fiscal_contrato),
     fim_vigencia = coalesce(fim_vigencia, termino_vigencia),
+    observacoes = coalesce(observacoes, ''),
     status_contrato = coalesce(status_contrato,
       case
         when coalesce(fim_vigencia, termino_vigencia) < current_date then 'vencido'
@@ -82,7 +86,7 @@ alter table if exists public.processos_contratos
 
 alter table if exists public.processos_contratos
   add constraint ck_processos_status_contrato
-  check (status_contrato in ('vigente', 'nao_vigente', 'vencido'));
+  check (status_contrato in ('vigente', 'nao_vigente', 'vencido', 'encerrado')); 
 
 alter table if exists public.processos_contratos
   alter column data_assinatura drop not null;
@@ -94,4 +98,7 @@ alter table if exists public.processos_contratos
   alter column fundamentacao_contrato drop not null;
 
 notify pgrst, 'reload schema';
+
+
+
 

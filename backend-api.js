@@ -1,8 +1,11 @@
-﻿(function () {
+(function () {
   const AUTH_KEY = 'cc_auth';
   const AUTH_USER_KEY = 'cc_auth_user';
   const AUTH_ROLE_KEY = 'cc_auth_role';
   const PROCESS_KEY = 'cc_processos';
+  const NOTICE_KEY = 'cc_system_notices';
+  const NOTICE_READ_PREFIX = 'cc_system_notice_reads_';
+  const AUDIT_KEY = 'cc_audit_events';
   const PROFILE_PREFIX = 'cc_profile_';
   const ALMOX_ITEM_KEY = 'cc_almox_itens';
   const ALMOX_MOV_KEY = 'cc_almox_movimentacoes';
@@ -69,6 +72,13 @@
     const msg = String(error && error.message ? error.message : '').toLowerCase();
     return msg.includes('aprovado_em') || msg.includes('aprovado_por');
   }
+  function isMissingSystemNoticeReadsTableError(error) {
+    const msg = String(error && error.message ? error.message : '').toLowerCase();
+    return msg.includes('sistema_novidades_leituras') ||
+      (msg.includes('relation') && msg.includes('does not exist')) ||
+      msg.includes('could not find the table') ||
+      msg.includes('failed to parse select parameter');
+  }
   function getCurrentAuthUser() {
     return localStorage.getItem(AUTH_USER_KEY) || 'admin.institucional';
   }
@@ -90,6 +100,9 @@
   }
   function profileKey(username) {
     return PROFILE_PREFIX + username;
+  }
+  function noticeReadKey(username) {
+    return NOTICE_READ_PREFIX + String(username || getCurrentAuthUser() || 'usuario.institucional');
   }
   function loadLocalProfile(username) {
     const user = String(username || getCurrentAuthUser() || 'admin.institucional');
@@ -118,6 +131,19 @@
       foto: String(profile.foto || '')
     }));
   }
+  function loadLocalNoticeReads(username) {
+    try {
+      const raw = localStorage.getItem(noticeReadKey(username));
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+    } catch (_error) {
+      return [];
+    }
+  }
+  function saveLocalNoticeReads(username, list) {
+    localStorage.setItem(noticeReadKey(username), JSON.stringify(Array.isArray(list) ? list : []));
+  }
   function persistAuth(userId, role) {
     localStorage.setItem(AUTH_KEY, 'ok');
     localStorage.setItem(AUTH_USER_KEY, userId || 'usuario.institucional');
@@ -143,6 +169,7 @@
       inicioVigencia: row.inicio_vigencia,
       fimVigencia: row.fim_vigencia || row.termino_vigencia,
       contratoContinuado: !!row.contrato_continuado,
+      observacoes: row.observacoes || '',
       status: row.status_contrato || 'vigente'
     };
   }
@@ -166,11 +193,142 @@
       fundamentacao_legal: String(item.fundamentacaoLegal || '').trim(),
       empresa_contratada: String(item.empresaContratada || '').trim(),
       contrato_continuado: !!item.contratoContinuado,
+      observacoes: String(item.observacoes || '').trim(),
       status_contrato: String(item.status || 'vigente').trim().toLowerCase(),
       data_assinatura: String(item.inicioVigencia || '').trim(),
       data_publicacao: String(item.fimVigencia || '').trim(),
       fundamentacao_contrato: String(item.fundamentacaoLegal || '').trim()
     };
+  }
+  function mapRowToSystemNotice(row) {
+    return {
+      id: row.id,
+      titulo: row.titulo || '',
+      tipo: String(row.tipo || 'aviso').trim().toLowerCase(),
+      conteudo: row.conteudo || '',
+      publicado: row.publicado !== false,
+      criadoPor: row.criado_por || '',
+      criadoEm: row.criado_em || '',
+      atualizadoPor: row.atualizado_por || '',
+      atualizadoEm: row.atualizado_em || row.criado_em || '',
+      lida: !!row.lida
+    };
+  }
+  function mapSystemNoticeToRow(item) {
+    return {
+      titulo: String(item.titulo || '').trim(),
+      tipo: String(item.tipo || 'aviso').trim().toLowerCase(),
+      conteudo: String(item.conteudo || '').trim(),
+      publicado: item.publicado !== false
+    };
+  }
+  function mapAuditRow(row) {
+    return {
+      id: row.id,
+      modulo: row.modulo || '',
+      acao: row.acao || '',
+      entidade: row.entidade || '',
+      entidadeId: row.entidade_id || '',
+      payload: row.payload || {},
+      usuario: row.usuario_id || '-',
+      criadoEm: row.criado_em || ''
+    };
+  }
+  function buildProcessAuditPayload(item) {
+    return {
+      processoSei: String(item && item.processoSei ? item.processoSei : '').trim(),
+      numeroContrato: String(item && item.numeroContrato ? item.numeroContrato : '').trim(),
+      empresaContratada: String(item && item.empresaContratada ? item.empresaContratada : '').trim(),
+      status: String(item && item.status ? item.status : 'vigente').trim().toLowerCase()
+    };
+  }
+  function getAuditActionLabel(action) {
+    const normalized = String(action || '').trim().toLowerCase();
+    if (normalized === 'cadastro') return 'Cadastro';
+    if (normalized === 'alteracao') return 'Altera\u00e7\u00e3o';
+    if (normalized === 'encerramento') return 'Encerramento';
+    if (normalized === 'exclusao') return 'Exclus\u00e3o';
+    return 'A\u00e7\u00e3o';
+  }
+  async function logAuditEvent(entry) {
+    const payload = {
+      modulo: String(entry && entry.modulo ? entry.modulo : '').trim(),
+      acao: String(entry && entry.acao ? entry.acao : '').trim().toLowerCase(),
+      entidade: String(entry && entry.entidade ? entry.entidade : '').trim(),
+      entidadeId: String(entry && entry.entidadeId ? entry.entidadeId : '').trim(),
+      payload: entry && entry.payload ? entry.payload : {}
+    };
+
+    if (!payload.modulo || !payload.acao || !payload.entidade) return null;
+
+    if (!isSupabaseEnabled()) {
+      const list = loadLocalList(AUDIT_KEY);
+      list.unshift({
+        id: 'audit-' + Date.now(),
+        modulo: payload.modulo,
+        acao: payload.acao,
+        entidade: payload.entidade,
+        entidadeId: payload.entidadeId,
+        payload: payload.payload,
+        usuario: getCurrentAuthUser(),
+        criadoEm: new Date().toISOString()
+      });
+      saveLocalList(AUDIT_KEY, list.slice(0, 300));
+      return true;
+    }
+
+    const supabase = getClient();
+    const user = await getSessionUser();
+    const actor = user ? (user.email || user.id) : getCurrentAuthUser();
+    const result = await supabase.from('auditoria_eventos').insert({
+      modulo: payload.modulo,
+      acao: payload.acao,
+      entidade: payload.entidade,
+      entidade_id: payload.entidadeId || null,
+      payload: payload.payload,
+      usuario_id: actor
+    });
+    if (result.error) throw new Error(result.error.message || 'Falha ao registrar auditoria.');
+    return true;
+  }
+  async function listAuditEvents(limit) {
+    const size = Math.max(1, Math.min(Number(limit) || 20, 100));
+    if (!isCurrentUserSeniorAdmin()) {
+      throw new Error('Somente o Administrador S\u00eanior pode consultar a central de a\u00e7\u00f5es.');
+    }
+
+    if (!isSupabaseEnabled()) {
+      return loadLocalList(AUDIT_KEY)
+        .filter(function (item) { return String(item.modulo || '').trim().toLowerCase() === 'contratos'; })
+        .slice(0, size)
+        .map(function (item) {
+          return {
+            id: item.id,
+            modulo: item.modulo,
+            acao: item.acao,
+            acaoLabel: getAuditActionLabel(item.acao),
+            entidade: item.entidade,
+            entidadeId: item.entidadeId,
+            payload: item.payload || {},
+            usuario: item.usuario || '-',
+            criadoEm: item.criadoEm || ''
+          };
+        });
+    }
+
+    const supabase = getClient();
+    const result = await supabase
+      .from('auditoria_eventos')
+      .select('*')
+      .eq('modulo', 'contratos')
+      .order('criado_em', { ascending: false })
+      .limit(size);
+    if (result.error) throw new Error(result.error.message || 'Falha ao consultar a central de a\u00e7\u00f5es.');
+    return (result.data || []).map(function (row) {
+      const mapped = mapAuditRow(row);
+      mapped.acaoLabel = getAuditActionLabel(mapped.acao);
+      return mapped;
+    });
   }
   function mapRowToAlmoxItem(row) {
     return {
@@ -639,6 +797,13 @@
       const entity = item.id ? item : Object.assign({ id: String(Date.now()) }, item);
       list.push(entity);
       saveLocalList(PROCESS_KEY, list);
+      await logAuditEvent({
+        modulo: 'contratos',
+        acao: 'cadastro',
+        entidade: 'processo_contrato',
+        entidadeId: String(entity.id || ''),
+        payload: buildProcessAuditPayload(entity)
+      });
       return entity;
     }
 
@@ -655,6 +820,13 @@
     const cached = loadLocalList(PROCESS_KEY);
     cached.push(mapped);
     saveLocalList(PROCESS_KEY, cached);
+    await logAuditEvent({
+      modulo: 'contratos',
+      acao: 'cadastro',
+      entidade: 'processo_contrato',
+      entidadeId: String(mapped.id || ''),
+      payload: buildProcessAuditPayload(mapped)
+    });
     return mapped;
   }
 
@@ -670,6 +842,13 @@
       const entity = Object.assign({}, list[index], item, { id: safeId });
       list[index] = entity;
       saveLocalList(PROCESS_KEY, list);
+      await logAuditEvent({
+        modulo: 'contratos',
+        acao: String(entity.status || '').trim().toLowerCase() === 'encerrado' ? 'encerramento' : 'alteracao',
+        entidade: 'processo_contrato',
+        entidadeId: safeId,
+        payload: buildProcessAuditPayload(entity)
+      });
       return entity;
     }
 
@@ -690,6 +869,13 @@
       cached.push(mapped);
     }
     saveLocalList(PROCESS_KEY, cached);
+    await logAuditEvent({
+      modulo: 'contratos',
+      acao: String(mapped.status || '').trim().toLowerCase() === 'encerrado' ? 'encerramento' : 'alteracao',
+      entidade: 'processo_contrato',
+      entidadeId: safeId,
+      payload: buildProcessAuditPayload(mapped)
+    });
     return mapped;
   }
 
@@ -698,17 +884,240 @@
     if (!safeId) throw new Error('Contrato inv\u00e1lido para exclus\u00e3o.');
 
     if (!isSupabaseEnabled()) {
+      const current = loadLocalList(PROCESS_KEY).find(function (item) { return String(item.id) === safeId; }) || null;
       const list = loadLocalList(PROCESS_KEY).filter(function (item) { return String(item.id) !== safeId; });
       saveLocalList(PROCESS_KEY, list);
+      await logAuditEvent({
+        modulo: 'contratos',
+        acao: 'exclusao',
+        entidade: 'processo_contrato',
+        entidadeId: safeId,
+        payload: buildProcessAuditPayload(current || { id: safeId })
+      });
       return true;
     }
 
     const supabase = getClient();
+    const found = await supabase.from('processos_contratos').select('*').eq('id', safeId).single();
+    const current = found && !found.error ? mapRowToProcesso(found.data) : null;
     const result = await supabase.from('processos_contratos').delete().eq('id', safeId);
     if (result.error) throw new Error(result.error.message || 'Falha ao remover contrato.');
 
     const list = loadLocalList(PROCESS_KEY).filter(function (item) { return String(item.id) !== safeId; });
     saveLocalList(PROCESS_KEY, list);
+    await logAuditEvent({
+      modulo: 'contratos',
+      acao: 'exclusao',
+      entidade: 'processo_contrato',
+      entidadeId: safeId,
+      payload: buildProcessAuditPayload(current || { id: safeId })
+    });
+    return true;
+  }
+
+  async function listSystemNotices(includeUnpublished) {
+    const all = !!includeUnpublished;
+    if (!isSupabaseEnabled()) {
+      const reads = loadLocalNoticeReads(getCurrentAuthUser());
+      let list = loadLocalList(NOTICE_KEY).map(function (item) {
+        return {
+          id: item.id,
+          titulo: item.titulo || '',
+          tipo: item.tipo || 'aviso',
+          conteudo: item.conteudo || '',
+          publicado: item.publicado !== false,
+          criadoPor: item.criadoPor || '',
+          criadoEm: item.criadoEm || '',
+          atualizadoPor: item.atualizadoPor || '',
+          atualizadoEm: item.atualizadoEm || item.criadoEm || '',
+          lida: reads.indexOf(String(item.id || '')) >= 0
+        };
+      });
+      list.sort(function (a, b) {
+        return String(b.atualizadoEm || b.criadoEm || '').localeCompare(String(a.atualizadoEm || a.criadoEm || ''));
+      });
+      return all ? list : list.filter(function (item) { return item.publicado !== false; });
+    }
+
+    const supabase = getClient();
+    let query = supabase.from('sistema_novidades').select('*').order('atualizado_em', { ascending: false }).order('criado_em', { ascending: false });
+    if (!all || !isCurrentUserSeniorAdmin()) {
+      query = query.eq('publicado', true);
+    }
+
+    const result = await query;
+    if (result.error) throw new Error(result.error.message || 'Falha ao consultar novidades do sistema.');
+    const list = (result.data || []).map(mapRowToSystemNotice);
+    const user = await getSessionUser();
+    const localReads = new Set(loadLocalNoticeReads(getCurrentAuthUser()).map(function (item) { return String(item || '').trim(); }));
+    list.forEach(function (item) {
+      item.lida = localReads.has(String(item.id || '').trim());
+    });
+    if (user && list.length > 0) {
+      const ids = list.map(function (item) { return String(item.id || '').trim(); }).filter(Boolean);
+      const readResult = await supabase
+        .from('sistema_novidades_leituras')
+        .select('novidade_id')
+        .eq('auth_user_id', user.id)
+        .in('novidade_id', ids);
+      if (readResult.error) {
+        if (!isMissingSystemNoticeReadsTableError(readResult.error)) {
+          throw new Error(readResult.error.message || 'Falha ao consultar leituras de novidades.');
+        }
+      } else {
+        const readIds = new Set((readResult.data || []).map(function (item) { return String(item.novidade_id || '').trim(); }));
+        list.forEach(function (item) {
+          item.lida = readIds.has(String(item.id || '').trim()) || localReads.has(String(item.id || '').trim());
+        });
+      }
+    }
+    saveLocalList(NOTICE_KEY, list);
+    return list;
+  }
+
+  async function markSystemNoticeRead(id, read) {
+    const safeId = String(id || '').trim();
+    if (!safeId) throw new Error('Novidade inv\u00e1lida para registrar leitura.');
+    const shouldMarkRead = read !== false;
+
+    if (!isSupabaseEnabled()) {
+      const username = getCurrentAuthUser();
+      const reads = loadLocalNoticeReads(username);
+      const exists = reads.indexOf(safeId) >= 0;
+      if (shouldMarkRead && !exists) reads.push(safeId);
+      if (!shouldMarkRead && exists) {
+        saveLocalNoticeReads(username, reads.filter(function (item) { return String(item) !== safeId; }));
+      } else {
+        saveLocalNoticeReads(username, reads);
+      }
+      return true;
+    }
+
+    const supabase = getClient();
+    const user = await getSessionUser();
+    if (!user) throw new Error('Sess\u00e3o inv\u00e1lida para registrar leitura.');
+
+    const username = getCurrentAuthUser();
+    const reads = loadLocalNoticeReads(username);
+    const exists = reads.indexOf(safeId) >= 0;
+    const nextReads = shouldMarkRead
+      ? (exists ? reads.slice() : reads.concat([safeId]))
+      : reads.filter(function (item) { return String(item) !== safeId; });
+
+    saveLocalNoticeReads(username, nextReads);
+
+    if (shouldMarkRead) {
+      const insertResult = await supabase
+        .from('sistema_novidades_leituras')
+        .upsert({
+          novidade_id: safeId,
+          auth_user_id: user.id,
+          lida_em: new Date().toISOString()
+        }, { onConflict: 'novidade_id,auth_user_id' });
+      if (insertResult.error && !isMissingSystemNoticeReadsTableError(insertResult.error)) {
+        saveLocalNoticeReads(username, reads);
+        throw new Error(insertResult.error.message || 'Falha ao marcar novidade como lida.');
+      }
+    } else {
+      const deleteResult = await supabase
+        .from('sistema_novidades_leituras')
+        .delete()
+        .eq('novidade_id', safeId)
+        .eq('auth_user_id', user.id);
+      if (deleteResult.error && !isMissingSystemNoticeReadsTableError(deleteResult.error)) {
+        saveLocalNoticeReads(username, reads);
+        throw new Error(deleteResult.error.message || 'Falha ao atualizar leitura da novidade.');
+      }
+    }
+
+    return true;
+  }
+  async function saveSystemNotice(payload) {
+    if (!isCurrentUserSeniorAdmin()) {
+      throw new Error('Somente o Administrador S\u00eanior pode publicar novidades do sistema.');
+    }
+
+    const entity = {
+      id: String(payload && payload.id ? payload.id : '').trim(),
+      titulo: String(payload && payload.titulo ? payload.titulo : '').trim(),
+      tipo: String(payload && payload.tipo ? payload.tipo : 'aviso').trim().toLowerCase(),
+      conteudo: String(payload && payload.conteudo ? payload.conteudo : '').trim(),
+      publicado: payload && payload.publicado !== false
+    };
+
+    if (!entity.titulo) throw new Error('Informe o t\u00edtulo da novidade.');
+    if (!entity.conteudo) throw new Error('Informe o conte\u00fado da novidade.');
+
+    if (!isSupabaseEnabled()) {
+      const now = new Date().toISOString();
+      const username = getCurrentAuthUser();
+      const list = loadLocalList(NOTICE_KEY);
+      if (entity.id) {
+        const index = list.findIndex(function (item) { return String(item.id) === entity.id; });
+        if (index < 0) throw new Error('Novidade n\u00e3o encontrada para atualiza\u00e7\u00e3o.');
+        list[index] = Object.assign({}, list[index], entity, {
+          atualizadoPor: username,
+          atualizadoEm: now
+        });
+        saveLocalList(NOTICE_KEY, list);
+        return list[index];
+      }
+
+      const created = Object.assign({}, entity, {
+        id: 'notice-' + Date.now(),
+        criadoPor: username,
+        criadoEm: now,
+        atualizadoPor: username,
+        atualizadoEm: now
+      });
+      list.unshift(created);
+      saveLocalList(NOTICE_KEY, list);
+      return created;
+    }
+
+    const supabase = getClient();
+    const user = await getSessionUser();
+    const actor = user ? (user.email || user.id) : getCurrentAuthUser();
+    const row = mapSystemNoticeToRow(entity);
+    row.atualizado_por = actor;
+
+    let result;
+    if (entity.id) {
+      result = await supabase.from('sistema_novidades').update(row).eq('id', entity.id).select('*').single();
+    } else {
+      row.criado_por = actor;
+      result = await supabase.from('sistema_novidades').insert(row).select('*').single();
+    }
+
+    if (result.error) throw new Error(result.error.message || 'Falha ao salvar novidade do sistema.');
+    const mapped = mapRowToSystemNotice(result.data);
+    const cached = loadLocalList(NOTICE_KEY);
+    const index = cached.findIndex(function (item) { return String(item.id) === String(mapped.id); });
+    if (index >= 0) cached[index] = mapped; else cached.unshift(mapped);
+    saveLocalList(NOTICE_KEY, cached);
+    return mapped;
+  }
+
+  async function deleteSystemNotice(id) {
+    if (!isCurrentUserSeniorAdmin()) {
+      throw new Error('Somente o Administrador S\u00eanior pode excluir novidades do sistema.');
+    }
+
+    const safeId = String(id || '').trim();
+    if (!safeId) throw new Error('Novidade inv\u00e1lida para exclus\u00e3o.');
+
+    if (!isSupabaseEnabled()) {
+      const filtered = loadLocalList(NOTICE_KEY).filter(function (item) { return String(item.id) !== safeId; });
+      saveLocalList(NOTICE_KEY, filtered);
+      return true;
+    }
+
+    const supabase = getClient();
+    const result = await supabase.from('sistema_novidades').delete().eq('id', safeId);
+    if (result.error) throw new Error(result.error.message || 'Falha ao excluir novidade do sistema.');
+
+    const filtered = loadLocalList(NOTICE_KEY).filter(function (item) { return String(item.id) !== safeId; });
+    saveLocalList(NOTICE_KEY, filtered);
     return true;
   }
 
@@ -1088,6 +1497,11 @@
     listPendingAccessRequests: listPendingAccessRequests,
     approveAccessRequest: approveAccessRequest,
     getCurrentAuthUser: getCurrentAuthUser,
+    listSystemNotices: listSystemNotices,
+    markSystemNoticeRead: markSystemNoticeRead,
+    saveSystemNotice: saveSystemNotice,
+    deleteSystemNotice: deleteSystemNotice,
+    listAuditEvents: listAuditEvents,
     listProcessos: listProcessos,
     hasDuplicateProcesso: hasDuplicateProcesso,
     hasDuplicateProcessoForUpdate: hasDuplicateProcessoForUpdate,
@@ -1104,6 +1518,21 @@
     listAlmoxDeletes: listAlmoxDeletes
   };
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

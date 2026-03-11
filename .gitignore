@@ -7,3 +7,8 @@ coverage/
 .vscode/
 .DS_Store
 Thumbs.db
+tmp_xlsx_continuados/
+contratos_continuados.zip
+importacao_*.csv
+pendencias_importacao_*.txt
+scripts_generate_continuados_import.ps1

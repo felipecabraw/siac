@@ -1,10 +1,17 @@
-﻿(function () {
+(function () {
   AppCore.initShell('processos');
 
   const searchInput = document.getElementById('search');
   const filterYear = document.getElementById('filter-year');
   const statusFilters = document.getElementById('status-filters');
   const tableBody = document.getElementById('process-table-body');
+  const activeFilterLabel = document.getElementById('active-filter-label');
+  const activeFilterCount = document.getElementById('active-filter-count');
+  const filterSummary = document.getElementById('contract-filter-summary');
+  const viewNotesDialog = document.getElementById('view-notes-dialog');
+  const viewNotesContent = document.getElementById('view-notes-content');
+  const viewNotesContractName = document.getElementById('view-notes-contract-name');
+  const closeViewNotes = document.getElementById('close-view-notes');
 
   const editDialog = document.getElementById('edit-contract-dialog');
   const editForm = document.getElementById('edit-contract-form');
@@ -29,7 +36,7 @@
   const confirmContractName = document.getElementById('confirm-contract-name');
   const confirmDeleteBtn = document.getElementById('confirm-contract-delete-btn');
 
-  if (!searchInput || !filterYear || !statusFilters || !tableBody || !editForm || !editPassword || !editFeedback || !cancelEdit || !confirmEditBtn || !closeForm || !closePassword || !closeFeedback || !cancelClose || !confirmCloseBtn || !closeContractName || !deleteForm || !deletePassword || !deleteFeedback || !cancelDelete || !confirmContractName || !confirmDeleteBtn) return;
+  if (!searchInput || !filterYear || !statusFilters || !tableBody || !activeFilterLabel || !activeFilterCount || !filterSummary || !viewNotesDialog || !viewNotesContent || !viewNotesContractName || !closeViewNotes || !editForm || !editPassword || !editFeedback || !cancelEdit || !confirmEditBtn || !closeForm || !closePassword || !closeFeedback || !cancelClose || !confirmCloseBtn || !closeContractName || !deleteForm || !deletePassword || !deleteFeedback || !cancelDelete || !confirmContractName || !confirmDeleteBtn) return;
 
   let query = '';
   let selectedYear = '';
@@ -63,6 +70,13 @@
   });
 
   tableBody.addEventListener('click', async function (event) {
+    const notesBtn = event.target.closest('button[data-notes-id]');
+    if (notesBtn) {
+      const id = String(notesBtn.getAttribute('data-notes-id') || '').trim();
+      if (!id) return;
+      openNotesDialog(id);
+      return;
+    }
     const editBtn = event.target.closest('button[data-edit-id]');
     if (editBtn) {
       const id = String(editBtn.getAttribute('data-edit-id') || '').trim();
@@ -139,6 +153,10 @@
     await confirmDelete(deletePassword.value);
   });
 
+  closeViewNotes.addEventListener('click', function () {
+    if (typeof viewNotesDialog.close === 'function') viewNotesDialog.close();
+  });
+
   cancelEdit.addEventListener('click', function () {
     if (confirmEditBtn.disabled) return;
     if (typeof editDialog.close === 'function') editDialog.close();
@@ -207,11 +225,14 @@
           item.fiscaisContrato,
           item.objeto,
           item.fundamentacaoLegal,
+          item.observacoes,
           item.contratoContinuado ? 'continuado' : 'nao continuado',
           status.label
         ].join(' ').toLowerCase();
         return text.includes(query);
       });
+
+    updateFilterSummary(filtered.length);
 
     if (filtered.length === 0) {
       tableBody.innerHTML = '<tr><td colspan="8">Nenhum contrato encontrado.</td></tr>';
@@ -237,6 +258,7 @@
         '<td>' + AppCore.formatDate(item.fimVigencia) + '</td>' +
         '<td><span class="status-chip ' + badgeClass + '">' + status.label + '</span></td>' +
         '<td><div class="action-icon-group">' +
+          '<button class="action-icon-btn info" type="button" data-notes-id="' + item.id + '" aria-label="Visualizar observacoes" title="Visualizar observacoes">' + notesIcon() + '</button>' +
           '<button class="action-icon-btn" type="button" data-edit-id="' + item.id + '" aria-label="Editar contrato" title="Editar contrato" ' + (editing ? 'disabled' : '') + '>' + editIcon() + '</button>' +
           '<button class="action-icon-btn neutral" type="button" data-close-id="' + item.id + '" data-contract-name="Contrato ' + AppCore.escapeHtml(item.numeroContrato) + ' | Processo ' + AppCore.escapeHtml(item.processoSei) + '" aria-label="Encerrar contrato" title="' + (isClosed ? 'Contrato já encerrado' : 'Encerrar contrato') + '" ' + (closing || isClosed ? 'disabled' : '') + (isClosed ? ' data-closed="true"' : '') + '>' + closeIcon() + '</button>' +
           '<button class="action-icon-btn danger" type="button" data-delete-id="' + item.id + '" data-contract-name="Contrato ' + AppCore.escapeHtml(item.numeroContrato) + ' | Processo ' + AppCore.escapeHtml(item.processoSei) + '" aria-label="Remover contrato" title="Remover contrato" ' + (deleting ? 'disabled' : '') + '>' + trashIcon() + '</button>' +
@@ -245,6 +267,15 @@
     }).join('');
   }
 
+  function openNotesDialog(id) {
+    const item = cache.find(function (entry) { return String(entry.id) === String(id); });
+    if (!item) return;
+    viewNotesContractName.textContent = 'Contrato ' + (item.numeroContrato || '-') + ' | Processo ' + (item.processoSei || '-');
+    viewNotesContent.textContent = String(item.observacoes || '').trim() || 'Nenhuma observacao registrada.';
+    if (typeof viewNotesDialog.showModal === 'function') {
+      viewNotesDialog.showModal();
+    }
+  }
   function openEditDialog(id) {
     const item = cache.find(function (entry) { return String(entry.id) === String(id); });
     if (!item) return;
@@ -262,6 +293,7 @@
     editForm.inicioVigencia.value = item.inicioVigencia || '';
     editForm.fimVigencia.value = item.fimVigencia || '';
     editForm.contratoContinuado.value = item.contratoContinuado ? 'sim' : 'nao';
+    editForm.observacoes.value = item.observacoes || '';
     editPassword.value = '';
     editPassword.disabled = false;
     editFeedback.hidden = true;
@@ -277,6 +309,18 @@
   function getContractYear(item) {
     const raw = String(item.inicioVigencia || item.fimVigencia || '').trim();
     return raw ? raw.slice(0, 4) : '';
+  }
+  function updateFilterSummary(total) {
+    const activeButton = statusFilters.querySelector('button[data-status].active');
+    const label = activeButton ? String(activeButton.textContent || '').trim() : 'Todos';
+    const statusValue = activeButton ? String(activeButton.getAttribute('data-status') || '').trim() : '';
+    activeFilterLabel.textContent = label;
+    activeFilterCount.textContent = formatContractCount(total);
+    filterSummary.setAttribute('data-status', statusValue || 'all');
+  }
+
+  function formatContractCount(total) {
+    return total === 1 ? '1 contrato' : total + ' contratos';
   }
 
   async function confirmEdit() {
@@ -339,6 +383,7 @@
         inicioVigencia: inicio,
         fimVigencia: fim,
         contratoContinuado: String(editForm.contratoContinuado.value || 'nao').trim().toLowerCase() === 'sim',
+        observacoes: String(editForm.observacoes.value || '').trim(),
         status: currentItem && currentItem.status ? currentItem.status : 'vigente'
       });
 
@@ -431,7 +476,7 @@
       renderTable();
       deletingIds.delete(removedId);
     } catch (_error) {
-      showDeleteError('Não foi possível remover o contrato no backend.');
+      showDeleteError((_error && _error.message) ? _error.message : 'Não foi possível remover o contrato no backend.');
       deletingIds.delete(pendingDeleteId);
     } finally {
       confirmDeleteBtn.disabled = false;
@@ -455,6 +500,9 @@
     deleteFeedback.hidden = false;
   }
 
+  function notesIcon() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c-5.2 0-9 7-9 7s3.8 7 9 7 9-7 9-7-3.8-7-9-7z"></path><circle cx="12" cy="12" r="2.5"></circle></svg>';
+  }
   function editIcon() {
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5-10.5-4-4L4 16v4z"></path><path d="M14.5 5.5l4 4"></path></svg>';
   }
@@ -467,3 +515,11 @@
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4h6v3"></path><path d="M8 7l1 13h6l1-13"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>';
   }
 })();
+
+
+
+
+
+
+
+

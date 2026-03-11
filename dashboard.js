@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   AppCore.initShell('inicio');
 
   const todayLabel = document.getElementById('today-label');
@@ -96,7 +96,17 @@
 
     ctx.clearRect(0, 0, cssWidth, cssHeight);
     ctx.fillStyle = '#4b6275';
-    ctx.font = '12px Segoe UI';
+
+    const compact = cssWidth < 520;
+    const leftPad = compact ? 72 : 92;
+    const topPad = 16;
+    const barHeight = compact ? 18 : 20;
+    const gap = compact ? 12 : 10;
+    const chartWidth = Math.max(120, cssWidth - leftPad - (compact ? 10 : 20));
+    const labelSize = compact ? '11px' : '12px';
+    const contractLabelLimit = compact ? 9 : 12;
+
+    ctx.font = labelSize + ' Segoe UI';
 
     if (ordered.length === 0) {
       ctx.fillText('Sem contratos cadastrados.', 16, 28);
@@ -109,12 +119,6 @@
     });
     const maxAbs = Math.max.apply(null, values.map(function (v) { return Math.abs(v); }).concat([30]));
 
-    const leftPad = 92;
-    const topPad = 16;
-    const barHeight = 20;
-    const gap = 10;
-    const chartWidth = cssWidth - leftPad - 20;
-
     ordered.forEach(function (item, index) {
       const y = topPad + index * (barHeight + gap);
       const status = AppCore.getProcessStatus(item);
@@ -123,7 +127,7 @@
       const color = status.type === 'danger' ? '#d74f4f' : status.type === 'warning' ? '#eab54f' : '#2f9d62';
 
       ctx.fillStyle = '#2e4a5f';
-      ctx.fillText(item.numeroContrato.slice(0, 12), 8, y + 14);
+      ctx.fillText(item.numeroContrato.slice(0, contractLabelLimit), 8, y + 14);
 
       ctx.fillStyle = color;
       ctx.fillRect(leftPad, y, width, barHeight);

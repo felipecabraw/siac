@@ -1,0 +1,78 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/jpeg" href="images1.jfif">
+  <title>Painel do Administrador | SIAC</title>
+  <meta name="description" content="Painel do Administrador Sênior do SIAC.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3l7 3v5c0 4.6-2.5 8.2-7 10-4.5-1.8-7-5.4-7-10V6l7-3z"></path><path d="M9 10h6"></path><path d="M9 13h6"></path><path d="M10 16h4"></path></svg></span><div><strong>SIAC</strong><span>Painel institucional</span></div></div>
+      <nav class="sidebar-nav">
+        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>Início</a>
+        <a data-nav="cadastro" href="cadastro-processo.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 11v6"></path><path d="M9 14h6"></path></svg></span>Cadastro de contratos</a>
+        <a data-nav="processos" href="processos-cadastrados.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Contratos cadastrados</a>
+        <a data-nav="almoxarifado" href="almoxarifado.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7.5 12 3l9 4.5-9 4.5z"></path><path d="M3 7.5V16.5L12 21l9-4.5V7.5"></path><path d="M12 12v9"></path></svg></span>Almoxarifado</a>
+        <a data-nav="perfil" href="perfil.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"></circle><path d="M4 20a8 8 0 0 1 16 0"></path></svg></span>Perfil</a>
+      </nav>
+      <div class="sidebar-note">Área restrita para aprovações, publicações institucionais e futuros recursos administrativos.</div>
+    </aside>
+    <main class="dashboard-main">
+      <header class="dashboard-topbar">
+        <div class="dashboard-topbar-left"><img class="dashboard-topbar-logo" src="logoSispern.png" alt="Brasão institucional"><div><strong>SIAC</strong><span>Painel do Administrador</span></div></div>
+        <div class="dashboard-topbar-right"><div class="user-chip-wrap"><img id="top-user-avatar" class="top-user-avatar" alt="Foto do usuário" hidden><span id="top-user-fallback" class="top-user-fallback">U</span><span id="top-user-name" class="dashboard-user-chip">Usuário autenticado</span></div><button id="system-notices-trigger" class="system-notices-trigger" type="button" aria-label="Abrir alertas e novidades do sistema"><span class="system-notices-trigger-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 4a4 4 0 0 0-4 4v1.2c0 .9-.3 1.7-.8 2.4L5.5 14a1.5 1.5 0 0 0 1.2 2.4h10.6a1.5 1.5 0 0 0 1.2-2.4l-1.7-2.4a4 4 0 0 1-.8-2.4V8a4 4 0 0 0-4-4Z"></path><path d="M10 18a2 2 0 0 0 4 0"></path></svg></span><span id="system-notices-badge" class="system-notices-badge" hidden>0</span></button><button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button></div>
+      </header>
+      <section class="panel-block">
+        <div class="panel-title-row"><h1>Painel do Administrador</h1><span class="tag">Administrador Sênior</span></div>
+        <p class="section-helper">Concentre aqui as rotinas de governança do sistema. Novos recursos administrativos podem ser incorporados nesta página sem impactar o perfil do usuário.</p>
+      </section>
+      <section id="admin-approval-panel" class="panel-block">
+        <div class="panel-title-row"><h2>Aprovação de novos usuários</h2><span class="tag">Controle de acesso</span></div>
+        <p class="section-helper">Somente o Administrador Sênior pode liberar acessos pendentes.</p>
+        <p id="approval-feedback" class="form-feedback" hidden></p>
+        <div class="table-wrap"><table><thead><tr><th>Nome</th><th>CPF</th><th>Matrícula</th><th>E-mail</th><th>Status</th><th>Ações</th></tr></thead><tbody id="approval-table-body"></tbody></table></div>
+      </section>
+      <section id="admin-actions-panel" class="panel-block">
+        <div class="panel-title-row"><h2>Central de ações</h2><span class="tag">Rastreabilidade</span></div>
+        <p class="section-helper">Resumo das ações executadas nos contratos, com identificação do usuário responsável.</p>
+        <p id="audit-feedback" class="form-feedback" hidden></p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Usuário</th><th>Ação</th><th>Resumo</th></tr></thead>
+            <tbody id="audit-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="admin-notices-panel" class="panel-block">
+        <div class="panel-title-row"><h2>Alertas e novidades do sistema</h2><span class="tag">Comunicação interna</span></div>
+        <p class="section-helper">Publique ajustes, avisos e comunicados funcionais. O sino do topo exibe apenas as publicações ativas.</p>
+        <p id="notices-feedback" class="form-feedback" hidden></p>
+        <form id="system-notice-form" class="system-notice-form">
+          <input type="hidden" name="id">
+          <label class="span-2">Título<input type="text" name="titulo" maxlength="120" required></label>
+          <label>Tipo<select name="tipo" required><option value="aviso">Aviso</option><option value="alerta">Alerta</option><option value="novidade">Novidade</option></select></label>
+          <label>Status<select name="publicado" required><option value="true">Publicado</option><option value="false">Oculto</option></select></label>
+          <label class="span-2">Conteúdo<textarea name="conteudo" rows="5" required placeholder="Descreva a alteração, orientação ou alerta que será exibido aos usuários."></textarea></label>
+          <div class="form-actions span-2 system-notice-actions"><button type="button" id="cancel-system-notice" class="btn btn-ghost" hidden>Cancelar edição</button><button type="submit" id="save-system-notice" class="btn btn-primary">Publicar novidade</button></div>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Título</th><th>Tipo</th><th>Status</th><th>Atualizado em</th><th>Ações</th></tr></thead>
+            <tbody id="system-notices-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="backend-config.js"></script>
+  <script src="backend-api.js"></script>
+  <script src="app-core.js"></script>
+  <script src="admin-panel.js"></script>
+</body>
+</html>
+
