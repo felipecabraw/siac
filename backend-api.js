@@ -44,6 +44,7 @@
     });
     return client;
   }
+
   function translateAuthError(error, fallbackMessage) {
     const raw = String(error && (error.message || error.error_description || error.code) || '').trim();
     const msg = raw.toLowerCase();
@@ -782,7 +783,7 @@
     });
 
     if (result.error) {
-      throw new Error(result.error.message || 'Falha ao registrar solicita\u00e7\u00e3o de acesso.');
+      throw new Error(result.error.message || 'Falha ao registrar solicitacao de acesso.');
     }
 
     return true;
@@ -845,7 +846,7 @@
     });
 
     if (result.error) {
-      throw new Error(result.error.message || 'Falha ao aprovar solicita\u00e7\u00e3o.');
+      throw new Error(result.error.message || 'Falha ao aprovar solicitacao.');
     }
 
     return true;
