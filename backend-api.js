@@ -47,29 +47,47 @@
   function translateAuthError(error, fallbackMessage) {
     const raw = String(error && (error.message || error.error_description || error.code) || '').trim();
     const msg = raw.toLowerCase();
-    if (!raw) return fallbackMessage || 'Falha na autentica\u00e7\u00e3o.';
+    if (!raw) return fallbackMessage || 'Falha na autenticacao.';
     if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
-      return 'Senha ou usu\u00e1rio inv\u00e1lidos. Verifique suas credenciais.';
+      return 'Senha ou usuario invalidos. Verifique suas credenciais.';
     }
     if (msg.includes('email not confirmed')) {
-      return 'Seu e-mail ainda n\u00e3o foi confirmado. Verifique sua caixa de entrada.';
+      return 'Seu e-mail ainda nao foi confirmado. Verifique sua caixa de entrada.';
     }
     if (msg.includes('user already registered')) {
-      return 'J\u00e1 existe um usu\u00e1rio cadastrado com este e-mail.';
+      return 'Ja existe um usuario cadastrado com este e-mail.';
+    }
+    if (msg.includes('email rate limit')) {
+      return 'O provedor bloqueou temporariamente o envio de mensagens para troca de e-mail. Aguarde e tente novamente.';
+    }
+    if (msg.includes('smtp') || msg.includes('error sending email') || msg.includes('error sending confirmation email')) {
+      return 'O Supabase nao conseguiu enviar o e-mail de confirmacao. Verifique a configuracao de SMTP/Auth.';
+    }
+    if (msg.includes('email change') && msg.includes('disabled')) {
+      return 'A troca de e-mail esta desabilitada nas configuracoes do Supabase Auth.';
+    }
+    if ((msg.includes('email') && msg.includes('already')) || (msg.includes('email') && msg.includes('exists'))) {
+      return 'Ja existe outro usuario utilizando este e-mail.';
+    }
+    if (msg.includes('same email') || msg.includes('same as the old one')) {
+      return 'Informe um e-mail diferente do atual.';
     }
     if (msg.includes('weak password') || msg.includes('password should be at least')) {
-      return 'Senha fraca. Utilize uma senha mais forte com no m\u00ednimo 8 caracteres.';
+      return 'Senha fraca. Utilize uma senha mais forte com no minimo 8 caracteres.';
     }
     if (msg.includes('for security purposes') || msg.includes('rate limit')) {
-      return 'N\u00e3o foi poss\u00edvel concluir o cadastro agora. Tente novamente.';
+      return 'Nao foi possivel concluir a operacao agora. Tente novamente.';
     }
     if (msg.includes('unable to validate email address') || msg.includes('invalid email')) {
-      return 'E-mail inv\u00e1lido. Verifique o formato informado.';
+      return 'E-mail invalido. Verifique o formato informado.';
     }
     if (msg.includes('password')) {
-      return 'Senha inv\u00e1lida. Confira e tente novamente.';
+      return 'Senha invalida. Confira e tente novamente.';
     }
-    return fallbackMessage || 'Falha na autentica\u00e7\u00e3o.';
+    if (fallbackMessage) {
+      return fallbackMessage + ' Detalhe tecnico: ' + raw;
+    }
+    return raw;
   }
   function isMissingApprovalColumnError(error) {
     const msg = String(error && error.message ? error.message : '').toLowerCase();
