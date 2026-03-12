@@ -104,10 +104,12 @@
       const successMessage = savedEmail === email
         ? 'Dados do usuario atualizados com sucesso. O e-mail informado tambem pode ser usado como login.'
         : 'Dados do usuario atualizados com sucesso. Se o provedor solicitar confirmacao do novo e-mail, conclua-a para usar o novo login.';
+      form.nome.value = saved.nome || payload.nome;
+      form.cpf.value = AppCore.formatCpf(saved.cpf || payload.cpf);
+      form.email.value = savedEmail || email;
+      form.matricula.value = saved.matricula || payload.matricula;
+      form.funcao.value = saved.funcao || payload.funcao;
       showFeedback(successMessage, 'ok');
-      setTimeout(function () {
-        window.location.reload();
-      }, 300);
     } catch (_error) {
       showFeedback(((_error && _error.message) ? _error.message : 'Nao foi possivel salvar os dados do usuario no backend.'), 'error');
     } finally {

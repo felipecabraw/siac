@@ -587,7 +587,7 @@
     if (status !== 'ativo') {
       return { ok: false, status: status || 'pendente' };
     }
-    return { ok: true, status: 'ativo', role: role };
+    return { ok: true, status: 'ativo', role: role, login: normalizeEmail(profile.username || user.email || user.id || '') };
   }
   async function getCurrentAccessProfile() {
     if (!isSupabaseEnabled()) return null;
@@ -682,8 +682,8 @@
         return { ok: false, message: 'Seu acesso ainda n\u00e3o foi aprovado pelo Administrador S\u00eanior.' };
       }
 
-      persistAuth(user.email || email, access.role || 'usuario');
-      return { ok: true, userId: user.email || email };
+      persistAuth(access.login || user.email || email, access.role || 'usuario');
+      return { ok: true, userId: access.login || user.email || email };
     }
     if (window.AuthDB && typeof window.AuthDB.validateLogin === 'function') {
       const fallback = await window.AuthDB.validateLogin(identifier, password);
@@ -720,7 +720,7 @@
       return false;
     }
 
-    persistAuth(user.email || user.id || 'usuario.institucional', access.role || 'usuario');
+    persistAuth(access.login || user.email || user.id || 'usuario.institucional', access.role || 'usuario');
     return true;
   }
 
@@ -1323,14 +1323,14 @@
 
     const mapped = {
       nome: profile.nome_completo || '',
-      email: normalizeEmail(user.email || profile.username || ''),
+      email: normalizeEmail(profile.username || user.email || ''),
       cpf: profile.cpf || '',
       matricula: profile.matricula || '',
       funcao: profile.funcao || '',
       foto: profile.foto_url || ''
     };
 
-    saveLocalProfile(user.email || getCurrentAuthUser(), mapped);
+    saveLocalProfile(profile.username || user.email || getCurrentAuthUser(), mapped);
     return mapped;
   }
 
