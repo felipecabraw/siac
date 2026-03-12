@@ -3686,3 +3686,48 @@ td {
   outline-offset: 6px;
   border-radius: 18px;
 }
+
+
+/* Patrimonio */
+.required-mark {
+  margin-left: 4px;
+  color: #b42318;
+  font-weight: 700;
+}
+
+.patrimonio-kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.patrimonio-filter-form {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: end;
+}
+
+.patrimonio-table-meta {
+  display: grid;
+  gap: 3px;
+  min-width: 240px;
+}
+
+.patrimonio-table-meta strong {
+  color: #1d3850;
+}
+
+.patrimonio-table-meta span,
+.patrimonio-table-meta small {
+  color: #536a80;
+}
+
+@media (max-width: 1120px) {
+  .patrimonio-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .patrimonio-kpi-grid,
+  .patrimonio-filter-form {
+    grid-template-columns: 1fr;
+  }
+}

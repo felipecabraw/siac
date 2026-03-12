@@ -10,6 +10,8 @@
   const ALMOX_ITEM_KEY = 'cc_almox_itens';
   const ALMOX_MOV_KEY = 'cc_almox_movimentacoes';
   const ALMOX_DEL_KEY = 'cc_almox_exclusoes';
+  const PATRIMONIO_ITEM_KEY = 'cc_patrimonio_bens';
+  const PATRIMONIO_MOV_KEY = 'cc_patrimonio_movimentacoes';
   const LEGACY_DEMO_PROCESS_IDS = ['demo-1', 'demo-2', 'demo-3'];
   const LEGACY_DEMO_PROCESSOS = ['SEI-2026-001', 'SEI-2026-014', 'SEI-2025-223'];
   const LEGACY_DEMO_CONTRATOS = ['CT-001/2026', 'CT-014/2026', 'CT-223/2025'];
@@ -1399,6 +1401,179 @@
     return normalized;
   }
 
+  async function listPatrimonioItems() {
+    return loadLocalList(PATRIMONIO_ITEM_KEY);
+  }
+
+  async function addPatrimonioItem(payload) {
+    const numeroTombamento = String(payload.numeroTombamento || '').trim().toUpperCase();
+    const descricaoBem = String(payload.descricaoBem || '').trim();
+    const categoriaPatrimonial = String(payload.categoriaPatrimonial || '').trim();
+    const naturezaBem = String(payload.naturezaBem || '').trim();
+    const quantidade = Math.max(1, Number.parseInt(payload.quantidade, 10) || 1);
+    const unidadeMedida = String(payload.unidadeMedida || '').trim().toLowerCase();
+    const marca = String(payload.marca || '').trim();
+    const modelo = String(payload.modelo || '').trim();
+    const numeroSerie = String(payload.numeroSerie || '').trim();
+    const valorAquisicao = Number(payload.valorAquisicao);
+    const dataAquisicao = String(payload.dataAquisicao || '').trim();
+    const formaIngresso = String(payload.formaIngresso || '').trim();
+    const documentoOrigem = String(payload.documentoOrigem || '').trim();
+    const localizacaoPrincipal = String(payload.localizacaoPrincipal || '').trim();
+    const setorLocalizacao = String(payload.setorLocalizacao || '').trim();
+    const localDetalhado = String(payload.localDetalhado || '').trim();
+    const responsavelBem = String(payload.responsavelBem || '').trim();
+    const matriculaResponsavel = String(payload.matriculaResponsavel || '').trim();
+    const situacaoBem = String(payload.situacaoBem || '').trim();
+    const estadoFisico = String(payload.estadoFisico || '').trim();
+    const observacoes = String(payload.observacoes || '').trim();
+
+    if (!numeroTombamento) throw new Error('Informe o n\u00famero de tombamento.');
+    if (!descricaoBem) throw new Error('Informe a descri\u00e7\u00e3o do bem.');
+    if (!categoriaPatrimonial) throw new Error('Selecione a categoria patrimonial.');
+    if (!naturezaBem) throw new Error('Selecione a natureza do bem.');
+    if (!unidadeMedida) throw new Error('Informe a unidade de medida.');
+    if (!localizacaoPrincipal) throw new Error('Informe a unidade/localiza\u00e7\u00e3o principal.');
+    if (!setorLocalizacao) throw new Error('Informe o setor/localiza\u00e7\u00e3o do bem.');
+    if (!situacaoBem) throw new Error('Selecione a situa\u00e7\u00e3o do bem.');
+    if (!estadoFisico) throw new Error('Selecione o estado f\u00edsico do bem.');
+
+    const list = loadLocalList(PATRIMONIO_ITEM_KEY);
+    const duplicated = list.some(function (item) {
+      return String(item.numeroTombamento || '').trim().toUpperCase() === numeroTombamento;
+    });
+    if (duplicated) throw new Error('J\u00e1 existe bem patrimonial cadastrado com este n\u00famero de tombamento.');
+
+    const username = getCurrentAuthUser();
+    const now = new Date().toISOString();
+    const item = {
+      id: 'patr-' + Date.now(),
+      numeroTombamento: numeroTombamento,
+      descricaoBem: descricaoBem,
+      categoriaPatrimonial: categoriaPatrimonial,
+      naturezaBem: naturezaBem,
+      quantidade: quantidade,
+      unidadeMedida: unidadeMedida,
+      marca: marca,
+      modelo: modelo,
+      numeroSerie: numeroSerie,
+      valorAquisicao: Number.isFinite(valorAquisicao) ? valorAquisicao : null,
+      dataAquisicao: dataAquisicao,
+      formaIngresso: formaIngresso,
+      documentoOrigem: documentoOrigem,
+      localizacaoPrincipal: localizacaoPrincipal,
+      setorLocalizacao: setorLocalizacao,
+      localDetalhado: localDetalhado,
+      responsavelBem: responsavelBem,
+      matriculaResponsavel: matriculaResponsavel,
+      situacaoBem: situacaoBem,
+      estadoFisico: estadoFisico,
+      observacoes: observacoes,
+      criadoPor: username,
+      criadoEm: now,
+      atualizadoPor: username,
+      atualizadoEm: now,
+      ultimaMovimentacaoPor: username,
+      ultimaMovimentacaoEm: now,
+      ultimaMovimentacaoTipo: 'incorporacao'
+    };
+
+    list.unshift(item);
+    saveLocalList(PATRIMONIO_ITEM_KEY, list);
+
+    const movements = loadLocalList(PATRIMONIO_MOV_KEY);
+    movements.unshift({
+      id: 'patmov-' + Date.now(),
+      bemId: item.id,
+      numeroTombamento: item.numeroTombamento,
+      descricaoBem: item.descricaoBem,
+      tipoMovimentacao: 'incorporacao',
+      localizacaoOrigem: '-',
+      setorOrigem: '-',
+      localizacaoDestino: item.localizacaoPrincipal,
+      setorDestino: item.setorLocalizacao,
+      localDetalhadoDestino: item.localDetalhado,
+      responsavelOrigem: '-',
+      responsavelDestino: item.responsavelBem,
+      matriculaDestino: item.matriculaResponsavel,
+      situacaoDestino: item.situacaoBem,
+      motivo: 'Cadastro inicial do bem patrimonial',
+      usuario: username,
+      dataHora: now
+    });
+    saveLocalList(PATRIMONIO_MOV_KEY, movements.slice(0, 800));
+    return item;
+  }
+
+  async function movePatrimonioItem(payload) {
+    const bemId = String(payload.bemId || '').trim();
+    const tipoMovimentacao = String(payload.tipoMovimentacao || '').trim();
+    const localizacaoDestino = String(payload.localizacaoDestino || '').trim();
+    const setorDestino = String(payload.setorDestino || '').trim();
+    const localDetalhadoDestino = String(payload.localDetalhadoDestino || '').trim();
+    const responsavelDestino = String(payload.responsavelDestino || '').trim();
+    const matriculaDestino = String(payload.matriculaDestino || '').trim();
+    const situacaoDestino = String(payload.situacaoDestino || '').trim();
+    const motivo = String(payload.motivo || '').trim();
+
+    if (!bemId) throw new Error('Selecione um bem patrimonial.');
+    if (!tipoMovimentacao) throw new Error('Selecione o tipo de movimenta\u00e7\u00e3o.');
+    if (!localizacaoDestino) throw new Error('Informe a unidade/localiza\u00e7\u00e3o de destino.');
+    if (!setorDestino) throw new Error('Informe o setor/localiza\u00e7\u00e3o de destino.');
+    if (!responsavelDestino) throw new Error('Informe o novo respons\u00e1vel.');
+    if (!matriculaDestino) throw new Error('Informe a matr\u00edcula do novo respons\u00e1vel.');
+    if (!situacaoDestino) throw new Error('Selecione a nova situa\u00e7\u00e3o do bem.');
+    if (!motivo) throw new Error('Informe o motivo da movimenta\u00e7\u00e3o.');
+
+    const list = loadLocalList(PATRIMONIO_ITEM_KEY);
+    const index = list.findIndex(function (item) { return String(item.id) === bemId; });
+    if (index < 0) throw new Error('Bem patrimonial n\u00e3o localizado.');
+
+    const current = Object.assign({}, list[index]);
+    const username = getCurrentAuthUser();
+    const now = new Date().toISOString();
+
+    current.localizacaoPrincipal = localizacaoDestino;
+    current.setorLocalizacao = setorDestino;
+    current.localDetalhado = localDetalhadoDestino;
+    current.responsavelBem = responsavelDestino;
+    current.matriculaResponsavel = matriculaDestino;
+    current.situacaoBem = situacaoDestino;
+    current.atualizadoPor = username;
+    current.atualizadoEm = now;
+    current.ultimaMovimentacaoPor = username;
+    current.ultimaMovimentacaoEm = now;
+    current.ultimaMovimentacaoTipo = tipoMovimentacao;
+    list[index] = current;
+    saveLocalList(PATRIMONIO_ITEM_KEY, list);
+
+    const movements = loadLocalList(PATRIMONIO_MOV_KEY);
+    movements.unshift({
+      id: 'patmov-' + Date.now(),
+      bemId: current.id,
+      numeroTombamento: current.numeroTombamento,
+      descricaoBem: current.descricaoBem,
+      tipoMovimentacao: tipoMovimentacao,
+      localizacaoOrigem: String(payload.localizacaoOrigem || payload.localizacaoAtual || '').trim() || '-',
+      setorOrigem: String(payload.setorOrigem || payload.setorAtual || '').trim() || '-',
+      localizacaoDestino: localizacaoDestino,
+      setorDestino: setorDestino,
+      localDetalhadoDestino: localDetalhadoDestino,
+      responsavelOrigem: String(payload.responsavelOrigem || payload.responsavelAtual || '').trim() || '-',
+      responsavelDestino: responsavelDestino,
+      matriculaDestino: matriculaDestino,
+      situacaoDestino: situacaoDestino,
+      motivo: motivo,
+      usuario: username,
+      dataHora: now
+    });
+    saveLocalList(PATRIMONIO_MOV_KEY, movements.slice(0, 1000));
+    return current;
+  }
+
+  async function listPatrimonioMovements() {
+    return loadLocalList(PATRIMONIO_MOV_KEY);
+  }
   async function listAlmoxItems() {
     if (!isSupabaseEnabled()) return loadLocalList(ALMOX_ITEM_KEY);
 
@@ -1717,6 +1892,10 @@
     purgeLegacyDemoProcessos: purgeLegacyDemoProcessos,
     getProfile: getProfile,
     saveProfile: saveProfile,
+    listPatrimonioItems: listPatrimonioItems,
+    addPatrimonioItem: addPatrimonioItem,
+    movePatrimonioItem: movePatrimonioItem,
+    listPatrimonioMovements: listPatrimonioMovements,
     listAlmoxItems: listAlmoxItems,
     addAlmoxItem: addAlmoxItem,
     moveAlmoxItem: moveAlmoxItem,
