@@ -742,10 +742,10 @@ th {
 }
 
 .gov-mini-logo {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.22));
 }
 
 .gov-title {
@@ -1099,10 +1099,10 @@ td {
 }
 
 .dashboard-topbar-logo {
-  width: 46px;
-  height: 46px;
+  width: 54px;
+  height: 54px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
 }
 
 .dashboard-topbar-left strong {
@@ -1307,8 +1307,8 @@ td {
 }
 
 .gov-mini-logo {
-  width: 52px;
-  height: 52px;
+  width: 58px;
+  height: 58px;
 }
 
 .gov-title {
@@ -1760,12 +1760,12 @@ td {
 }
 
 .gov-login-page .login-slogan-image {
-  width: 112px;
-  height: 112px;
+  width: 148px;
+  height: 148px;
   object-fit: contain;
   display: block;
-  margin: 10px auto 12px;
-  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.28));
+  margin: 8px auto 14px;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.24));
 }
 
 .gov-login-page .login-card-title {
@@ -1912,8 +1912,8 @@ td {
   }
 
   .gov-login-page .login-slogan-image {
-    width: 96px;
-    height: 96px;
+    width: 112px;
+    height: 112px;
   }
 }
 
@@ -2397,8 +2397,8 @@ td {
   }
 
   .dashboard-topbar-logo {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
   }
 
   .dashboard-topbar-right {
@@ -2836,8 +2836,8 @@ td {
 }
 
 .gov-login-page .login-slogan-image {
-  width: 82px;
-  height: 82px;
+  width: 96px;
+  height: 96px;
   margin: 0 auto 18px;
 }
 
@@ -3295,7 +3295,7 @@ td {
 .system-notice-bulk-read-toggle input:disabled {
   opacity: 0.55;
 }
-/* Ajustes finais de revisão e responsividade */
+/* Ajustes finais de revisÃƒÂ£o e responsividade */
 .dashboard-main,
 .panel-block,
 .chart-card,
