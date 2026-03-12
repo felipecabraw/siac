@@ -4,6 +4,9 @@
   const submitBtn = form.querySelector('button[type="submit"]');
   let isSubmitting = false;
 
+  clearSensitiveFields();
+  window.addEventListener('pageshow', clearSensitiveFields);
+
   form.cpf.addEventListener('input', function () {
     form.cpf.value = AppCore.formatCpf(form.cpf.value);
   });
@@ -28,21 +31,21 @@
     const confirmar = String(form.confirmarSenha.value || '');
 
     if (!AppCore.isValidCpf(cpfDigits)) {
-      setFeedback('CPF inv\u00e1lido. Verifique o n\u00famero informado.', 'error');
+      setFeedback('CPF invalido. Verifique o numero informado.', 'error');
       isSubmitting = false;
       setSubmittingState(false);
       return;
     }
 
     if (senha.length < 8) {
-      setFeedback('A senha deve possuir no m\u00ednimo 8 caracteres.', 'error');
+      setFeedback('A senha deve possuir no minimo 8 caracteres.', 'error');
       isSubmitting = false;
       setSubmittingState(false);
       return;
     }
 
     if (senha !== confirmar) {
-      setFeedback('Senha e confirma\u00e7\u00e3o n\u00e3o conferem.', 'error');
+      setFeedback('Senha e confirmacao nao conferem.', 'error');
       isSubmitting = false;
       setSubmittingState(false);
       return;
@@ -57,23 +60,31 @@
         senha: senha
       });
 
-      setFeedback('Solicita\u00e7\u00e3o enviada com sucesso. Aguarde aprova\u00e7\u00e3o do Administrador S\u00eanior.', 'ok');
+      setFeedback('Solicitacao enviada com sucesso. Aguarde aprovacao do Administrador Senior.', 'ok');
       form.reset();
+      clearSensitiveFields();
       setTimeout(function () {
         window.location.href = 'index.html';
       }, 1800);
     } catch (error) {
-      setFeedback((error && error.message) ? error.message : 'Falha ao enviar solicita\u00e7\u00e3o de acesso.', 'error');
+      setFeedback((error && error.message) ? error.message : 'Falha ao enviar solicitacao de acesso.', 'error');
     } finally {
       isSubmitting = false;
       setSubmittingState(false);
     }
   });
 
+  function clearSensitiveFields() {
+    if (!form) return;
+    form.email.value = '';
+    form.senha.value = '';
+    form.confirmarSenha.value = '';
+  }
+
   function setSubmittingState(active) {
     if (!submitBtn) return;
     submitBtn.disabled = !!active;
-    submitBtn.textContent = active ? 'Enviando...' : 'Enviar solicita\u00e7\u00e3o';
+    submitBtn.textContent = active ? 'Enviando...' : 'Enviar solicitacao';
   }
 
   function setFeedback(message, type) {
@@ -88,6 +99,3 @@
     feedback.className = type === 'ok' ? 'form-feedback ok' : 'login-error';
   }
 })();
-
-
-
