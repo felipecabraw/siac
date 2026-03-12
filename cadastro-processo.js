@@ -3,13 +3,13 @@
 
   const form = document.getElementById('process-form');
   const feedback = document.getElementById('form-feedback');
-  const demoBtn = document.getElementById('seed-demo');
   const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
 
-  if (!form || !feedback || !demoBtn) return;
+  if (!form || !feedback) return;
 
   let isSubmitting = false;
-  let isSeeding = false;
+
+  bootstrap();
 
   form.processoSei.addEventListener('input', function () {
     form.processoSei.value = form.processoSei.value.toUpperCase().replace(/[^A-Z0-9\-/.]/g, '');
@@ -24,15 +24,22 @@
   });
 
   form.addEventListener('submit', handleSubmit);
-  demoBtn.addEventListener('click', handleSeedDemo);
+
+  async function bootstrap() {
+    try {
+      await BackendAPI.purgeLegacyDemoProcessos();
+    } catch (_error) {
+      // Ignora falha de limpeza legada para nao bloquear o cadastro real.
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
-    if (isSubmitting || isSeeding) return;
+    if (isSubmitting) return;
 
     clearFeedback();
     isSubmitting = true;
-    setBusyState(true, false);
+    setBusyState(true);
 
     const data = new FormData(form);
     const inicio = String(data.get('inicioVigencia') || '').trim();
@@ -44,14 +51,14 @@
     if (new Date(fim) < new Date(inicio)) {
       setFeedback('A data de fim da vig\u00eancia deve ser igual ou posterior ao in\u00edcio.', 'error');
       isSubmitting = false;
-      setBusyState(false, false);
+      setBusyState(false);
       return;
     }
 
     if (!Number.isFinite(valorGlobal) || valorGlobal <= 0) {
       setFeedback('Informe um valor global v\u00e1lido e maior que zero.', 'error');
       isSubmitting = false;
-      setBusyState(false, false);
+      setBusyState(false);
       return;
     }
 
@@ -60,13 +67,13 @@
       if (hasDuplicate) {
         setFeedback('J\u00e1 existe contrato cadastrado com esse Processo SEI n\u00ba ou n\u00famero de contrato.', 'error');
         isSubmitting = false;
-        setBusyState(false, false);
+        setBusyState(false);
         return;
       }
     } catch (_error) {
       setFeedback('N\u00e3o foi poss\u00edvel validar duplicidade no backend.', 'error');
       isSubmitting = false;
-      setBusyState(false, false);
+      setBusyState(false);
       return;
     }
 
@@ -93,46 +100,14 @@
       setFeedback('Falha ao salvar contrato no backend.', 'error');
     } finally {
       isSubmitting = false;
-      setBusyState(false, false);
+      setBusyState(false);
     }
   }
 
-  async function handleSeedDemo() {
-    if (isSeeding || isSubmitting) return;
-
-    isSeeding = true;
-    setBusyState(false, true);
-
-    try {
-      const current = await BackendAPI.listProcessos();
-      if (current.length > 0) {
-        setFeedback('J\u00e1 existem contratos cadastrados. A carga de exemplo n\u00e3o foi aplicada.', 'warn');
-        return;
-      }
-
-      const demo = ProcessoStore.demoData();
-      for (let i = 0; i < demo.length; i += 1) {
-        await BackendAPI.createProcesso(demo[i]);
-      }
-
-      setFeedback('Dados de exemplo inseridos com sucesso.', 'ok');
-    } catch (_error) {
-      setFeedback('Falha ao inserir dados de exemplo.', 'error');
-    } finally {
-      isSeeding = false;
-      setBusyState(false, false);
-    }
-  }
-
-  function setBusyState(submitting, seeding) {
-    if (submitBtn) {
-      submitBtn.disabled = !!submitting || !!seeding;
-      submitBtn.textContent = submitting ? 'Salvando...' : 'Salvar contrato';
-    }
-    if (demoBtn) {
-      demoBtn.disabled = !!submitting || !!seeding;
-      demoBtn.textContent = seeding ? 'Inserindo...' : 'Inserir dados de exemplo';
-    }
+  function setBusyState(submitting) {
+    if (!submitBtn) return;
+    submitBtn.disabled = !!submitting;
+    submitBtn.textContent = submitting ? 'Salvando...' : 'Salvar contrato';
   }
 
   function setFeedback(message, type) {
@@ -147,6 +122,3 @@
     feedback.textContent = '';
   }
 })();
-
-
-

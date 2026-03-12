@@ -10,6 +10,9 @@
   const ALMOX_ITEM_KEY = 'cc_almox_itens';
   const ALMOX_MOV_KEY = 'cc_almox_movimentacoes';
   const ALMOX_DEL_KEY = 'cc_almox_exclusoes';
+  const LEGACY_DEMO_PROCESS_IDS = ['demo-1', 'demo-2', 'demo-3'];
+  const LEGACY_DEMO_PROCESSOS = ['SEI-2026-001', 'SEI-2026-014', 'SEI-2025-223'];
+  const LEGACY_DEMO_CONTRATOS = ['CT-001/2026', 'CT-014/2026', 'CT-223/2025'];
 
   let client = null;
   function normalizeEmail(value) {
@@ -200,6 +203,55 @@
       fundamentacao_contrato: String(item.fundamentacaoLegal || '').trim()
     };
   }
+  function isLegacyDemoProcess(item) {
+    const id = String(item && item.id ? item.id : '').trim();
+    const processo = String(item && item.processoSei ? item.processoSei : '').trim().toUpperCase();
+    const contrato = String(item && item.numeroContrato ? item.numeroContrato : '').trim().toUpperCase();
+    return LEGACY_DEMO_PROCESS_IDS.indexOf(id) >= 0 ||
+      LEGACY_DEMO_PROCESSOS.indexOf(processo) >= 0 ||
+      LEGACY_DEMO_CONTRATOS.indexOf(contrato) >= 0;
+  }
+  async function purgeLegacyDemoProcessos() {
+    const cached = loadLocalList(PROCESS_KEY);
+    const filtered = cached.filter(function (item) { return !isLegacyDemoProcess(item); });
+    if (filtered.length !== cached.length) {
+      saveLocalList(PROCESS_KEY, filtered);
+    }
+
+    if (!isSupabaseEnabled()) {
+      return { removedLocal: cached.length - filtered.length, removedRemote: 0 };
+    }
+
+    const user = await getSessionUser();
+    if (!user) {
+      return { removedLocal: cached.length - filtered.length, removedRemote: 0 };
+    }
+
+    const supabase = getClient();
+    const remoteIds = new Set();
+    const checks = [
+      supabase.from('processos_contratos').select('id').in('numero_processo', LEGACY_DEMO_PROCESSOS),
+      supabase.from('processos_contratos').select('id').in('processo_sei', LEGACY_DEMO_PROCESSOS),
+      supabase.from('processos_contratos').select('id').in('numero_contrato', LEGACY_DEMO_CONTRATOS)
+    ];
+
+    for (let i = 0; i < checks.length; i += 1) {
+      const result = await checks[i];
+      if (result.error) throw new Error(result.error.message || 'Falha ao localizar contratos de exemplo.');
+      (result.data || []).forEach(function (row) {
+        if (row && row.id) remoteIds.add(String(row.id));
+      });
+    }
+
+    if (remoteIds.size === 0) {
+      return { removedLocal: cached.length - filtered.length, removedRemote: 0 };
+    }
+
+    const deleteResult = await supabase.from('processos_contratos').delete().in('id', Array.from(remoteIds));
+    if (deleteResult.error) throw new Error(deleteResult.error.message || 'Falha ao remover contratos de exemplo.');
+
+    return { removedLocal: cached.length - filtered.length, removedRemote: remoteIds.size };
+  }
   function mapRowToSystemNotice(row) {
     return {
       id: row.id,
@@ -293,8 +345,13 @@
   }
   async function listAuditEvents(limit) {
     const size = Math.max(1, Math.min(Number(limit) || 20, 100));
-    if (!isCurrentUserSeniorAdmin()) {
-      throw new Error('Somente o Administrador S\u00eanior pode consultar a central de a\u00e7\u00f5es.');
+    if (isSupabaseEnabled()) {
+      const allowed = await hasVerifiedSeniorAdminAccess();
+      if (!allowed) {
+        throw new Error('Somente o Administrador Senior pode consultar a central de acoes.');
+      }
+    } else if (!isCurrentUserSeniorAdmin()) {
+      throw new Error('Somente o Administrador Senior pode consultar a central de acoes.');
     }
 
     if (!isSupabaseEnabled()) {
@@ -513,6 +570,17 @@
       cpf: String(meta.cpf || ''),
       matricula: String(meta.matricula || '')
     });
+  }
+  async function hasVerifiedSeniorAdminAccess() {
+    if (!isSupabaseEnabled()) return isCurrentUserSeniorAdmin();
+
+    const validSession = await restoreSession();
+    if (!validSession) return false;
+
+    const profile = await getCurrentAccessProfile();
+    const role = String(profile && profile.role ? profile.role : '').toLowerCase();
+    const status = String(profile && profile.status_acesso ? profile.status_acesso : '').toLowerCase();
+    return role === 'senior_admin' && status === 'ativo';
   }
   async function signIn(identifier, password) {
     if (isSupabaseEnabled()) {
@@ -941,7 +1009,11 @@
 
     const supabase = getClient();
     let query = supabase.from('sistema_novidades').select('*').order('atualizado_em', { ascending: false }).order('criado_em', { ascending: false });
-    if (!all || !isCurrentUserSeniorAdmin()) {
+    let canViewAll = false;
+    if (all) {
+      canViewAll = await hasVerifiedSeniorAdminAccess();
+    }
+    if (!all || !canViewAll) {
       query = query.eq('publicado', true);
     }
 
@@ -1033,8 +1105,13 @@
     return true;
   }
   async function saveSystemNotice(payload) {
-    if (!isCurrentUserSeniorAdmin()) {
-      throw new Error('Somente o Administrador S\u00eanior pode publicar novidades do sistema.');
+    if (isSupabaseEnabled()) {
+      const allowed = await hasVerifiedSeniorAdminAccess();
+      if (!allowed) {
+        throw new Error('Somente o Administrador Senior pode publicar novidades do sistema.');
+      }
+    } else if (!isCurrentUserSeniorAdmin()) {
+      throw new Error('Somente o Administrador Senior pode publicar novidades do sistema.');
     }
 
     const entity = {
@@ -1099,8 +1176,13 @@
   }
 
   async function deleteSystemNotice(id) {
-    if (!isCurrentUserSeniorAdmin()) {
-      throw new Error('Somente o Administrador S\u00eanior pode excluir novidades do sistema.');
+    if (isSupabaseEnabled()) {
+      const allowed = await hasVerifiedSeniorAdminAccess();
+      if (!allowed) {
+        throw new Error('Somente o Administrador Senior pode excluir novidades do sistema.');
+      }
+    } else if (!isCurrentUserSeniorAdmin()) {
+      throw new Error('Somente o Administrador Senior pode excluir novidades do sistema.');
     }
 
     const safeId = String(id || '').trim();
@@ -1488,6 +1570,7 @@
   window.BackendAPI = {
     isSupabaseEnabled: isSupabaseEnabled,
     isCurrentUserSeniorAdmin: isCurrentUserSeniorAdmin,
+    hasVerifiedSeniorAdminAccess: hasVerifiedSeniorAdminAccess,
     signIn: signIn,
     restoreSession: restoreSession,
     signOut: signOut,
@@ -1508,6 +1591,7 @@
     createProcesso: createProcesso,
     updateProcesso: updateProcesso,
     deleteProcesso: deleteProcesso,
+    purgeLegacyDemoProcessos: purgeLegacyDemoProcessos,
     getProfile: getProfile,
     saveProfile: saveProfile,
     listAlmoxItems: listAlmoxItems,
@@ -1518,57 +1602,4 @@
     listAlmoxDeletes: listAlmoxDeletes
   };
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

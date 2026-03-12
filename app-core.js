@@ -7,6 +7,7 @@
   const ALMOX_ITEM_KEY = 'cc_almox_itens';
   const ALMOX_MOV_KEY = 'cc_almox_movimentacoes';
   const ALMOX_DEL_KEY = 'cc_almox_exclusoes';
+  const DEMO_PROCESS_CLEANUP_KEY = 'cc_demo_process_cleanup_done';
 
   function requireAuth() {
     if (localStorage.getItem(AUTH_KEY) !== 'ok') {
@@ -22,6 +23,15 @@
 
   function getCurrentRole() {
     return localStorage.getItem(AUTH_ROLE_KEY) || 'usuario';
+  }
+
+  function cleanupLegacyDemoProcessos() {
+    if (sessionStorage.getItem(DEMO_PROCESS_CLEANUP_KEY) === 'done') return;
+    sessionStorage.setItem(DEMO_PROCESS_CLEANUP_KEY, 'done');
+    if (!window.BackendAPI || typeof window.BackendAPI.purgeLegacyDemoProcessos !== 'function') return;
+    window.BackendAPI.purgeLegacyDemoProcessos().catch(function () {
+      sessionStorage.removeItem(DEMO_PROCESS_CLEANUP_KEY);
+    });
   }
 
   function profileKey(username) {
@@ -438,47 +448,60 @@
 
   function initShell(activeNav) {
     if (!requireAuth()) return;
-
-    if (window.BackendAPI && typeof window.BackendAPI.restoreSession === 'function') {
-      window.BackendAPI.restoreSession().then(function (isValid) {
-        if (!isValid) window.location.href = 'index.html';
-      }).catch(function () {
-        window.location.href = 'index.html';
-      });
-    }
+    document.body.classList.add('shell-loading');
 
     const identity = getDisplayIdentity();
     const logoutBtn = document.getElementById('logout');
 
-    applyIdentity(identity);
+    function finalizeShell() {
+      applyIdentity(identity);
 
-    if (window.BackendAPI && typeof window.BackendAPI.getProfile === 'function') {
-      window.BackendAPI.getProfile().then(function (profile) {
-        const hydrated = {
-          username: getCurrentUsername(),
-          nome: String(profile && profile.nome ? profile.nome : identity.nome || ''),
-          foto: String(profile && profile.foto ? profile.foto : identity.foto || '')
-        };
-        saveProfile(hydrated.username, hydrated);
-        applyIdentity(hydrated);
-      }).catch(function () {
-        applyIdentity(identity);
+      if (window.BackendAPI && typeof window.BackendAPI.getProfile === 'function') {
+        window.BackendAPI.getProfile().then(function (profile) {
+          const hydrated = {
+            username: getCurrentUsername(),
+            nome: String(profile && profile.nome ? profile.nome : identity.nome || ''),
+            foto: String(profile && profile.foto ? profile.foto : identity.foto || '')
+          };
+          saveProfile(hydrated.username, hydrated);
+          applyIdentity(hydrated);
+        }).catch(function () {
+          applyIdentity(identity);
+        });
+      }
+
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+      }
+
+      bindUserMenu();
+      bindResponsiveSidebar();
+      bindSystemNoticeCenter();
+      refreshSystemNoticeCenter();
+
+      document.querySelectorAll('[data-nav]').forEach(function (link) {
+        const nav = link.getAttribute('data-nav');
+        link.classList.toggle('active', nav === activeNav);
       });
+
+      cleanupLegacyDemoProcessos();
+      document.body.classList.remove('shell-loading');
     }
 
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', logout);
+    if (window.BackendAPI && typeof window.BackendAPI.restoreSession === 'function') {
+      window.BackendAPI.restoreSession().then(function (isValid) {
+        if (!isValid) {
+          window.location.href = 'index.html';
+          return;
+        }
+        finalizeShell();
+      }).catch(function () {
+        window.location.href = 'index.html';
+      });
+      return;
     }
 
-    bindUserMenu();
-    bindResponsiveSidebar();
-    bindSystemNoticeCenter();
-    refreshSystemNoticeCenter();
-
-    document.querySelectorAll('[data-nav]').forEach(function (link) {
-      const nav = link.getAttribute('data-nav');
-      link.classList.toggle('active', nav === activeNav);
-    });
+    finalizeShell();
   }
 
   function firstName(name) {
@@ -651,65 +674,6 @@
     return digit === Number(cpf[10]);
   }
 
-  function createDemoData() {
-    const today = startOfDay(new Date());
-
-    function addDays(days) {
-      const d = new Date(today);
-      d.setDate(d.getDate() + days);
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      return d.getFullYear() + '-' + month + '-' + day;
-    }
-
-    return [
-      {
-        id: 'demo-1',
-        processoSei: 'SEI-2026-001',
-        numeroContrato: 'CT-001/2026',
-        objeto: 'Servico de manutencao predial das unidades administrativas.',
-        fundamentacaoLegal: 'Lei Federal n. 14.133/2021, art. 28, inciso I.',
-        empresaContratada: 'Construtora Potiguar Ltda.',
-        valorGlobal: 125000.5,
-        fonte: 'Tesouro estadual',
-        gestorContrato: 'Ana Pereira',
-        fiscaisContrato: 'Carlos Nunes; Rita Melo',
-        inicioVigencia: '2026-01-10',
-        fimVigencia: addDays(18),
-        status: 'vigente'
-      },
-      {
-        id: 'demo-2',
-        processoSei: 'SEI-2026-014',
-        numeroContrato: 'CT-014/2026',
-        objeto: 'Apoio tecnico para sistema de protocolo e atendimento institucional.',
-        fundamentacaoLegal: 'Lei Federal n. 14.133/2021, art. 6, inciso XL, e art. 75.',
-        empresaContratada: 'TechGov Solucoes Publicas',
-        valorGlobal: 342000,
-        fonte: 'Convenio federal',
-        gestorContrato: 'Lucia Prado',
-        fiscaisContrato: 'Bruno Moraes; Paula Costa',
-        inicioVigencia: '2026-02-01',
-        fimVigencia: addDays(95),
-        status: 'vigente'
-      },
-      {
-        id: 'demo-3',
-        processoSei: 'SEI-2025-223',
-        numeroContrato: 'CT-223/2025',
-        objeto: 'Locacao de equipamentos de TI para suporte operacional.',
-        fundamentacaoLegal: 'Lei Federal n. 14.133/2021, art. 72 e art. 106.',
-        empresaContratada: 'Inova Equipamentos e Servicos',
-        valorGlobal: 89000.99,
-        fonte: 'Recursos proprios',
-        gestorContrato: 'Marcos Lima',
-        fiscaisContrato: 'Debora Silva',
-        inicioVigencia: '2025-03-04',
-        fimVigencia: addDays(-5),
-        status: 'vencido'
-      }
-    ];
-  }
 
   function loadAlmoxItems() {
     try {
@@ -929,8 +893,7 @@
     load: loadProcessos,
     save: saveProcessos,
     add: addProcesso,
-    remove: removeProcesso,
-    demoData: createDemoData
+    remove: removeProcesso
   };
 
   window.AlmoxStore = {
@@ -943,38 +906,4 @@
     loadDeletes: loadAlmoxDeletes
   };
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

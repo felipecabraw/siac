@@ -3295,7 +3295,7 @@ td {
 .system-notice-bulk-read-toggle input:disabled {
   opacity: 0.55;
 }
-/* Ajustes finais de revisÃƒÂ£o e responsividade */
+/* Ajustes finais de revisao e responsividade */
 .dashboard-main,
 .panel-block,
 .chart-card,
@@ -3500,3 +3500,9 @@ td {
     padding-bottom: 2px;
   }
 }
+
+.dashboard-body.shell-loading .dashboard-layout {
+  opacity: 0;
+  pointer-events: none;
+}
+

@@ -1,10 +1,5 @@
-﻿(function () {
-  if (!BackendAPI.isCurrentUserSeniorAdmin()) {
-    window.location.href = 'dashboard.html';
-    return;
-  }
-
-  AppCore.initShell('');
+(function () {
+  document.body.classList.add('shell-loading');
 
   const approvalFeedback = document.getElementById('approval-feedback');
   const approvalTableBody = document.getElementById('approval-table-body');
@@ -22,9 +17,25 @@
   const deletingNoticeIds = new Set();
   let isSavingNotice = false;
 
-  bindApprovalActions();
-  bindNoticeActions();
-  bootstrap();
+  secureBootstrap();
+
+  async function secureBootstrap() {
+    try {
+      const allowed = await BackendAPI.hasVerifiedSeniorAdminAccess();
+      if (!allowed) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+    } catch (_error) {
+      window.location.href = 'dashboard.html';
+      return;
+    }
+
+    AppCore.initShell('');
+    bindApprovalActions();
+    bindNoticeActions();
+    await bootstrap();
+  }
 
   async function bootstrap() {
     await loadPendingApprovals();
@@ -50,10 +61,10 @@
 
       try {
         await BackendAPI.approveAccessRequest(id);
-        setApprovalFeedback('Usuário aprovado com sucesso.', 'ok');
+        setApprovalFeedback('Usuario aprovado com sucesso.', 'ok');
         await loadPendingApprovals();
       } catch (error) {
-        setApprovalFeedback((error && error.message) ? error.message : 'Falha ao aprovar usuário.', 'error');
+        setApprovalFeedback((error && error.message) ? error.message : 'Falha ao aprovar usuario.', 'error');
         approvingIds.delete(id);
         btn.disabled = false;
         btn.textContent = oldText;
@@ -94,7 +105,7 @@
         if (!id || deletingNoticeIds.has(id)) return;
 
         const title = String(deleteBtn.getAttribute('data-notice-title') || 'esta novidade').trim();
-        if (!window.confirm('Deseja excluir a publicação "' + title + '"?')) return;
+        if (!window.confirm('Deseja excluir a publicacao "' + title + '"?')) return;
 
         deletingNoticeIds.add(id);
         deleteBtn.disabled = true;
@@ -102,13 +113,13 @@
 
         try {
           await BackendAPI.deleteSystemNotice(id);
-          setNoticesFeedback('Publicação excluída com sucesso.', 'ok');
+          setNoticesFeedback('Publicacao excluida com sucesso.', 'ok');
           resetNoticeForm();
           await loadSystemNotices();
           await loadAuditEvents();
           if (AppCore.refreshSystemNoticeCenter) await AppCore.refreshSystemNoticeCenter();
         } catch (error) {
-          setNoticesFeedback((error && error.message) ? error.message : 'Falha ao excluir a publicação.', 'error');
+          setNoticesFeedback((error && error.message) ? error.message : 'Falha ao excluir a publicacao.', 'error');
         } finally {
           deletingNoticeIds.delete(id);
         }
@@ -129,7 +140,7 @@
     };
 
     if (!payload.titulo || !payload.conteudo) {
-      setNoticesFeedback('Preencha título e conteúdo para publicar a novidade.', 'error');
+      setNoticesFeedback('Preencha titulo e conteudo para publicar a novidade.', 'error');
       return;
     }
 
@@ -138,7 +149,7 @@
 
     try {
       await BackendAPI.saveSystemNotice(payload);
-      setNoticesFeedback(payload.id ? 'Publicação atualizada com sucesso.' : 'Novidade publicada com sucesso.', 'ok');
+      setNoticesFeedback(payload.id ? 'Publicacao atualizada com sucesso.' : 'Novidade publicada com sucesso.', 'ok');
       resetNoticeForm();
       await loadSystemNotices();
       await loadAuditEvents();
@@ -155,7 +166,7 @@
     try {
       const pending = await BackendAPI.listPendingAccessRequests();
       if (!pending || pending.length === 0) {
-        approvalTableBody.innerHTML = '<tr><td colspan="6">Nenhuma solicitação pendente.</td></tr>';
+        approvalTableBody.innerHTML = '<tr><td colspan="6">Nenhuma solicitacao pendente.</td></tr>';
         return;
       }
 
@@ -172,8 +183,8 @@
         '</tr>';
       }).join('');
     } catch (error) {
-      approvalTableBody.innerHTML = '<tr><td colspan="6">Falha ao carregar solicitações pendentes.</td></tr>';
-      setApprovalFeedback((error && error.message) ? error.message : 'Falha ao consultar aprovações.', 'error');
+      approvalTableBody.innerHTML = '<tr><td colspan="6">Falha ao carregar solicitacoes pendentes.</td></tr>';
+      setApprovalFeedback((error && error.message) ? error.message : 'Falha ao consultar aprovacoes.', 'error');
     }
   }
 
@@ -181,7 +192,7 @@
     try {
       const events = await BackendAPI.listAuditEvents(25);
       if (!events || events.length === 0) {
-        auditTableBody.innerHTML = '<tr><td colspan="4">Nenhuma ação registrada até o momento.</td></tr>';
+        auditTableBody.innerHTML = '<tr><td colspan="4">Nenhuma acao registrada ate o momento.</td></tr>';
         return;
       }
 
@@ -192,17 +203,17 @@
           payload.processoSei ? 'Processo ' + payload.processoSei : '',
           payload.empresaContratada ? payload.empresaContratada : '',
           payload.status ? 'Status ' + formatAuditStatus(payload.status) : ''
-        ].filter(Boolean).join(' • ');
+        ].filter(Boolean).join(' | ');
         return '<tr>' +
           '<td>' + AppCore.escapeHtml(formatAuditDate(item.criadoEm)) + '</td>' +
           '<td>' + AppCore.escapeHtml(item.usuario || '-') + '</td>' +
-          '<td><span class="tag tag-audit">' + AppCore.escapeHtml(item.acaoLabel || 'Ação') + '</span></td>' +
+          '<td><span class="tag tag-audit">' + AppCore.escapeHtml(item.acaoLabel || 'Acao') + '</span></td>' +
           '<td>' + AppCore.escapeHtml(resumo || 'Registro sem resumo.') + '</td>' +
         '</tr>';
       }).join('');
     } catch (error) {
-      auditTableBody.innerHTML = '<tr><td colspan="4">Falha ao carregar a central de ações.</td></tr>';
-      setAuditFeedback((error && error.message) ? error.message : 'Falha ao consultar a central de ações.', 'error');
+      auditTableBody.innerHTML = '<tr><td colspan="4">Falha ao carregar a central de acoes.</td></tr>';
+      setAuditFeedback((error && error.message) ? error.message : 'Falha ao consultar a central de acoes.', 'error');
     }
   }
 
@@ -210,7 +221,7 @@
     try {
       const notices = await BackendAPI.listSystemNotices(true);
       if (!notices || notices.length === 0) {
-        noticeTableBody.innerHTML = '<tr><td colspan="5">Nenhuma publicação cadastrada.</td></tr>';
+        noticeTableBody.innerHTML = '<tr><td colspan="5">Nenhuma publicacao cadastrada.</td></tr>';
         return;
       }
 
@@ -230,7 +241,7 @@
         '</tr>';
       }).join('');
     } catch (error) {
-      noticeTableBody.innerHTML = '<tr><td colspan="5">Falha ao carregar publicações.</td></tr>';
+      noticeTableBody.innerHTML = '<tr><td colspan="5">Falha ao carregar publicacoes.</td></tr>';
       setNoticesFeedback((error && error.message) ? error.message : 'Falha ao consultar novidades do sistema.', 'error');
     }
   }
@@ -242,7 +253,7 @@
     noticeForm.publicado.value = String(item && typeof item.publicado !== 'undefined' ? item.publicado : 'true');
     noticeForm.conteudo.value = String(item && item.conteudo ? item.conteudo : '');
     if (cancelNoticeBtn) cancelNoticeBtn.hidden = false;
-    if (saveNoticeBtn) saveNoticeBtn.textContent = 'Salvar atualização';
+    if (saveNoticeBtn) saveNoticeBtn.textContent = 'Salvar atualizacao';
     noticeForm.titulo.focus();
   }
 
@@ -258,7 +269,7 @@
   function setNoticeSavingState(active) {
     if (!saveNoticeBtn) return;
     saveNoticeBtn.disabled = !!active;
-    saveNoticeBtn.textContent = active ? 'Salvando...' : (noticeForm && noticeForm.id.value ? 'Salvar atualização' : 'Publicar novidade');
+    saveNoticeBtn.textContent = active ? 'Salvando...' : (noticeForm && noticeForm.id.value ? 'Salvar atualizacao' : 'Publicar novidade');
     if (cancelNoticeBtn) cancelNoticeBtn.disabled = !!active;
   }
 
@@ -302,9 +313,7 @@
   function shortenText(text, max) {
     const value = String(text || '').trim();
     if (value.length <= max) return value || '-';
-    return value.slice(0, max - 1).trim() + '…';
+    return value.slice(0, max - 1).trim() + '...';
   }
 })();
-
-
 
