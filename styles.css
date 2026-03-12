@@ -3622,3 +3622,43 @@ td {
   grid-column: 1 / -1;
   margin: 0;
 }
+
+.request-access-page {
+  overflow-y: auto;
+}
+
+.request-access-page .gov-main-login-modern {
+  place-items: start center;
+  padding-bottom: 22px;
+}
+
+.request-access-page .login-wrap {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.request-access-page .login-html {
+  position: relative;
+  height: auto;
+  inset: auto;
+}
+
+.request-access-page .login-form {
+  min-height: auto;
+}
+
+.request-access-page .auth-form {
+  padding-bottom: 4px;
+}
+
+@media (max-width: 760px) {
+  .request-access-page .gov-main-login-modern {
+    padding-bottom: 18px;
+  }
+
+  .request-access-page .login-wrap {
+    width: min(100%, 96vw);
+  }
+}
