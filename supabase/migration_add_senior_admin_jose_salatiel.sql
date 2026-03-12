@@ -4,11 +4,11 @@ create extension if not exists pgcrypto;
 -- Login na tela: CPF 05977729405
 -- Senha inicial: Mudar@1234
 -- Email tecnico interno usado pelo Supabase para autenticacao:
--- 05977729405@siac.local
+-- 05977729405@siac.example.com
 
 do $$
 declare
-  v_email text := '05977729405@siac.local';
+  v_email text := '05977729405@siac.example.com';
   v_cpf text := '05977729405';
   v_nome text := 'Jose Salatiel Dantas Nascimento';
   v_matricula text := '243.325-7';
