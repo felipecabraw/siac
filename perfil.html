@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/png" href="policia-penal-rn.png">
-  <title>Dados do Usuário | SIAC</title>
-  <meta name="description" content="Dados do usuário autenticado no SIAC.">
+  <title>Dados do Usuario | SIAC</title>
+  <meta name="description" content="Dados do usuario autenticado no SIAC.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dashboard-body">
@@ -13,33 +13,52 @@
     <aside class="sidebar">
       <div class="sidebar-brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3l7 3v5c0 4.6-2.5 8.2-7 10-4.5-1.8-7-5.4-7-10V6l7-3z"></path><path d="M9 10h6"></path><path d="M9 13h6"></path><path d="M10 16h4"></path></svg></span><div><strong>SIAC</strong><span>Painel institucional</span></div></div>
       <nav class="sidebar-nav">
-        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>Início</a>
+        <a data-nav="inicio" href="dashboard.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.8V21h14V9.8"></path></svg></span>Inicio</a>
         <a data-nav="cadastro" href="cadastro-processo.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 11v6"></path><path d="M9 14h6"></path></svg></span>Cadastro de contratos</a>
         <a data-nav="processos" href="processos-cadastrados.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Contratos cadastrados</a>
         <a data-nav="almoxarifado" href="almoxarifado.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7.5 12 3l9 4.5-9 4.5z"></path><path d="M3 7.5V16.5L12 21l9-4.5V7.5"></path><path d="M12 12v9"></path></svg></span>Almoxarifado</a>
         <a data-nav="perfil" href="perfil.html"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"></circle><path d="M4 20a8 8 0 0 1 16 0"></path></svg></span>Perfil</a>
       </nav>
-      <div class="sidebar-note">Atualize seus dados para identificação no sistema.</div>
+      <div class="sidebar-note">Atualize seus dados para identificacao no sistema.</div>
     </aside>
     <main class="dashboard-main">
       <header class="dashboard-topbar">
-        <div class="dashboard-topbar-left"><img class="dashboard-topbar-logo" src="policia-penal-rn.png" alt="Brasão institucional"><div><strong>SIAC</strong><span>Dados do Usuário</span></div></div>
-        <div class="dashboard-topbar-right"><div class="user-chip-wrap"><img id="top-user-avatar" class="top-user-avatar" alt="Foto do usuário" hidden><span id="top-user-fallback" class="top-user-fallback">U</span><span id="top-user-name" class="dashboard-user-chip">Usuário autenticado</span></div><button id="system-notices-trigger" class="system-notices-trigger" type="button" aria-label="Abrir alertas e novidades do sistema"><span class="system-notices-trigger-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 4a4 4 0 0 0-4 4v1.2c0 .9-.3 1.7-.8 2.4L5.5 14a1.5 1.5 0 0 0 1.2 2.4h10.6a1.5 1.5 0 0 0 1.2-2.4l-1.7-2.4a4 4 0 0 1-.8-2.4V8a4 4 0 0 0-4-4Z"></path><path d="M10 18a2 2 0 0 0 4 0"></path></svg></span><span id="system-notices-badge" class="system-notices-badge" hidden>0</span></button><button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button></div>
+        <div class="dashboard-topbar-left"><img class="dashboard-topbar-logo" src="policia-penal-rn.png" alt="Brasao institucional"><div><strong>SIAC</strong><span>Dados do Usuario</span></div></div>
+        <div class="dashboard-topbar-right"><div class="user-chip-wrap"><img id="top-user-avatar" class="top-user-avatar" alt="Foto do usuario" hidden><span id="top-user-fallback" class="top-user-fallback">U</span><span id="top-user-name" class="dashboard-user-chip">Usuario autenticado</span></div><button id="system-notices-trigger" class="system-notices-trigger" type="button" aria-label="Abrir alertas e novidades do sistema"><span class="system-notices-trigger-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 4a4 4 0 0 0-4 4v1.2c0 .9-.3 1.7-.8 2.4L5.5 14a1.5 1.5 0 0 0 1.2 2.4h10.6a1.5 1.5 0 0 0 1.2-2.4l-1.7-2.4a4 4 0 0 1-.8-2.4V8a4 4 0 0 0-4-4Z"></path><path d="M10 18a2 2 0 0 0 4 0"></path></svg></span><span id="system-notices-badge" class="system-notices-badge" hidden>0</span></button><button id="logout" class="btn btn-ghost dashboard-logout-btn">Sair</button></div>
       </header>
       <section class="panel-block">
-        <h1>Dados do Usuário</h1>
-        <p class="section-helper">As informações abaixo personalizam a identificação visual do usuário no sistema.</p>
-        <p id="profile-feedback" class="form-feedback" hidden></p>
-        <form id="profile-form" class="profile-form">
-          <div class="profile-photo-column"><img id="profile-preview" class="profile-preview" alt="Foto de perfil"><label class="btn btn-ghost profile-upload-btn" for="fotoPerfil">Selecionar foto</label><input id="fotoPerfil" name="fotoPerfil" type="file" accept="image/*"><button type="button" id="clear-photo" class="btn btn-ghost">Remover foto</button></div>
-          <div class="profile-fields-column">
-            <label>Nome completo<input type="text" name="nome" required></label>
-            <label>CPF<input type="text" name="cpf" required></label>
-            <label>Matrícula<input type="text" name="matricula" required></label>
-            <label>Função<input type="text" name="funcao" required></label>
-            <div class="form-actions"><button type="submit" class="btn btn-primary">Salvar perfil</button></div>
-          </div>
-        </form>
+        <h1>Dados do Usuario</h1>
+        <p class="section-helper">As informacoes abaixo personalizam a identificacao visual e a seguranca da conta no sistema.</p>
+        <div class="profile-sections">
+          <form id="profile-form" class="profile-form profile-card">
+            <p id="profile-feedback" class="form-feedback" hidden></p>
+            <div class="profile-photo-column"><img id="profile-preview" class="profile-preview" alt="Foto de perfil"><label class="btn btn-ghost profile-upload-btn" for="fotoPerfil">Selecionar foto</label><input id="fotoPerfil" name="fotoPerfil" type="file" accept="image/*"><button type="button" id="clear-photo" class="btn btn-ghost">Remover foto</button></div>
+            <div class="profile-fields-column">
+              <label>Nome completo<input type="text" name="nome" required></label>
+              <label>CPF<input type="text" name="cpf" required inputmode="numeric" autocomplete="off"></label>
+              <label>Matricula<input type="text" name="matricula" required></label>
+              <label>Funcao<input type="text" name="funcao" required></label>
+              <div class="form-actions"><button type="submit" class="btn btn-primary">Salvar perfil</button></div>
+            </div>
+          </form>
+
+          <section class="profile-card profile-password-card" aria-labelledby="password-section-title">
+            <div class="panel-title-row">
+              <h2 id="password-section-title">Alterar senha</h2>
+              <span class="tag">Seguranca</span>
+            </div>
+            <p class="section-helper">Confirme a senha atual e defina uma nova senha forte para proteger sua conta.</p>
+            <p id="password-feedback" class="form-feedback" hidden></p>
+            <form id="password-form" class="profile-password-form">
+              <div class="password-field-row">
+                <label class="password-field-group">Senha atual<input type="password" name="senhaAtual" required autocomplete="current-password"></label>
+                <label class="password-field-group">Nova senha<input type="password" name="novaSenha" required autocomplete="new-password"></label>
+                <label class="password-field-group">Confirmar nova senha<input type="password" name="confirmarNovaSenha" required autocomplete="new-password"></label>
+              </div>
+              <div class="form-actions password-submit-row"><button type="submit" class="btn btn-primary">Atualizar senha</button></div>
+            </form>
+          </section>
+        </div>
       </section>
     </main>
   </div>

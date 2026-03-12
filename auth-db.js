@@ -13,7 +13,7 @@
   function openDb() {
     return new Promise(function (resolve, reject) {
       if (!window.indexedDB) {
-        reject(new Error('IndexedDB indisponível neste navegador.'));
+        reject(new Error('IndexedDB indisponivel neste navegador.'));
         return;
       }
 
@@ -37,7 +37,7 @@
       };
 
       request.onerror = function () {
-        reject(request.error || new Error('Falha ao abrir banco de autenticaï¿½ï¿½o.'));
+        reject(request.error || new Error('Falha ao abrir banco de autenticacao.'));
       };
     });
   }
@@ -58,11 +58,11 @@
         const writeTx = db.transaction(STORE_USERS, 'readwrite');
         writeTx.objectStore(STORE_USERS).put(DEFAULT_USER);
         writeTx.oncomplete = function () { resolve(); };
-        writeTx.onerror = function () { reject(writeTx.error || new Error('Falha ao semear usuário padrï¿½o.')); };
+        writeTx.onerror = function () { reject(writeTx.error || new Error('Falha ao semear usuario padrao.')); };
       };
 
       countRequest.onerror = function () {
-        reject(countRequest.error || new Error('Falha ao validar usuários existentes.'));
+        reject(countRequest.error || new Error('Falha ao validar usuarios existentes.'));
       };
     });
   }
@@ -74,7 +74,18 @@
       const req = store.get(username);
 
       req.onsuccess = function () { resolve(req.result || null); };
-      req.onerror = function () { reject(req.error || new Error('Falha ao consultar usuário.')); };
+      req.onerror = function () { reject(req.error || new Error('Falha ao consultar usuario.')); };
+    });
+  }
+
+  function saveUser(db, user) {
+    return new Promise(function (resolve, reject) {
+      const tx = db.transaction(STORE_USERS, 'readwrite');
+      const store = tx.objectStore(STORE_USERS);
+      const req = store.put(user);
+
+      req.onsuccess = function () { resolve(user); };
+      req.onerror = function () { reject(req.error || new Error('Falha ao salvar usuario.')); };
     });
   }
 
@@ -103,13 +114,30 @@
     };
   }
 
+  async function updatePassword(username, newPassword) {
+    const userName = String(username || '').trim();
+    const password = String(newPassword || '');
+
+    if (!userName) throw new Error('Usuario invalido para atualizar senha.');
+    if (password.length < 8) throw new Error('A nova senha deve possuir no minimo 8 caracteres.');
+
+    const db = await openDb();
+    const user = await getUser(db, userName);
+    if (!user) throw new Error('Usuario nao encontrado para atualizar senha.');
+
+    user.passwordHash = await hashPassword(password);
+    user.updatedAt = new Date().toISOString();
+    await saveUser(db, user);
+    return true;
+  }
+
   window.AuthDB = {
     openDb: openDb,
     validateLogin: validateLogin,
+    updatePassword: updatePassword,
     defaultUser: {
       username: DEFAULT_USER.username,
       passwordHint: 'Admin@123'
     }
   };
 })();
-

@@ -8,10 +8,15 @@
   const clearPhotoBtn = document.getElementById('clear-photo');
   const saveBtn = form ? form.querySelector('button[type="submit"]') : null;
 
-  if (!form || !feedback || !preview || !fileInput || !clearPhotoBtn) return;
+  const passwordForm = document.getElementById('password-form');
+  const passwordFeedback = document.getElementById('password-feedback');
+  const passwordBtn = passwordForm ? passwordForm.querySelector('button[type="submit"]') : null;
+
+  if (!form || !feedback || !preview || !fileInput || !clearPhotoBtn || !passwordForm || !passwordFeedback) return;
 
   let photoData = '';
   let isSaving = false;
+  let isChangingPassword = false;
 
   bootstrap();
 
@@ -32,7 +37,7 @@
       form.matricula.value = fallback.matricula || '';
       form.funcao.value = fallback.funcao || '';
       updatePreview();
-      showFeedback('Não foi possível carregar os dados do usuário no backend. Exibindo a última versão local.', 'warn');
+      showFeedback('Nao foi possivel carregar os dados do usuario no backend. Exibindo a ultima versao local.', 'warn');
     }
   }
 
@@ -68,7 +73,7 @@
 
     const cpfDigits = AppCore.onlyDigits(form.cpf.value);
     if (!AppCore.isValidCpf(cpfDigits)) {
-      showFeedback('CPF inválido. Verifique o número informado.', 'error');
+      showFeedback('CPF invalido. Verifique o numero informado.', 'error');
       return;
     }
 
@@ -86,15 +91,60 @@
     try {
       await BackendAPI.saveProfile(payload);
       AppCore.saveProfile(BackendAPI.getCurrentAuthUser(), payload);
-      showFeedback('Dados do usuário atualizados com sucesso.', 'ok');
+      showFeedback('Dados do usuario atualizados com sucesso.', 'ok');
       setTimeout(function () {
         window.location.reload();
       }, 300);
     } catch (_error) {
-      showFeedback('Não foi possível salvar os dados do usuário no backend.', 'error');
+      showFeedback('Nao foi possivel salvar os dados do usuario no backend.', 'error');
     } finally {
       isSaving = false;
       setSavingState(false);
+    }
+  });
+
+  passwordForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    if (isChangingPassword) return;
+
+    clearPasswordFeedback();
+
+    const currentPassword = String(passwordForm.senhaAtual.value || '');
+    const nextPassword = String(passwordForm.novaSenha.value || '');
+    const confirmPassword = String(passwordForm.confirmarNovaSenha.value || '');
+
+    if (!currentPassword || !nextPassword || !confirmPassword) {
+      showPasswordFeedback('Preencha a senha atual, a nova senha e a confirmacao.', 'error');
+      return;
+    }
+
+    if (nextPassword.length < 8) {
+      showPasswordFeedback('A nova senha deve ter no minimo 8 caracteres.', 'error');
+      return;
+    }
+
+    if (nextPassword !== confirmPassword) {
+      showPasswordFeedback('A confirmacao da nova senha nao confere.', 'error');
+      return;
+    }
+
+    if (currentPassword === nextPassword) {
+      showPasswordFeedback('A nova senha precisa ser diferente da senha atual.', 'error');
+      return;
+    }
+
+    isChangingPassword = true;
+    setPasswordSavingState(true);
+
+    try {
+      await BackendAPI.changePassword(currentPassword, nextPassword);
+      passwordForm.reset();
+      showPasswordFeedback('Senha atualizada com sucesso.', 'ok');
+    } catch (error) {
+      showPasswordFeedback((error && error.message) ? error.message : 'Nao foi possivel atualizar a senha.', 'error');
+    } finally {
+      isChangingPassword = false;
+      setPasswordSavingState(false);
     }
   });
 
@@ -102,6 +152,12 @@
     if (!saveBtn) return;
     saveBtn.disabled = !!active;
     saveBtn.textContent = active ? 'Salvando...' : 'Salvar perfil';
+  }
+
+  function setPasswordSavingState(active) {
+    if (!passwordBtn) return;
+    passwordBtn.disabled = !!active;
+    passwordBtn.textContent = active ? 'Atualizando...' : 'Atualizar senha';
   }
 
   function updatePreview() {
@@ -119,5 +175,17 @@
     feedback.textContent = message;
     feedback.className = 'form-feedback ' + (type || 'ok');
     feedback.hidden = false;
+  }
+
+  function clearPasswordFeedback() {
+    passwordFeedback.textContent = '';
+    passwordFeedback.hidden = true;
+    passwordFeedback.className = 'form-feedback';
+  }
+
+  function showPasswordFeedback(message, type) {
+    passwordFeedback.textContent = message;
+    passwordFeedback.className = 'form-feedback ' + (type || 'ok');
+    passwordFeedback.hidden = false;
   }
 })();

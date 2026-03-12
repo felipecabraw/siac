@@ -102,7 +102,7 @@
     const ordered = getPreventiveProcessos(processos)
       .slice()
       .sort(function (a, b) { return AppCore.dateValue(a.fimVigencia) - AppCore.dateValue(b.fimVigencia); })
-      .slice(0, 8);
+      .slice(0, 10);
 
     const ctx = chartCanvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;

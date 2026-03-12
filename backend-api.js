@@ -703,6 +703,40 @@
     return false;
   }
 
+  async function changePassword(currentPassword, newPassword) {
+    const current = String(currentPassword || '');
+    const next = String(newPassword || '');
+
+    if (!current || !next) {
+      throw new Error('Informe a senha atual e a nova senha.');
+    }
+
+    if (next.length < 8) {
+      throw new Error('A nova senha deve possuir no minimo 8 caracteres.');
+    }
+
+    const validCurrentPassword = await verifyCurrentPassword(current);
+    if (!validCurrentPassword) {
+      throw new Error('A senha atual informada esta incorreta.');
+    }
+
+    if (isSupabaseEnabled()) {
+      const supabase = getClient();
+      const result = await supabase.auth.updateUser({ password: next });
+      if (result.error) {
+        throw new Error(translateAuthError(result.error, 'Falha ao atualizar a senha.'));
+      }
+      return true;
+    }
+
+    if (window.AuthDB && typeof window.AuthDB.updatePassword === 'function') {
+      await window.AuthDB.updatePassword(getCurrentAuthUser(), next);
+      return true;
+    }
+
+    throw new Error('Atualizacao de senha indisponivel neste ambiente.');
+  }
+
   async function requestAccess(payload) {
     if (!isSupabaseEnabled()) {
       throw new Error('Solicita\u00e7\u00e3o de acesso dispon\u00edvel apenas no modo Supabase.');
@@ -1576,6 +1610,7 @@
     signOut: signOut,
     sendPasswordReset: sendPasswordReset,
     verifyCurrentPassword: verifyCurrentPassword,
+    changePassword: changePassword,
     requestAccess: requestAccess,
     listPendingAccessRequests: listPendingAccessRequests,
     approveAccessRequest: approveAccessRequest,
@@ -1602,4 +1637,5 @@
     listAlmoxDeletes: listAlmoxDeletes
   };
 })();
+
 
