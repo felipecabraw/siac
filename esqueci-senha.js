@@ -1,5 +1,5 @@
-﻿(function () {
-  const form = document.getElementById('forgot-form');
+(function () {
+  const form = document.getElementById('forgot-password-form');
   const feedback = document.getElementById('forgot-feedback');
   const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
 

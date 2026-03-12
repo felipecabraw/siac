@@ -3662,3 +3662,15 @@ td {
     width: min(100%, 96vw);
   }
 }
+
+.login-logo-link {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.login-logo-link:focus-visible {
+  outline: 2px solid #8cc4ff;
+  outline-offset: 6px;
+  border-radius: 18px;
+}
