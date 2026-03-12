@@ -82,6 +82,9 @@
     if (msg.includes('unable to validate email address') || msg.includes('invalid email')) {
       return 'E-mail invalido. Verifique o formato informado.';
     }
+    if (msg.includes('email address') && msg.includes('is invalid')) {
+      return 'O login atual do usuario precisa ser corrigido para permitir a troca de e-mail.';
+    }
     if (msg.includes('password')) {
       return 'Senha invalida. Confira e tente novamente.';
     }
@@ -100,6 +103,12 @@
       (msg.includes('relation') && msg.includes('does not exist')) ||
       msg.includes('could not find the table') ||
       msg.includes('failed to parse select parameter');
+  }
+  function isMissingRpcFunctionError(error, functionName) {
+    const msg = String(error && error.message ? error.message : '').toLowerCase();
+    const target = String(functionName || '').trim().toLowerCase();
+    if (!msg || !target) return false;
+    return (msg.includes('could not find the function') || msg.includes('schema cache') || msg.includes('function ')) && msg.includes(target);
   }
   function getCurrentAuthUser() {
     return localStorage.getItem(AUTH_USER_KEY) || 'admin.institucional';
@@ -591,6 +600,42 @@
       cpf: String(meta.cpf || ''),
       matricula: String(meta.matricula || '')
     });
+  }
+  async function updateOwnLoginEmail(nextEmail, profileData) {
+    const supabase = getClient();
+    const payload = {
+      p_novo_email: normalizeEmail(nextEmail),
+      p_nome: String(profileData && profileData.nome ? profileData.nome : '').trim(),
+      p_cpf: String(profileData && profileData.cpf ? profileData.cpf : '').trim(),
+      p_matricula: String(profileData && profileData.matricula ? profileData.matricula : '').trim()
+    };
+
+    const rpcResult = await supabase.rpc('atualizar_email_proprio', payload);
+    if (rpcResult.error && !isMissingRpcFunctionError(rpcResult.error, 'atualizar_email_proprio')) {
+      throw new Error(rpcResult.error.message || 'Falha ao atualizar o e-mail de acesso.');
+    }
+
+    if (rpcResult.error) {
+      const authResult = await supabase.auth.updateUser({
+        email: payload.p_novo_email,
+        data: {
+          nome: payload.p_nome,
+          cpf: payload.p_cpf,
+          matricula: payload.p_matricula
+        }
+      });
+      if (authResult.error) {
+        throw new Error(translateAuthError(authResult.error, 'Falha ao atualizar o e-mail de acesso.'));
+      }
+      return normalizeEmail((authResult.data && authResult.data.user && authResult.data.user.email) || payload.p_novo_email);
+    }
+
+    const refreshed = await supabase.auth.getUser();
+    if (refreshed && !refreshed.error && refreshed.data && refreshed.data.user) {
+      return normalizeEmail(refreshed.data.user.email || payload.p_novo_email);
+    }
+
+    return normalizeEmail((rpcResult.data && String(rpcResult.data)) || payload.p_novo_email);
   }
   async function hasVerifiedSeniorAdminAccess() {
     if (!isSupabaseEnabled()) return isCurrentUserSeniorAdmin();
@@ -1322,18 +1367,7 @@
     let effectiveEmail = currentEmail;
 
     if (normalized.email !== currentEmail) {
-      const authResult = await supabase.auth.updateUser({
-        email: normalized.email,
-        data: {
-          nome: normalized.nome,
-          cpf: normalized.cpf,
-          matricula: normalized.matricula
-        }
-      });
-      if (authResult.error) {
-        throw new Error(translateAuthError(authResult.error, 'Falha ao atualizar o e-mail de acesso.'));
-      }
-      effectiveEmail = normalizeEmail((authResult.data && authResult.data.user && authResult.data.user.email) || normalized.email || currentEmail);
+      effectiveEmail = await updateOwnLoginEmail(normalized.email, normalized);
     }
 
     const payload = {
@@ -1691,5 +1725,3 @@
     listAlmoxDeletes: listAlmoxDeletes
   };
 })();
-
-
