@@ -9,6 +9,7 @@
   const legend = document.getElementById('status-legend');
   const chartCanvas = document.getElementById('deadline-chart');
   const alertsList = document.getElementById('alert-list');
+  const expiredList = document.getElementById('expired-list');
 
   let cache = [];
 
@@ -27,15 +28,35 @@
   }
 
   function renderAll(processos) {
-    const ativos = processos.filter(function (item) { return AppCore.getProcessStatus(item).type !== 'closed'; });
+    const ativos = getActiveProcessos(processos);
     renderKPIs(ativos);
     renderDonut(ativos);
     renderChart(ativos);
     renderAlerts(ativos);
+    renderExpired(ativos);
   }
 
   function renderChartCurrent() {
-    renderChart(cache.filter(function (item) { return AppCore.getProcessStatus(item).type !== 'closed'; }));
+    renderChart(getActiveProcessos(cache));
+  }
+
+  function getActiveProcessos(processos) {
+    return processos.filter(function (item) {
+      return AppCore.getProcessStatus(item).type !== 'closed';
+    });
+  }
+
+  function getPreventiveProcessos(processos) {
+    return processos.filter(function (item) {
+      const status = AppCore.getProcessStatus(item);
+      return (status.type === 'ok' || status.type === 'warning') && Number(status.dias) <= 365;
+    });
+  }
+
+  function getExpiredProcessos(processos) {
+    return processos.filter(function (item) {
+      return AppCore.getProcessStatus(item).type === 'danger';
+    });
   }
 
   function renderKPIs(processos) {
@@ -62,8 +83,6 @@
     const total = Math.max(1, processos.length);
     const okPct = (totals.ok / total) * 100;
     const warningPct = (totals.warning / total) * 100;
-    const dangerPct = (totals.danger / total) * 100;
-
     const c1 = okPct;
     const c2 = okPct + warningPct;
 
@@ -74,66 +93,72 @@
 
     legend.innerHTML = [
       legendItem('#2f9d62', 'Vigente', totals.ok),
-      legendItem('#eab54f', 'A vencer em at\u00e9 90 dias', totals.warning),
+      legendItem('#eab54f', 'A vencer em ate 90 dias', totals.warning),
       legendItem('#d74f4f', 'Vencido', totals.danger)
     ].join('');
   }
 
   function renderChart(processos) {
-    const ordered = processos
+    const ordered = getPreventiveProcessos(processos)
       .slice()
       .sort(function (a, b) { return AppCore.dateValue(a.fimVigencia) - AppCore.dateValue(b.fimVigencia); })
       .slice(0, 8);
 
     const ctx = chartCanvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-    const cssWidth = chartCanvas.clientWidth;
-    const cssHeight = chartCanvas.clientHeight;
+    const cssWidth = Math.max(chartCanvas.clientWidth || 0, 220);
+    const compact = cssWidth < 520;
+    const leftPad = compact ? 72 : 92;
+    const topPad = 16;
+    const barHeight = compact ? 18 : 20;
+    const gap = compact ? 12 : 10;
+    const rowSpan = barHeight + gap;
+    const cssHeight = Math.max(240, topPad + (ordered.length * rowSpan) + 12);
+    const rightPad = compact ? 68 : 86;
+    const chartWidth = Math.max(90, cssWidth - leftPad - rightPad);
+    const labelSize = compact ? '11px' : '12px';
+    const contractLabelLimit = compact ? 9 : 12;
 
+    chartCanvas.style.width = '100%';
+    chartCanvas.style.height = cssHeight + 'px';
     chartCanvas.width = Math.floor(cssWidth * dpr);
     chartCanvas.height = Math.floor(cssHeight * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.clearRect(0, 0, cssWidth, cssHeight);
     ctx.fillStyle = '#4b6275';
-
-    const compact = cssWidth < 520;
-    const leftPad = compact ? 72 : 92;
-    const topPad = 16;
-    const barHeight = compact ? 18 : 20;
-    const gap = compact ? 12 : 10;
-    const chartWidth = Math.max(120, cssWidth - leftPad - (compact ? 10 : 20));
-    const labelSize = compact ? '11px' : '12px';
-    const contractLabelLimit = compact ? 9 : 12;
-
     ctx.font = labelSize + ' Segoe UI';
 
     if (ordered.length === 0) {
-      ctx.fillText('Sem contratos cadastrados.', 16, 28);
+      ctx.fillText('Sem contratos na janela preventiva de ate 365 dias.', 16, 28);
       return;
     }
 
     const now = AppCore.startOfDay(new Date());
     const values = ordered.map(function (item) {
-      return AppCore.daysBetween(now, AppCore.dateValue(item.fimVigencia));
+      return Math.max(0, AppCore.daysBetween(now, AppCore.dateValue(item.fimVigencia)));
     });
-    const maxAbs = Math.max.apply(null, values.map(function (v) { return Math.abs(v); }).concat([30]));
+    const maxValue = Math.max.apply(null, values.concat([30]));
 
     ordered.forEach(function (item, index) {
-      const y = topPad + index * (barHeight + gap);
+      const y = topPad + index * rowSpan;
       const status = AppCore.getProcessStatus(item);
-      const days = status.dias;
-      const width = Math.max(4, (Math.abs(days) / maxAbs) * (chartWidth - 10));
-      const color = status.type === 'danger' ? '#d74f4f' : status.type === 'warning' ? '#eab54f' : '#2f9d62';
+      const days = Math.max(0, status.dias || 0);
+      const width = Math.max(4, (days / maxValue) * (chartWidth - 10));
+      const color = status.type === 'warning' ? '#eab54f' : '#2f9d62';
+      const contractLabel = String(item.numeroContrato || '').slice(0, contractLabelLimit);
+      const dayLabel = days + ' dias';
+      const dayLabelWidth = ctx.measureText(dayLabel).width;
+      const labelX = Math.max(leftPad + chartWidth + 8, cssWidth - dayLabelWidth - 6);
 
       ctx.fillStyle = '#2e4a5f';
-      ctx.fillText(item.numeroContrato.slice(0, contractLabelLimit), 8, y + 14);
+      ctx.fillText(contractLabel, 8, y + 14);
 
       ctx.fillStyle = color;
       ctx.fillRect(leftPad, y, width, barHeight);
 
       ctx.fillStyle = '#274257';
-      ctx.fillText(days + ' dias', leftPad + width + 8, y + 14);
+      ctx.fillText(dayLabel, labelX, y + 14);
     });
   }
 
@@ -148,24 +173,46 @@
           status: AppCore.getProcessStatus(item)
         };
       })
-      .filter(function (row) { return row.status.type !== 'ok'; })
+      .filter(function (row) { return row.status.type === 'warning'; })
       .sort(function (a, b) { return a.status.dias - b.status.dias; })
       .slice(0, 6);
 
     if (hot.length === 0) {
-      alertsList.innerHTML = '<li class="alert-item ok">Nenhum contrato em zona de risco no momento.</li>';
+      alertsList.innerHTML = '<li class="alert-item ok">Nenhum contrato em janela de vencimento nos proximos 90 dias.</li>';
       return;
     }
 
     alertsList.innerHTML = hot.map(function (row) {
-      const typeClass = row.status.type === 'danger' ? 'danger' : 'warning';
-      const label = row.status.type === 'danger'
-        ? 'Vencido h\u00e1 ' + Math.abs(row.status.dias) + ' dias'
-        : 'Vence em ' + row.status.dias + ' dias';
-
-      return '<li class="alert-item ' + typeClass + '">' +
+      return '<li class="alert-item warning">' +
         '<div><strong>Contrato ' + AppCore.escapeHtml(row.contrato) + '</strong><span>Processo ' + AppCore.escapeHtml(row.processo) + ' | ' + AppCore.escapeHtml(row.empresa) + '</span></div>' +
-        '<div><b>' + label + '</b><small>T\u00e9rmino: ' + AppCore.formatDate(row.termino) + '</small></div>' +
+        '<div><b>Vence em ' + row.status.dias + ' dias</b><small>Termino: ' + AppCore.formatDate(row.termino) + '</small></div>' +
+      '</li>';
+    }).join('');
+  }
+
+  function renderExpired(processos) {
+    const expired = getExpiredProcessos(processos)
+      .map(function (item) {
+        return {
+          processo: item.processoSei,
+          contrato: item.numeroContrato,
+          empresa: item.empresaContratada,
+          termino: item.fimVigencia,
+          status: AppCore.getProcessStatus(item)
+        };
+      })
+      .sort(function (a, b) { return a.status.dias - b.status.dias; })
+      .slice(0, 8);
+
+    if (expired.length === 0) {
+      expiredList.innerHTML = '<li class="alert-item ok">Nenhum contrato com vigencia vencida no momento.</li>';
+      return;
+    }
+
+    expiredList.innerHTML = expired.map(function (row) {
+      return '<li class="alert-item danger">' +
+        '<div><strong>Contrato ' + AppCore.escapeHtml(row.contrato) + '</strong><span>Processo ' + AppCore.escapeHtml(row.processo) + ' | ' + AppCore.escapeHtml(row.empresa) + '</span></div>' +
+        '<div><b>Vencido ha ' + Math.abs(row.status.dias) + ' dias</b><small>Termino: ' + AppCore.formatDate(row.termino) + '</small></div>' +
       '</li>';
     }).join('');
   }
@@ -180,11 +227,3 @@
     return 'Atualizado em ' + day + '/' + month + '/' + date.getFullYear();
   }
 })();
-
-
-
-
-
-
-
-

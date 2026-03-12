@@ -524,6 +524,10 @@ body {
   font-size: 1rem;
 }
 
+.chart-card .section-helper {
+  margin: 0 0 12px;
+}
+
 .chart-card.wide {
   min-height: 290px;
 }
@@ -2383,6 +2387,20 @@ td {
 }
 
 @media (max-width: 760px) {
+  .chart-card .section-helper {
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+
+  .alert-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .alert-item > div {
+    width: 100%;
+  }
+
   .sidebar {
     padding: 14px 10px;
     gap: 10px;
@@ -2421,7 +2439,7 @@ td {
   }
 
   .chart-card.wide {
-    min-height: 240px;
+    min-height: auto;
   }
 
   .table-wrap {
@@ -3354,6 +3372,8 @@ td {
 }
 
 .chart-card canvas {
+  display: block;
+  width: 100%;
   max-width: 100%;
 }
 

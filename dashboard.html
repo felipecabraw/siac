@@ -34,10 +34,11 @@
         </div>
         <div class="chart-grid">
           <article class="chart-card"><h3>Status geral da vig&ecirc;ncia</h3><div class="donut-wrap"><div id="status-donut" class="donut"></div><ul id="status-legend" class="legend"></ul></div></article>
-          <article class="chart-card wide"><h3>Dias restantes por contrato</h3><canvas id="deadline-chart" height="240"></canvas></article>
+          <article class="chart-card wide"><h3>Dias restantes dos contratos vigentes</h3><p class="section-helper">O gr&aacute;fico destaca os 8 contratos mais pr&oacute;ximos do vencimento dentro da janela preventiva de at&eacute; 365 dias, priorizando leitura r&aacute;pida no desktop e no mobile.</p><canvas id="deadline-chart" height="240"></canvas></article>
         </div>
       </section>
-      <section class="panel-block"><h2>Alertas priorit&aacute;rios</h2><p class="section-helper">Contratos que vencem em at&eacute; 90 dias ou j&aacute; est&atilde;o vencidos.</p><ul id="alert-list" class="alert-list"></ul></section>
+      <section class="panel-block"><div class="panel-title-row"><h2>Alertas preventivos</h2><span class="tag">At&eacute; 90 dias</span></div><p class="section-helper">Contratos que ainda est&atilde;o vigentes, mas exigem provid&ecirc;ncia nos pr&oacute;ximos 90 dias.</p><ul id="alert-list" class="alert-list"></ul></section>
+      <section class="panel-block"><div class="panel-title-row"><h2>Contratos vencidos</h2><span class="tag">A&ccedil;&atilde;o corretiva</span></div><p class="section-helper">Rela&ccedil;&atilde;o dos contratos com vig&ecirc;ncia encerrada, organizada por maior tempo de atraso.</p><ul id="expired-list" class="alert-list"></ul></section>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -47,5 +48,3 @@
   <script src="dashboard.js"></script>
 </body>
 </html>
-
-
