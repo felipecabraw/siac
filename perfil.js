@@ -26,6 +26,7 @@
       photoData = profile.foto || '';
       form.nome.value = profile.nome || '';
       form.cpf.value = AppCore.formatCpf(profile.cpf || '');
+      form.email.value = profile.email || BackendAPI.getCurrentAuthUser() || '';
       form.matricula.value = profile.matricula || '';
       form.funcao.value = profile.funcao || '';
       updatePreview();
@@ -34,6 +35,7 @@
       photoData = fallback.foto || '';
       form.nome.value = fallback.nome || '';
       form.cpf.value = AppCore.formatCpf(fallback.cpf || '');
+      form.email.value = fallback.email || BackendAPI.getCurrentAuthUser() || '';
       form.matricula.value = fallback.matricula || '';
       form.funcao.value = fallback.funcao || '';
       updatePreview();
@@ -77,8 +79,15 @@
       return;
     }
 
+    const email = String(form.email.value || '').trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showFeedback('Informe um e-mail valido para usar como login.', 'error');
+      return;
+    }
+
     const payload = {
       nome: String(form.nome.value || '').trim(),
+      email: email,
       cpf: cpfDigits,
       matricula: String(form.matricula.value || '').trim(),
       funcao: String(form.funcao.value || '').trim(),
@@ -89,14 +98,18 @@
     setSavingState(true);
 
     try {
-      await BackendAPI.saveProfile(payload);
-      AppCore.saveProfile(BackendAPI.getCurrentAuthUser(), payload);
-      showFeedback('Dados do usuario atualizados com sucesso.', 'ok');
+      const saved = await BackendAPI.saveProfile(payload);
+      AppCore.saveProfile(saved.email || BackendAPI.getCurrentAuthUser(), saved);
+      const savedEmail = String(saved && saved.email ? saved.email : '').trim().toLowerCase();
+      const successMessage = savedEmail === email
+        ? 'Dados do usuario atualizados com sucesso. O e-mail informado tambem pode ser usado como login.'
+        : 'Dados do usuario atualizados com sucesso. Se o provedor solicitar confirmacao do novo e-mail, conclua-a para usar o novo login.';
+      showFeedback(successMessage, 'ok');
       setTimeout(function () {
         window.location.reload();
       }, 300);
     } catch (_error) {
-      showFeedback('Nao foi possivel salvar os dados do usuario no backend.', 'error');
+      showFeedback(((_error && _error.message) ? _error.message : 'Nao foi possivel salvar os dados do usuario no backend.'), 'error');
     } finally {
       isSaving = false;
       setSavingState(false);

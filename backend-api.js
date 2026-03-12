@@ -111,23 +111,25 @@
     const user = String(username || getCurrentAuthUser() || 'admin.institucional');
     try {
       const raw = localStorage.getItem(profileKey(user));
-      if (!raw) return { nome: '', cpf: '', matricula: '', funcao: '', foto: '' };
+      if (!raw) return { nome: '', email: '', cpf: '', matricula: '', funcao: '', foto: '' };
       const parsed = JSON.parse(raw);
       return {
         nome: parsed.nome || '',
+        email: parsed.email || '',
         cpf: parsed.cpf || '',
         matricula: parsed.matricula || '',
         funcao: parsed.funcao || '',
         foto: parsed.foto || ''
       };
     } catch (_error) {
-      return { nome: '', cpf: '', matricula: '', funcao: '', foto: '' };
+      return { nome: '', email: '', cpf: '', matricula: '', funcao: '', foto: '' };
     }
   }
   function saveLocalProfile(username, profile) {
     const user = String(username || getCurrentAuthUser() || 'admin.institucional');
     localStorage.setItem(profileKey(user), JSON.stringify({
       nome: String(profile.nome || ''),
+      email: normalizeEmail(profile.email || user),
       cpf: String(profile.cpf || ''),
       matricula: String(profile.matricula || ''),
       funcao: String(profile.funcao || ''),
@@ -1257,6 +1259,7 @@
 
     const mapped = {
       nome: profile.nome_completo || '',
+      email: normalizeEmail(user.email || profile.username || ''),
       cpf: profile.cpf || '',
       matricula: profile.matricula || '',
       funcao: profile.funcao || '',
@@ -1270,14 +1273,24 @@
   async function saveProfile(profile) {
     const normalized = {
       nome: String(profile.nome || '').trim(),
+      email: normalizeEmail(profile.email),
       cpf: String(profile.cpf || '').trim(),
       matricula: String(profile.matricula || '').trim(),
       funcao: String(profile.funcao || '').trim(),
       foto: String(profile.foto || '').trim()
     };
 
+    if (!normalized.email) {
+      throw new Error('Informe um e-mail valido para usar como login.');
+    }
+
     if (!isSupabaseEnabled()) {
-      saveLocalProfile(getCurrentAuthUser(), normalized);
+      const previousUser = getCurrentAuthUser();
+      saveLocalProfile(normalized.email || previousUser, normalized);
+      if (normalized.email && normalized.email !== previousUser) {
+        localStorage.removeItem(profileKey(previousUser));
+        persistAuth(normalized.email, localStorage.getItem(AUTH_ROLE_KEY) || 'usuario');
+      }
       return normalized;
     }
 
@@ -1286,10 +1299,27 @@
     if (!user) throw new Error('Sess\u00e3o inv\u00e1lida para salvar perfil.');
 
     const currentProfile = await getOrCreateAccessProfile(user, { email: user.email || '' });
+    const currentEmail = normalizeEmail(user.email || currentProfile.username || getCurrentAuthUser());
+    let effectiveEmail = currentEmail;
+
+    if (normalized.email !== currentEmail) {
+      const authResult = await supabase.auth.updateUser({
+        email: normalized.email,
+        data: {
+          nome: normalized.nome,
+          cpf: normalized.cpf,
+          matricula: normalized.matricula
+        }
+      });
+      if (authResult.error) {
+        throw new Error(translateAuthError(authResult.error, 'Falha ao atualizar o e-mail de acesso.'));
+      }
+      effectiveEmail = normalizeEmail((authResult.data && authResult.data.user && authResult.data.user.email) || normalized.email || currentEmail);
+    }
 
     const payload = {
       auth_user_id: user.id,
-      username: user.email || getCurrentAuthUser(),
+      username: effectiveEmail,
       nome_completo: normalized.nome,
       cpf: normalized.cpf,
       matricula: normalized.matricula,
@@ -1307,7 +1337,12 @@
 
     if (result.error) throw new Error(result.error.message || 'Falha ao salvar perfil.');
 
-    saveLocalProfile(user.email || getCurrentAuthUser(), normalized);
+    normalized.email = effectiveEmail;
+    saveLocalProfile(effectiveEmail || getCurrentAuthUser(), normalized);
+    if (currentEmail && effectiveEmail && currentEmail !== effectiveEmail) {
+      localStorage.removeItem(profileKey(currentEmail));
+      persistAuth(effectiveEmail, currentProfile.role || 'usuario');
+    }
     return normalized;
   }
 

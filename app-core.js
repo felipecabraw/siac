@@ -46,6 +46,7 @@
       const parsed = JSON.parse(raw);
       return {
         nome: parsed.nome || '',
+        email: parsed.email || '',
         cpf: parsed.cpf || '',
         matricula: parsed.matricula || '',
         funcao: parsed.funcao || '',
@@ -61,6 +62,7 @@
     const current = getProfile(user);
     const merged = {
       nome: data.nome || current.nome || '',
+      email: data.email || current.email || '',
       cpf: data.cpf || '',
       matricula: data.matricula || '',
       funcao: data.funcao || '',
@@ -74,6 +76,7 @@
   function defaultProfile() {
     return {
       nome: '',
+      email: '',
       cpf: '',
       matricula: '',
       funcao: '',
