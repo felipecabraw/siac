@@ -1,0 +1,6 @@
+nome	categoria	unidade_medida	local_estoque	estoque_atual	estoque_minimo	observacao	criado_por	atualizado_por
+Caneta esferografica azul	Material de expediente	un	SEAP/ALMOXARIFADO	120	20	Caneta azul para uso administrativo	carga_inicial	carga_inicial
+Papel A4	Material de expediente	resma	SEAP/ALMOXARIFADO	80	15	Resmas para impressao	carga_inicial	carga_inicial
+Grampo 26/6	Material de expediente	cx	SEAP/ALMOXARIFADO	25	5	Grampo para grampeador	carga_inicial	carga_inicial
+Agua sanitaria	Material de limpeza	lt	SEAP/ALMOXARIFADO	30	8	Uso na limpeza geral	carga_inicial	carga_inicial
+Cafe em po	Generos alimenticios	pct	SEAP/ALMOXARIFADO	18	4	Cafe para setores administrativos	carga_inicial	carga_inicial

@@ -1153,7 +1153,8 @@ td {
 }
 
 .dashboard-logout-btn:hover {
-  background: rgba(18, 33, 52, 0.6);
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.58);
 }
 
 /* Refinamento profissional da tela de login */
