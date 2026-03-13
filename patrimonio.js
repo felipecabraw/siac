@@ -44,17 +44,32 @@
   });
 
   const CATEGORY_LABELS = {
-    armamento_belico: 'Armamento e material b\u00e9lico',
-    veiculos_viaturas: 'Ve\u00edculos e viaturas',
-    informatica_tecnologia: 'Inform\u00e1tica e tecnologia',
+    armamentos_acessorios_operacionais: 'Armamentos e acess\u00f3rios operacionais',
+    equipamentos_taticos_protecao: 'Equipamentos t\u00e1ticos, de prote\u00e7\u00e3o e seguran\u00e7a',
+    viaturas_veiculos_embarcacoes_aeronaves: 'Viaturas, ve\u00edculos, embarca\u00e7\u00f5es e aeronaves',
+    informatica_tic: 'Inform\u00e1tica e TIC',
+    comunicacao_monitoramento_audio_video: 'Comunica\u00e7\u00e3o, monitoramento e \u00e1udio/v\u00eddeo',
+    maquinas_aparelhos_equipamentos_ferramentas: 'M\u00e1quinas, aparelhos, equipamentos e ferramentas',
     moveis_utensilios: 'M\u00f3veis e utens\u00edlios',
-    material_expediente: 'Material de expediente',
-    equipamento_operacional: 'Equipamento operacional',
-    imovel: 'Im\u00f3vel',
-    comunicacao_monitoramento: 'Comunica\u00e7\u00e3o e monitoramento',
+    eletrodomesticos_eletroeletronicos: 'Eletrodom\u00e9sticos e eletroeletr\u00f4nicos',
+    material_cultural_educacional_esportivo: 'Material cultural, educacional e esportivo',
+    equipamentos_medicos_odontologicos_laboratoriais: 'Equipamentos m\u00e9dicos, odontol\u00f3gicos e laboratoriais',
+    equipamentos_oficina_manutencao_infraestrutura: 'Equipamentos de oficina, manuten\u00e7\u00e3o e infraestrutura',
+    semoventes_animais_de_servico: 'Semoventes e animais de servi\u00e7o',
+    bens_agropecuarios_rurais: 'Bens agropecu\u00e1rios e rurais',
+    imoveis_benfeitorias: 'Im\u00f3veis, edifica\u00e7\u00f5es e benfeitorias',
+    bens_moveis_almoxarifado: 'Bens m\u00f3veis em almoxarifado',
+    bens_moveis_andamento: 'Bens m\u00f3veis em andamento',
+    demais_bens_moveis: 'Demais bens m\u00f3veis',
+    armamento_belico: 'Armamentos e acess\u00f3rios operacionais',
+    veiculos_viaturas: 'Viaturas, ve\u00edculos, embarca\u00e7\u00f5es e aeronaves',
+    informatica_tecnologia: 'Inform\u00e1tica e TIC',
+    material_expediente: 'Demais bens m\u00f3veis e apoio administrativo',
+    equipamento_operacional: 'Equipamentos t\u00e1ticos, de prote\u00e7\u00e3o e seguran\u00e7a',
+    imovel: 'Im\u00f3veis, edifica\u00e7\u00f5es e benfeitorias',
+    comunicacao_monitoramento: 'Comunica\u00e7\u00e3o, monitoramento e \u00e1udio/v\u00eddeo',
     outro: 'Outro'
   };
-
   const NATUREZA_LABELS = {
     permanente: 'Permanente',
     controlado: 'Controlado',
