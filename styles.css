@@ -3473,31 +3473,75 @@ td {
   }
 
   .dashboard-topbar {
-    padding: 12px;
+    padding: 10px 12px;
     border-radius: 14px;
+    gap: 10px;
   }
 
-  .dashboard-topbar-left,
-  .dashboard-topbar-right,
-  .user-menu,
-  .user-chip-wrap {
+  .dashboard-topbar-left {
     width: 100%;
     max-width: 100%;
-  }
-
-  .dashboard-topbar-right {
     gap: 8px;
   }
 
-  .user-menu-trigger {
+  .dashboard-topbar-left strong {
+    font-size: 0.95rem;
+  }
+
+  .dashboard-topbar-left span {
+    font-size: 0.82rem;
+  }
+
+  .dashboard-topbar-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .dashboard-topbar-right {
     width: 100%;
-    justify-content: space-between;
+    max-width: 100%;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .user-menu {
+    width: auto;
+    max-width: 100%;
+  }
+
+  .user-chip-wrap {
+    width: auto;
+    max-width: min(100%, 280px);
+  }
+
+  .user-menu-trigger {
+    width: auto;
+    justify-content: flex-start;
+    gap: 8px;
+    padding-right: 10px;
+  }
+
+  .dashboard-user-chip {
+    max-width: 130px;
+  }
+
+  .system-notices-trigger {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+  }
+
+  .dashboard-logout-btn {
+    min-width: 108px;
+    padding: 10px 14px;
   }
 
   .user-menu-dropdown {
     left: 0;
     right: auto;
-    width: min(100%, 320px);
+    width: min(92vw, 300px);
   }
 
   .contract-date-field,
@@ -3517,7 +3561,6 @@ td {
     min-width: 0;
     width: 100%;
   }
-
   .status-filters {
     width: 100%;
   }
@@ -3729,5 +3772,39 @@ td {
   .patrimonio-kpi-grid,
   .patrimonio-filter-form {
     grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .dashboard-topbar {
+    align-items: flex-start !important;
+    min-height: auto !important;
+  }
+
+  .dashboard-topbar-right {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .user-menu,
+  .user-chip-wrap,
+  .user-menu-trigger {
+    width: auto !important;
+  }
+
+  .user-chip-wrap {
+    max-width: min(100%, 260px) !important;
+  }
+
+  .dashboard-logout-btn {
+    width: auto !important;
+  }
+
+  .panel-block:first-of-type {
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
   }
 }
