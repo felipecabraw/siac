@@ -116,7 +116,7 @@
       } else {
         avatarEl.hidden = true;
         avatarFallbackEl.hidden = false;
-        avatarFallbackEl.textContent = initials(safeIdentity.nome || safeIdentity.username);
+        avatarFallbackEl.innerHTML = userAvatarIconMarkup();
       }
     }
   }
@@ -513,11 +513,8 @@
     return cleaned.split(/\s+/)[0];
   }
 
-  function initials(name) {
-    const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
-    if (parts.length === 0) return 'U';
-    if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  function userAvatarIconMarkup() {
+    return '<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="12" cy="8.2" r="3.6"></circle><path d="M5.5 18.2a6.5 6.5 0 0 1 13 0"></path></svg>';
   }
 
   function loadProcessos() {

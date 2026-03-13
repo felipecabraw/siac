@@ -1436,10 +1436,20 @@ td {
 .top-user-fallback {
   display: grid;
   place-items: center;
-  font-weight: 800;
-  font-size: 0.8rem;
-  color: #11304e;
-  background: #dce8f3;
+  color: #f4f8fc;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.top-user-fallback svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .dashboard-user-chip {
