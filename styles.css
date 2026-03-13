@@ -3776,35 +3776,83 @@ td {
 }
 @media (max-width: 760px) {
   .dashboard-topbar {
-    align-items: flex-start !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 8px 10px !important;
+    gap: 8px !important;
     min-height: auto !important;
+  }
+
+  .dashboard-topbar-left {
+    width: auto !important;
+    max-width: calc(100% - 110px) !important;
+    flex: 1 1 auto !important;
+    gap: 8px !important;
   }
 
   .dashboard-topbar-right {
     display: flex !important;
-    width: 100% !important;
-    justify-content: flex-start !important;
+    width: auto !important;
+    max-width: none !important;
+    justify-content: flex-end !important;
     align-items: center !important;
-    gap: 8px !important;
-    flex-wrap: wrap !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .dashboard-topbar-logo {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .dashboard-topbar-left strong {
+    font-size: 0.92rem !important;
+  }
+
+  .dashboard-topbar-left span {
+    font-size: 0.78rem !important;
   }
 
   .user-menu,
   .user-chip-wrap,
   .user-menu-trigger {
     width: auto !important;
+    max-width: 100% !important;
   }
 
   .user-chip-wrap {
-    max-width: min(100%, 260px) !important;
+    max-width: 188px !important;
+    padding: 3px 8px 3px 3px !important;
+    gap: 6px !important;
+  }
+
+  .top-user-avatar,
+  .top-user-fallback {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .dashboard-user-chip {
+    max-width: 92px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .system-notices-trigger {
+    width: 40px !important;
+    height: 40px !important;
+    flex: 0 0 40px !important;
+    border-radius: 13px !important;
   }
 
   .dashboard-logout-btn {
     width: auto !important;
+    min-width: 88px !important;
+    padding: 8px 12px !important;
   }
 
   .panel-block:first-of-type {
-    padding-top: 16px !important;
-    padding-bottom: 16px !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
   }
 }
