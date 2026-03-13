@@ -10,6 +10,7 @@
   const ALMOX_ITEM_KEY = 'cc_almox_itens';
   const ALMOX_MOV_KEY = 'cc_almox_movimentacoes';
   const ALMOX_DEL_KEY = 'cc_almox_exclusoes';
+  const ALMOX_ALLOWED_UNITS = ['un', 'cx', 'pct', 'resma', 'lt', 'kg'];
   const PATRIMONIO_ITEM_KEY = 'cc_patrimonio_bens';
   const PATRIMONIO_MOV_KEY = 'cc_patrimonio_movimentacoes';
   const LEGACY_DEMO_PROCESS_IDS = ['demo-1', 'demo-2', 'demo-3'];
@@ -111,6 +112,16 @@
     const target = String(functionName || '').trim().toLowerCase();
     if (!msg || !target) return false;
     return (msg.includes('could not find the function') || msg.includes('schema cache') || msg.includes('function ')) && msg.includes(target);
+  }
+  function normalizeAlmoxUnit(value) {
+    return String(value || '').trim().toLowerCase();
+  }
+  function assertValidAlmoxUnit(value) {
+    const normalized = normalizeAlmoxUnit(value);
+    if (!ALMOX_ALLOWED_UNITS.includes(normalized)) {
+      throw new Error('Unidade de medida invalida. Use: ' + ALMOX_ALLOWED_UNITS.join(', ') + '.');
+    }
+    return normalized;
   }
   function getCurrentAuthUser() {
     return localStorage.getItem(AUTH_USER_KEY) || 'admin.institucional';
@@ -1591,7 +1602,7 @@
       const list = loadLocalList(ALMOX_ITEM_KEY);
       const nome = String(payload.nome || '').trim();
       const categoria = String(payload.categoria || '').trim();
-      const unidade = String(payload.unidadeMedida || '').trim();
+      const unidade = assertValidAlmoxUnit(payload.unidadeMedida);
       const local = String(payload.localEstoque || '').trim() || 'SEAP/ALMOXARIFADO';
       const observacao = String(payload.observacao || '').trim();
       const estoqueAtual = Number(payload.estoqueAtual);
@@ -1651,7 +1662,7 @@
     const payloadRow = {
       nome: String(payload.nome || '').trim(),
       categoria: String(payload.categoria || '').trim(),
-      unidade_medida: String(payload.unidadeMedida || '').trim(),
+      unidade_medida: assertValidAlmoxUnit(payload.unidadeMedida),
       local_estoque: String(payload.localEstoque || '').trim() || 'SEAP/ALMOXARIFADO',
       estoque_atual: Number(payload.estoqueAtual) || 0,
       estoque_minimo: Number(payload.estoqueMinimo) || 0,
@@ -1660,19 +1671,19 @@
       atualizado_por: user.email || user.id
     };
 
+    const rpcResult = await supabase.rpc('almox_add_item', { p_nome: payloadRow.nome, p_categoria: payloadRow.categoria || null, p_unidade_medida: payloadRow.unidade_medida, p_local_estoque: payloadRow.local_estoque, p_estoque_atual: payloadRow.estoque_atual, p_estoque_minimo: payloadRow.estoque_minimo, p_observacao: payloadRow.observacao || null, p_usuario: user.email || user.id });
+    if (rpcResult.error && !isMissingRpcFunctionError(rpcResult.error, 'almox_add_item')) throw new Error(rpcResult.error.message || 'Falha ao cadastrar item no almoxarifado.');
+
+    if (!rpcResult.error) {
+      const createdRow = Array.isArray(rpcResult.data) ? rpcResult.data[0] : rpcResult.data;
+      const list = await listAlmoxItems();
+      return list.find(function (item) { return createdRow && item.id === createdRow.id; }) || mapRowToAlmoxItem(createdRow);
+    }
+
     const result = await supabase.from('almox_itens').insert(payloadRow).select('*').single();
     if (result.error) throw new Error(result.error.message || 'Falha ao cadastrar item no almoxarifado.');
 
-    if (payloadRow.estoque_atual > 0) {
-      await supabase.from('almox_movimentacoes').insert({
-        item_id: result.data.id,
-        tipo: 'entrada',
-        quantidade: payloadRow.estoque_atual,
-        motivo: 'Saldo inicial no cadastro',
-        saldo_resultante: payloadRow.estoque_atual,
-        criado_por: user.email || user.id
-      });
-    }
+    if (payloadRow.estoque_atual > 0) { const moveInsert = await supabase.from('almox_movimentacoes').insert({ item_id: result.data.id, tipo: 'entrada', quantidade: payloadRow.estoque_atual, motivo: 'Saldo inicial no cadastro', saldo_resultante: payloadRow.estoque_atual, criado_por: user.email || user.id }); if (moveInsert.error) throw new Error(moveInsert.error.message || 'Falha ao registrar saldo inicial do item.'); }
 
     const list = await listAlmoxItems();
     return list.find(function (item) { return item.id === result.data.id; }) || mapRowToAlmoxItem(result.data);
@@ -1685,18 +1696,18 @@
     const itemId = String(payload.itemId || '').trim();
 
     if (!itemId) throw new Error('Selecione o item.');
-    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimenta\u00e7\u00e3o inv\u00e1lido.');
-    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade inv\u00e1lida.');
-    if (!motivo) throw new Error('Informe o motivo da movimenta\u00e7\u00e3o.');
+    if (tipo !== 'entrada' && tipo !== 'saida') throw new Error('Tipo de movimentacao invalido.');
+    if (!Number.isFinite(quantidade) || quantidade <= 0) throw new Error('Quantidade invalida.');
+    if (!motivo) throw new Error('Informe o motivo da movimentacao.');
 
     if (!isSupabaseEnabled()) {
       const items = loadLocalList(ALMOX_ITEM_KEY);
       const idx = items.findIndex(function (item) { return item.id === itemId; });
-      if (idx < 0) throw new Error('Item n\u00e3o encontrado.');
+      if (idx < 0) throw new Error('Item nao encontrado.');
 
       const selected = items[idx];
       if (tipo === 'saida' && quantidade > Number(selected.estoqueAtual)) {
-        throw new Error('Quantidade de sa\u00edda maior que o estoque dispon\u00edvel.');
+        throw new Error('Quantidade de saida maior que o estoque disponivel.');
       }
 
       const now = new Date().toISOString();
@@ -1725,35 +1736,37 @@
 
     const supabase = getClient();
     const user = await getSessionUser();
-    if (!user) throw new Error('Sess\u00e3o inv\u00e1lida para movimenta\u00e7\u00e3o.');
+    if (!user) throw new Error('Sessao invalida para movimentacao.');
+
+    const rpcResult = await supabase.rpc('almox_move_item', {
+      p_item_id: itemId,
+      p_tipo: tipo,
+      p_quantidade: quantidade,
+      p_motivo: motivo,
+      p_usuario: user.email || user.id
+    });
+    if (rpcResult.error && !isMissingRpcFunctionError(rpcResult.error, 'almox_move_item')) {
+      throw new Error(rpcResult.error.message || 'Falha ao movimentar item.');
+    }
+
+    if (!rpcResult.error) {
+      const updatedRow = Array.isArray(rpcResult.data) ? rpcResult.data[0] : rpcResult.data;
+      await listAlmoxItems();
+      return mapRowToAlmoxItem(updatedRow);
+    }
 
     const found = await supabase.from('almox_itens').select('*').eq('id', itemId).single();
-    if (found.error || !found.data) throw new Error('Item n\u00e3o encontrado.');
+    if (found.error || !found.data) throw new Error('Item nao encontrado.');
 
     const current = Number(found.data.estoque_atual) || 0;
-    if (tipo === 'saida' && quantidade > current) throw new Error('Quantidade de sa\u00edda maior que o estoque dispon\u00edvel.');
+    if (tipo === 'saida' && quantidade > current) throw new Error('Quantidade de saida maior que o estoque disponivel.');
 
     const newStock = tipo === 'entrada' ? current + quantidade : current - quantidade;
-
-    const updated = await supabase
-      .from('almox_itens')
-      .update({ estoque_atual: newStock, atualizado_por: user.email || user.id })
-      .eq('id', itemId)
-      .select('*')
-      .single();
-
+    const updated = await supabase.from('almox_itens').update({ estoque_atual: newStock, atualizado_por: user.email || user.id }).eq('id', itemId).select('*').single();
     if (updated.error) throw new Error(updated.error.message || 'Falha ao atualizar estoque.');
 
-    const moveResult = await supabase.from('almox_movimentacoes').insert({
-      item_id: itemId,
-      tipo: tipo,
-      quantidade: quantidade,
-      motivo: motivo,
-      saldo_resultante: newStock,
-      criado_por: user.email || user.id
-    });
-
-    if (moveResult.error) throw new Error(moveResult.error.message || 'Falha ao registrar movimenta\u00e7\u00e3o.');
+    const moveResult = await supabase.from('almox_movimentacoes').insert({ item_id: itemId, tipo: tipo, quantidade: quantidade, motivo: motivo, saldo_resultante: newStock, criado_por: user.email || user.id });
+    if (moveResult.error) throw new Error(moveResult.error.message || 'Falha ao registrar movimentacao.');
 
     await listAlmoxItems();
     return mapRowToAlmoxItem(updated.data);
@@ -1761,12 +1774,12 @@
 
   async function deleteAlmoxItem(itemId) {
     const id = String(itemId || '').trim();
-    if (!id) throw new Error('Item inv\u00e1lido para exclus\u00e3o.');
+    if (!id) throw new Error('Item invalido para exclusao.');
 
     if (!isSupabaseEnabled()) {
       const items = loadLocalList(ALMOX_ITEM_KEY);
       const selected = items.find(function (item) { return item.id === id; });
-      if (!selected) throw new Error('Item n\u00e3o encontrado para exclus\u00e3o.');
+      if (!selected) throw new Error('Item nao encontrado para exclusao.');
 
       const remaining = items.filter(function (item) { return item.id !== id; });
       saveLocalList(ALMOX_ITEM_KEY, remaining);
@@ -1787,26 +1800,29 @@
 
     const supabase = getClient();
     const user = await getSessionUser();
-    if (!user) throw new Error('Sess\u00e3o inv\u00e1lida para exclus\u00e3o.');
+    if (!user) throw new Error('Sessao invalida para exclusao.');
 
-    const found = await supabase.from('almox_itens').select('*').eq('id', id).single();
-    if (found.error || !found.data) throw new Error('Item n\u00e3o encontrado para exclus\u00e3o.');
-
-    const delLog = await supabase.from('almox_exclusoes').insert({
-      item_id: found.data.id,
-      item_nome: found.data.nome,
-      quantidade_no_momento: Number(found.data.estoque_atual) || 0,
-      unidade_medida: found.data.unidade_medida,
-      local_estoque: found.data.local_estoque,
-      excluido_por: user.email || user.id
+    const rpcResult = await supabase.rpc('almox_delete_item', {
+      p_item_id: id,
+      p_usuario: user.email || user.id
     });
-    if (delLog.error) throw new Error(delLog.error.message || 'Falha ao registrar exclus\u00e3o.');
+    if (rpcResult.error && !isMissingRpcFunctionError(rpcResult.error, 'almox_delete_item')) {
+      throw new Error(rpcResult.error.message || 'Falha ao excluir item.');
+    }
 
-    const clearMoves = await supabase.from('almox_movimentacoes').delete().eq('item_id', id);
-    if (clearMoves.error) throw new Error(clearMoves.error.message || 'Falha ao limpar movimenta\u00e7\u00f5es do item.');
+    if (rpcResult.error) {
+      const found = await supabase.from('almox_itens').select('*').eq('id', id).single();
+      if (found.error || !found.data) throw new Error('Item nao encontrado para exclusao.');
 
-    const deleted = await supabase.from('almox_itens').delete().eq('id', id);
-    if (deleted.error) throw new Error(deleted.error.message || 'Falha ao excluir item.');
+      const delLog = await supabase.from('almox_exclusoes').insert({ item_id: found.data.id, item_nome: found.data.nome, quantidade_no_momento: Number(found.data.estoque_atual) || 0, unidade_medida: found.data.unidade_medida, local_estoque: found.data.local_estoque, excluido_por: user.email || user.id });
+      if (delLog.error) throw new Error(delLog.error.message || 'Falha ao registrar exclusao.');
+
+      const clearMoves = await supabase.from('almox_movimentacoes').delete().eq('item_id', id);
+      if (clearMoves.error) throw new Error(clearMoves.error.message || 'Falha ao limpar movimentacoes do item.');
+
+      const deleted = await supabase.from('almox_itens').delete().eq('id', id);
+      if (deleted.error) throw new Error(deleted.error.message || 'Falha ao excluir item.');
+    }
 
     await listAlmoxItems();
     return true;
@@ -1904,3 +1920,4 @@
     listAlmoxDeletes: listAlmoxDeletes
   };
 })();
+

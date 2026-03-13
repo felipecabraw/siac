@@ -1,54 +1,47 @@
-# Migra��o para Supabase (Status Atual)
-
-## O que j� est� pronto
+# Migracao para Supabase (Status Atual)
+## O que ja esta pronto
 - Login com suporte ao Supabase Auth.
-- Sess�o e logout integrados ao backend.
-- Processos/contratos integrados ao Supabase (cadastro, listagem, exclus�o, duplicidade).
-- Perfil do usu�rio integrado ao Supabase.
-- Almoxarifado integrado ao Supabase (itens, movimenta��es, exclus�es).
-- Valida��o de senha para exclus�o de item no almoxarifado.
-- Fallback local autom�tico quando `provider: 'local'`.
-
+- Sessao e logout integrados ao backend.
+- Processos/contratos integrados ao Supabase.
+- Perfil do usuario integrado ao Supabase.
+- Almoxarifado integrado ao Supabase (itens, movimentacoes, exclusoes).
+- Validacao de senha para exclusao de item no almoxarifado.
+- Fallback local automatico quando provider: 'local'.
+- Hardening do almoxarifado com validacao de unidade e RPCs atomicas.
 ## 1) Criar projeto no Supabase
 - Acesse https://supabase.com
 - Crie um novo projeto.
-
 ## 2) Executar schema SQL
 - Abra o SQL Editor.
-- Execute o conte�do de `supabase/schema.sql`.
-
-## 3) Habilitar usu�rios
+- Execute o conteudo de supabase/schema.sql.
+## 3) Executar migracoes obrigatorias
+- supabase/migration_acesso_admin_senior.sql
+- supabase/migration_rls_usuarios_perfil.sql
+- supabase/migration_almox_hardening.sql
+## 4) Habilitar usuarios
 - Em Authentication > Providers, mantenha Email habilitado.
-- Crie os usu�rios em Authentication > Users.
-
-## 4) Configurar frontend
-Edite `backend-config.js`:
-
-```js
+- Crie os usuarios em Authentication > Users.
+## 5) Configurar frontend
+Edite ackend-config.js:
+`js
 window.SIGA_BACKEND_CONFIG = {
   provider: 'supabase',
   supabaseUrl: 'https://SEU-PROJETO.supabase.co',
   supabaseAnonKey: 'SUA_CHAVE_ANON_PUBLICA'
 };
-```
-
-## 5) Login
-- No modo Supabase, o campo `Usu�rio/E-mail` deve receber o e-mail do usu�rio cadastrado no Supabase Auth.
-
-## 6) Deploy para teste
-- Publique o frontend (Netlify/Vercel) ap�s configurar `backend-config.js`.
-
-## Controle de acesso (Administrador S�nior)
-- Execute tamb�m: `supabase/migration_acesso_admin_senior.sql`.
-- A aprova��o de novos usu�rios � feita por perfil (`role = senior_admin`).
-- No bootstrap inicial, promova o administrador principal para `senior_admin` na tabela `usuarios_perfil`.
-
-## Hardening de seguran�a (obrigat�rio)
-- Execute: `supabase/migration_rls_usuarios_perfil.sql`.
-- Essa migra��o impede que usu�rios comuns promovam o pr�prio perfil para `senior_admin` ou alterem `status_acesso`.
-
-## Pr�xima fase sugerida
-- Auditoria institucional autom�tica (triggers com payload detalhado).
-- Relat�rios consolidados (contratos e almoxarifado).
-- RLS por unidade/setor quando houver expans�o al�m de SEAP/ALMOXARIFADO.
-
+`
+## 6) Login
+- No modo Supabase, o campo Usuario/E-mail deve receber o e-mail do usuario cadastrado no Supabase Auth.
+## 7) Almoxarifado
+- Para carga inicial, use supabase/modelo_importacao_almox_itens.sql.
+- Para espelhamento completo da planilha, use supabase/modelo_sincronizacao_completa_almox_itens.sql.
+- As operacoes da tela ficam protegidas pelas funcoes RPC da migracao migration_almox_hardening.sql.
+## 8) Deploy para teste
+- Publique o frontend (Netlify/Vercel) apos configurar ackend-config.js.
+## Controle de acesso (Administrador Senior)
+- A aprovacao de novos usuarios e feita por perfil (ole = senior_admin).
+- No bootstrap inicial, promova o administrador principal para senior_admin na tabela usuarios_perfil.
+## Proxima fase sugerida
+- Auditoria institucional automatica com payload mais detalhado.
+- Relatorios consolidados de contratos e almoxarifado.
+- RLS por unidade/setor quando houver expansao alem de SEAP/ALMOXARIFADO.

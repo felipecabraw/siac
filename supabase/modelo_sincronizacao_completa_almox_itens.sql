@@ -1,12 +1,11 @@
--- MODELO DE CARGA INICIAL DO ALMOXARIFADO
--- Preencha os VALUES abaixo com os itens reais antes de executar.
--- Este script alimenta a tabela principal e cria o historico inicial de movimentacao.
+-- MODELO DE SINCRONIZACAO COMPLETA DO ALMOXARIFADO
+-- Espelha a planilha no banco: atualiza/inclui os itens enviados e remove o que nao estiver presente.
+-- Antes de executar, substitua os VALUES pelos dados reais.
 
 begin;
 
 with dados(nome, categoria, unidade_medida, local_estoque, estoque_atual, estoque_minimo, observacao, criado_por, atualizado_por) as (
   values
-    -- EXEMPLO: remova esta linha e substitua pelos itens reais.
     ('PREENCHER_NOME', 'PREENCHER_CATEGORIA', 'un', 'SEAP/ALMOXARIFADO', 0, 0, 'PREENCHER_OBSERVACAO', 'carga_inicial', 'carga_inicial')
 ), dados_normalizados as (
   select
@@ -32,51 +31,45 @@ with dados(nome, categoria, unidade_medida, local_estoque, estoque_atual, estoqu
     from dados_normalizados dn
    where lower(ai.nome) = lower(dn.nome)
      and lower(ai.local_estoque) = lower(dn.local_estoque)
-  returning ai.id, ai.nome, ai.estoque_atual, ai.criado_por, ai.criado_em
+  returning ai.id, ai.nome, ai.local_estoque, ai.estoque_atual, ai.unidade_medida, ai.criado_por, ai.criado_em
 ), inseridos as (
   insert into public.almox_itens (
-    nome,
-    categoria,
-    unidade_medida,
-    local_estoque,
-    estoque_atual,
-    estoque_minimo,
-    observacao,
-    criado_por,
-    atualizado_por
+    nome, categoria, unidade_medida, local_estoque, estoque_atual, estoque_minimo, observacao, criado_por, atualizado_por
   )
   select
-    dn.nome,
-    dn.categoria,
-    dn.unidade_medida,
-    dn.local_estoque,
-    dn.estoque_atual,
-    dn.estoque_minimo,
-    dn.observacao,
-    dn.criado_por,
-    dn.atualizado_por
+    dn.nome, dn.categoria, dn.unidade_medida, dn.local_estoque, dn.estoque_atual, dn.estoque_minimo, dn.observacao, dn.criado_por, dn.atualizado_por
   from dados_normalizados dn
   where not exists (
-    select 1
-    from public.almox_itens ai
-    where lower(ai.nome) = lower(dn.nome)
-      and lower(ai.local_estoque) = lower(dn.local_estoque)
+    select 1 from public.almox_itens ai where lower(ai.nome) = lower(dn.nome) and lower(ai.local_estoque) = lower(dn.local_estoque)
   )
-  returning id, nome, estoque_atual, criado_por, criado_em
+  returning id, nome, local_estoque, estoque_atual, unidade_medida, criado_por, criado_em
 ), itens_processados as (
   select * from atualizados
   union all
   select * from inseridos
+), itens_removidos as (
+  select ai.*
+    from public.almox_itens ai
+   where lower(ai.local_estoque) = 'seap/almoxarifado'
+     and not exists (
+       select 1 from dados_normalizados dn where lower(dn.nome) = lower(ai.nome) and lower(dn.local_estoque) = lower(ai.local_estoque)
+     )
+), log_exclusoes as (
+  insert into public.almox_exclusoes (item_id, item_nome, quantidade_no_momento, unidade_medida, local_estoque, excluido_por)
+  select id, nome, estoque_atual, unidade_medida, local_estoque, 'sincronizacao_completa'
+    from itens_removidos
+  returning item_id
+), remove_mov as (
+  delete from public.almox_movimentacoes am
+   using itens_removidos ir
+   where am.item_id = ir.id
+  returning am.item_id
 )
-insert into public.almox_movimentacoes (
-  item_id,
-  tipo,
-  quantidade,
-  motivo,
-  saldo_resultante,
-  criado_por,
-  criado_em
-)
+delete from public.almox_itens ai
+ using itens_removidos ir
+ where ai.id = ir.id;
+
+insert into public.almox_movimentacoes (item_id, tipo, quantidade, motivo, saldo_resultante, criado_por, criado_em)
 select
   ip.id,
   'entrada',
@@ -88,9 +81,7 @@ select
 from itens_processados ip
 where ip.estoque_atual > 0
   and not exists (
-    select 1
-    from public.almox_movimentacoes am
-    where am.item_id = ip.id
+    select 1 from public.almox_movimentacoes am where am.item_id = ip.id
   );
 
 commit;
