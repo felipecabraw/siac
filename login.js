@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   const form = document.getElementById('login-form');
   const errorBox = document.getElementById('login-error');
   const userInput = document.getElementById('usuario');
@@ -10,23 +10,9 @@
 
   let isSubmitting = false;
 
-  bootstrap();
-
-  async function bootstrap() {
-    try {
-      const hasSession = await BackendAPI.restoreSession();
-      if (hasSession) {
-        window.location.href = 'dashboard.html';
-        return;
-      }
-    } catch (_error) {
-      setError('N\u00e3o foi poss\u00edvel validar a sess\u00e3o atual.');
-    }
-
-    form.addEventListener('submit', handleSubmit);
-    togglePasswordBtn.addEventListener('click', handleTogglePassword);
-    userInput.focus();
-  }
+  form.addEventListener('submit', handleSubmit);
+  togglePasswordBtn.addEventListener('click', handleTogglePassword);
+  userInput.focus();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -88,5 +74,3 @@
     errorBox.hidden = true;
   }
 })();
-
-
